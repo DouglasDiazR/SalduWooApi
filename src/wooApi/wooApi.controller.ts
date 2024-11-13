@@ -5,8 +5,13 @@ import { WooCommerceService } from 'src/wooApi/wooApi.service'
 export class WooCommerceController {
     constructor(private readonly wooCommerceService: WooCommerceService) {}
 
-    @Get('endpoints')
+    @Get()
     async getApiEndpoints() {
         return this.wooCommerceService.getApiEndpoints()
+    }
+
+    @Get('customers')
+    async getCustomers() {
+        return this.wooCommerceService.getCustomers()
     }
 }
