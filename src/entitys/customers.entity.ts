@@ -8,6 +8,13 @@ export class Customers {
     id_customers: string = uuid()
 
     @Column({
+        type: 'int',
+        unique: true,
+        nullable: false,
+    })
+    id_wooCommerce: number
+
+    @Column({
         type: 'varchar',
         length: 30,
         nullable: false,
@@ -27,5 +34,5 @@ export class Customers {
         length: 128,
         nullable: false,
     })
-    password: string
+    role: string
 }

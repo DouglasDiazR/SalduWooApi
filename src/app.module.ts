@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { WooCommerceController } from './wooApi/wooApi.controller'
-import { WooCommerceService } from './wooApi/wooApi.service'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { typeOrmConfig } from './config/typeorm'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { WooApiModule } from './wooApi/wooApi.module'
 
 @Module({
     imports: [
@@ -18,8 +17,9 @@ import { TypeOrmModule } from '@nestjs/typeorm'
             useFactory: (configService: ConfigService) =>
                 configService.get('typeorm'),
         }),
+        WooApiModule,
     ],
-    controllers: [AppController, WooCommerceController],
-    providers: [AppService, WooCommerceService],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule {}
