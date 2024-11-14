@@ -14,4 +14,9 @@ export class WooCommerceController {
     async getCustomers() {
         return this.wooCommerceService.getCustomers()
     }
+
+    @Get('products')
+    async getProducts() {
+        return this.wooCommerceService.getProducts()
+    }
 }
