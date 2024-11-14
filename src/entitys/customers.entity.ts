@@ -35,4 +35,7 @@ export class Customers {
         nullable: false,
     })
     role: string
+
+    @Column({ type: 'varchar', length: 128, nullable: false })
+    password: string
 }
