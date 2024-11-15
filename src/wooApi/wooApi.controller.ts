@@ -21,8 +21,15 @@ export class WooCommerceController {
         return this.wooCommerceService.getCustomers()
     }
 
+ login
     @Get('customers/email')
     async getCustomerByEmail(@Body('email') email: string) {
         return await this.wooCommerceService.getCustomerByEmail(email)
+    }
+     
+    @Get('products')
+    async getProducts() {
+        return this.wooCommerceService.getProducts()
+
     }
 }

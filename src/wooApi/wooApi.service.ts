@@ -3,14 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import { Customers } from 'src/entitys/customers.entity'
 import IWooCommerceCustomer from './wooApi.interface'
-import { In, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import * as bcrypt from 'bcrypt'
+import { Products } from 'src/entitys/products.entity'
+import { all } from 'axios'
 
 @Injectable()
 export class WooCommerceService {
     constructor(
-        @InjectRepository(Customers)
-        private customersRepository: Repository<Customers>,
+        @InjectRepository(Customers) private readonly customersRepository: Repository<Customers>,
+        @InjectRepository(Products) private readonly productsRepository: Repository<Products>,
         private readonly WooCommerce: WooCommerceRestApi,
     ) {}
 
@@ -83,5 +85,35 @@ export class WooCommerceService {
         }
 
         return customer
+}
+
+    async getProducts() {
+        const per_page = 50
+        // const allProducts = []
+        for (let page = 1; ; page++) {
+            try {
+                const response = await this.WooCommerce.get('products', {per_page, page})
+                if (response.data.length === 0) break
+                for (const product of response.data) {
+                    const newProduct = await this.productsRepository.create({
+                        id: product.id,
+                        name: product.name,
+                        permalink: product.permalink,
+                        type: product.type,
+                        status: product.status,
+                        featured: product.featured,
+                        catalog_visibility: product.catalog_visibility,
+                        description: product.description,
+                    })
+                    await this.productsRepository.save(newProduct)
+                }
+                // allProducts.push(...response.data)
+            } catch (error) {
+                throw new Error('Error al obtener los productos')
+            }
+        }
+        // return allProducts
+        return { message: 'Productos obtenidos'}
+
     }
 }

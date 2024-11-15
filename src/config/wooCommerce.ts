@@ -8,5 +8,6 @@ export const WooCommerceConfig = {
         consumerKey: WOOAPI_KEY,
         consumerSecret: WOOAPI_SECRET,
         version: 'wc/v3',
+        timeout: 0
     }),
 }
