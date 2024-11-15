@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import { Customers } from 'src/entitys/customers.entity'
@@ -30,10 +30,12 @@ export class WooCommerceService {
             const response = await this.WooCommerce.get('customers')
             const customers = await Promise.all(
                 response.data.map(async (customer: IWooCommerceCustomer) => {
-                    const existingCustomer =
-                        await this.customersRepository.findOne({
-                            where: { email: customer.email },
+                    const existingCustomer = await this.customersRepository
+                        .createQueryBuilder('customer')
+                        .where('customer.email = email', {
+                            email: customer.email,
                         })
+                        .getOne()
 
                     if (existingCustomer) {
                         console.log(
@@ -42,12 +44,14 @@ export class WooCommerceService {
                         return null
                     }
                     const ramdomPassword = Math.random().toString(36).slice(-8)
-                    console.log(ramdomPassword)
+
+                    console.log('user', customer.email, 'pass', ramdomPassword)
+
                     const hashedPassword = await bcrypt.hash(ramdomPassword, 10)
 
                     return {
                         id_wooCommerce: customer.id,
-                        email: customer.email,
+                        email: customer.email.toLocaleLowerCase(),
                         name: customer.first_name,
                         role: customer.role,
                         password: hashedPassword,
@@ -66,6 +70,22 @@ export class WooCommerceService {
             throw new Error('Error al registrar los Clientes ')
         }
     }
+
+    async getCustomerByEmail(email: string): Promise<Partial<Customers>> {
+        const customer = await this.customersRepository
+            .createQueryBuilder('customer')
+            .select()
+            .where('customer.email = :email', { email })
+            .getOne()
+
+        if (!customer) {
+            throw new NotFoundException(
+                `Cliente con email ${email} no encontrado.`,
+            )
+        }
+
+        return customer
+}
 
     async getProducts() {
         const per_page = 50
@@ -94,5 +114,6 @@ export class WooCommerceService {
         }
         // return allProducts
         return { message: 'Productos obtenidos'}
+
     }
 }
