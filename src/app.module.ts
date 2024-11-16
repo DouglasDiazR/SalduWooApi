@@ -8,6 +8,7 @@ import { WooApiModule } from './wooApi/wooApi.module'
 import { AuthModule } from './auth/auth.module'
 import { JwtModule } from '@nestjs/jwt'
 import { JWT_SECRET } from './config/envs'
+import { UsersModule } from './users/users.module'
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { JWT_SECRET } from './config/envs'
             useFactory: (configService: ConfigService) =>
                 configService.get('typeorm'),
         }),
+        UsersModule,
         WooApiModule,
         AuthModule,
         JwtModule.register({

@@ -3,14 +3,14 @@ import {
     Injectable,
     InternalServerErrorException,
 } from '@nestjs/common'
-import { WooCommerceService } from 'src/wooApi/wooApi.service'
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
+import { UsersRepository } from 'src/users/users.repository'
 
 @Injectable()
 export class AuthRepository {
     constructor(
-        private readonly wooCommerceService: WooCommerceService,
+        private readonly usersRepository: UsersRepository,
         private readonly jwtService: JwtService,
     ) {}
 
@@ -20,7 +20,7 @@ export class AuthRepository {
                 throw new BadRequestException('Email y password requeridos')
             }
             const findedCustomer =
-                await this.wooCommerceService.getCustomerByEmail(email)
+                await this.usersRepository.getUserByEmail(email)
             if (!findedCustomer) {
                 throw new BadRequestException('Credenciales incorrectas')
             }
@@ -46,7 +46,10 @@ export class AuthRepository {
             }
         } catch (error) {
             if (error instanceof BadRequestException) throw error
-            throw new InternalServerErrorException('No se pudo iniciar sesión')
+            throw new InternalServerErrorException(
+                'No se pudo iniciar sesión',
+                error,
+            )
         }
     }
 }
