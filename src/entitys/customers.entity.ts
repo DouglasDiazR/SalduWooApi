@@ -16,8 +16,7 @@ export class Customers {
 
     @Column({
         type: 'varchar',
-        length: 30,
-        nullable: false,
+        length: 128,
     })
     name: string
 
