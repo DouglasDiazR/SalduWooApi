@@ -1,8 +1,4 @@
-import {
-    Injectable,
-    InternalServerErrorException,
-    NotFoundException,
-} from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import { Customers } from 'src/entitys/customers.entity'
@@ -99,22 +95,6 @@ export class WooCommerceService {
                 'Error al registrar los Clientes',
             )
         }
-    }
-
-    async getCustomerByEmail(email: string): Promise<Partial<Customers>> {
-        const customer = await this.customersRepository
-            .createQueryBuilder('customer')
-            .select()
-            .where('customer.email = :email', { email })
-            .getOne()
-
-        if (!customer) {
-            throw new NotFoundException(
-                `Cliente con email ${email} no encontrado.`,
-            )
-        }
-
-        return customer
     }
 
     async getProducts() {
