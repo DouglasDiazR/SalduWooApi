@@ -4,21 +4,20 @@ import {
     NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Customers } from 'src/entitys/customers.entity'
+import { Users } from 'src/entitys/users.entity'
 import { Repository } from 'typeorm'
 
 @Injectable()
 export class UsersRepository {
     constructor(
-        @InjectRepository(Customers)
-        private customersRepository: Repository<Customers>,
+        @InjectRepository(Users)
+        private usersRepository: Repository<Users>,
     ) {}
-    async getUsers(role?: string): Promise<Customers[]> {
+    async getUsers(role?: string): Promise<Users[]> {
         try {
-            const users =
-                this.customersRepository.createQueryBuilder('customer')
+            const users = this.usersRepository.createQueryBuilder('user')
             if (role) {
-                users.where('customer.role = :role', { role })
+                users.where('user.role = :role', { role })
             }
             return await users.getMany()
         } catch (error) {
@@ -29,45 +28,45 @@ export class UsersRepository {
         }
     }
 
-    async getUserByEmail(email: string): Promise<Partial<Customers>> {
+    async getUserByEmail(email: string): Promise<Partial<Users>> {
         try {
-            const customer = await this.customersRepository
+            const user = await this.usersRepository
                 .createQueryBuilder('customer')
                 .select()
                 .where('customer.email = :email', { email })
                 .getOne()
 
-            if (!customer)
+            if (!user)
                 throw new NotFoundException(
-                    `Cliente con email ${email} no encontrado.`,
+                    `Usuario con email ${email} no encontrado.`,
                 )
-            return customer
+            return user
         } catch (error) {
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
-                'Ocurrió un error inesperado al buscar el cliente.',
+                'Ocurrió un error inesperado al buscar el usuario.',
             )
         }
     }
 
     async getUserById(id: string) {
         try {
-            const user = await this.customersRepository
+            const user = await this.usersRepository
                 .createQueryBuilder()
-                .select('customer')
-                .from(Customers, 'customer')
-                .where('customer.id_customers = :id', { id })
+                .select('user')
+                .from(Users, 'user')
+                .where('user.id_user = :id', { id })
                 .getOne()
             if (!user)
                 throw new NotFoundException(
-                    `Cliente con id ${id} no encontrado.`,
+                    `Usuario con id ${id} no encontrado.`,
                 )
             return user
         } catch (error) {
             console.log(error)
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
-                'Ocurrió un error inesperado al buscar el cliente.',
+                'Ocurrió un error inesperado al buscar el usuario.',
             )
         }
     }

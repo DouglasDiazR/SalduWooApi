@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
-import { Customers } from 'src/entitys/customers.entity'
-import IWooCommerceCustomer from './wooApi.interface'
+import { Users } from 'src/entitys/users.entity'
+import IWooCommerceuser from './wooApi.interface'
 import { Repository } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 import { Products } from 'src/entitys/products.entity'
@@ -10,8 +10,8 @@ import { Products } from 'src/entitys/products.entity'
 @Injectable()
 export class WooCommerceService {
     constructor(
-        @InjectRepository(Customers)
-        private readonly customersRepository: Repository<Customers>,
+        @InjectRepository(Users)
+        private readonly usersRepository: Repository<Users>,
         @InjectRepository(Products)
         private readonly productsRepository: Repository<Products>,
         private readonly WooCommerce: WooCommerceRestApi,
@@ -26,10 +26,10 @@ export class WooCommerceService {
         }
     }
 
-    async getCustomers() {
+    async getUsers() {
         const roles = ['vendedor', 'administrator']
         const perPage = 100
-        let customers: IWooCommerceCustomer[] = []
+        let users: IWooCommerceuser[] = []
 
         try {
             for (const role of roles) {
@@ -43,54 +43,55 @@ export class WooCommerceService {
 
                     if (response.data.length === 0) break
 
-                    customers = customers.concat(response.data)
+                    users = users.concat(response.data)
                     page += 1
                 }
             }
 
-            const newCustomers = await Promise.all(
-                customers.map(async (customer: IWooCommerceCustomer) => {
-                    const existingCustomer = await this.customersRepository
-                        .createQueryBuilder('customer')
-                        .where('customer.email = :email', {
-                            email: customer.email,
+            const newUsers = await Promise.all(
+                users.map(async (user: IWooCommerceuser) => {
+                    const existinguser = await this.usersRepository
+                        .createQueryBuilder('user')
+                        .where('user.email = :email', {
+                            email: user.email,
                         })
-                        .orWhere('customer.id_wooCommerce = :id_wooCommerce', {
-                            id_wooCommerce: customer.id,
+                        .orWhere('user.id_wooCommerce = :id_wooCommerce', {
+                            id_wooCommerce: user.id,
                         })
                         .getOne()
 
-                    if (existingCustomer) return null
+                    if (existinguser) return null
 
                     const randomPassword = Math.random().toString(36).slice(-8)
                     console.log(
-                        'customer:',
-                        customer.email,
+                        'user:',
+                        user.email,
                         'passRAndom:',
                         randomPassword,
                     )
                     const hashedPassword = await bcrypt.hash(randomPassword, 10)
 
                     return {
-                        id_wooCommerce: customer.id,
-                        email: customer.email.toLocaleLowerCase(),
-                        name: customer.first_name.toLocaleLowerCase(),
-                        role: customer.role,
+                        id_wooCommerce: user.id,
+                        email: user.email.toLocaleLowerCase(),
+                        name: user.first_name.toLocaleLowerCase(),
+                        role: user.role,
                         password: hashedPassword,
                     }
                 }),
             )
 
-            const saveCustomers = newCustomers.filter(
-                (customer): customer is Customers => customer !== null,
+            const saveUsers = newUsers.filter(
+                (user): user is Users => user !== null,
             )
 
-            if (saveCustomers.length > 0) {
-                await this.customersRepository.save(saveCustomers)
+            if (saveUsers.length > 0) {
+                await this.usersRepository.save(saveUsers)
             }
 
-            return saveCustomers
+            return saveUsers
         } catch (error) {
+            console.log(error)
             throw new InternalServerErrorException(
                 'Error al registrar los Clientes',
             )

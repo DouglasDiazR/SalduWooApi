@@ -19,24 +19,20 @@ export class AuthRepository {
             if (!email || !password) {
                 throw new BadRequestException('Email y password requeridos')
             }
-            const findedCustomer =
-                await this.usersRepository.getUserByEmail(email)
-            if (!findedCustomer) {
+            const user = await this.usersRepository.getUserByEmail(email)
+            if (!user) {
                 throw new BadRequestException('Credenciales incorrectas')
             }
-            const validPassword = await bcrypt.compare(
-                password,
-                findedCustomer.password,
-            )
+            const validPassword = await bcrypt.compare(password, user.password)
             if (!validPassword) {
                 throw new BadRequestException('Credenciales incorrectas')
             }
             const payload = {
-                sub: findedCustomer.id_customers,
-                id: findedCustomer.id_customers,
-                id_wooCommerce: findedCustomer.id_wooCommerce,
-                name: findedCustomer.name,
-                role: findedCustomer.role,
+                sub: user.id_user,
+                id: user.id_user,
+                id_wooCommerce: user.id_wooCommerce,
+                name: user.name,
+                role: user.role,
             }
             const token = this.jwtService.sign(payload)
 
