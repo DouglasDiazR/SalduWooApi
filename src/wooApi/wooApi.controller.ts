@@ -1,16 +1,12 @@
-import { Body, Controller, Get, HttpCode, UseGuards } from '@nestjs/common'
+import { Controller, Get, HttpCode, UseGuards } from '@nestjs/common'
 import { Roles } from 'src/decorators/roles.decorator'
 import { Role } from 'src/enum/role.enum'
 import { AuthGuard } from 'src/guards/auth.guard'
-import { UsersRepository } from 'src/users/users.repository'
 import { WooCommerceService } from 'src/wooApi/wooApi.service'
 
 @Controller('woo-commerce')
 export class WooCommerceController {
-    constructor(
-        private readonly wooCommerceService: WooCommerceService,
-        private readonly usersRepository: UsersRepository,
-    ) {}
+    constructor(private readonly wooCommerceService: WooCommerceService) {}
 
     @Get()
     @HttpCode(200)
@@ -21,8 +17,8 @@ export class WooCommerceController {
     }
 
     @Get('customers')
-    async getCustomers() {
-        return this.wooCommerceService.getCustomers()
+    async getUsers() {
+        return this.wooCommerceService.getUsers()
     }
 
     @Get('products')

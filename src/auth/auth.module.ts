@@ -5,10 +5,10 @@ import { AuthRepository } from './auth.repository'
 import { WooApiModule } from 'src/wooApi/wooApi.module'
 import { UsersRepository } from 'src/users/users.repository'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Customers } from 'src/entitys/customers.entity'
+import { Users } from 'src/entitys/users.entity'
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Customers]), WooApiModule],
+    imports: [TypeOrmModule.forFeature([Users]), WooApiModule],
     controllers: [AuthController],
     providers: [AuthService, AuthRepository, UsersRepository],
 })
