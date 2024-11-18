@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module'
 import { JwtModule } from '@nestjs/jwt'
 import { JWT_SECRET } from './config/envs'
 import { UsersModule } from './users/users.module'
+import { ProductsModule } from './products/products.module';
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module'
             signOptions: { expiresIn: '1h' },
             secret: JWT_SECRET,
         }),
+        ProductsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
