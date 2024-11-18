@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import IWooCommerceCustomer from './wooApi.interface'
@@ -10,8 +14,10 @@ import { Users } from 'src/entities/users.entity'
 @Injectable()
 export class WooCommerceService {
     constructor(
-        @InjectRepository(Users) private readonly usersRepository: Repository<Users>,
-        @InjectRepository(Products) private readonly productsRepository: Repository<Products>,
+        @InjectRepository(Users)
+        private readonly usersRepository: Repository<Users>,
+        @InjectRepository(Products)
+        private readonly productsRepository: Repository<Products>,
         private readonly WooCommerce: WooCommerceRestApi,
     ) {}
 
@@ -96,8 +102,66 @@ export class WooCommerceService {
         }
     }
 
+    async getOrders() {
+        const perPage = 100
+        let page = 1
+        let allOrders = []
+
+        try {
+            while (true) {
+                const response = await this.WooCommerce.get('orders', {
+                    page,
+                    per_page: perPage,
+                })
+
+                if (response.data.length === 0) break
+
+                allOrders = allOrders.concat(response.data)
+
+                page += 1
+
+                return allOrders
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async getOrdersUser(idWooUser: number) {
+        try {
+            const orders = await this.WooCommerce.get('orders', {
+                customer: idWooUser,
+            })
+
+            if (orders.data.length === 0)
+                throw new NotFoundException(
+                    `No se encontraron órdenes para el usuario con ID: ${idWooUser}`,
+                )
+
+            orders.data.map((order) => ({
+                idOrder: order.id,
+                statusOrder: order.status,
+                totalOrder: order.total,
+                date_createdOrder: order.date_created,
+                products: order.line_items.map((item) => ({
+                    product_id: item.product_id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    total: item.total,
+                })),
+            }))
+            return orders
+        } catch (error) {
+            console.log(error)
+            throw new InternalServerErrorException(
+                'Hubo un error al obtener las órdenes. Por favor, intente nuevamente.',
+            )
+        }
+    }
+
     async getProducts() {
-        const per_page = 50;
+        const per_page = 50
         for (let page = 1; ; page++) {
             try {
                 const response = await this.WooCommerce.get('products', {
@@ -106,11 +170,18 @@ export class WooCommerceService {
                 })
                 if (response.data.length === 0) break
                 for (const product of response.data) {
-                    const id_wooCommerce = await product.meta_data.find((meta) => meta.key === 'vendedor')?.value
-                    if (!id_wooCommerce) console.log(`vendedor no encontrado para el producto: ${product.id}`);
+                    const id_wooCommerce = await product.meta_data.find(
+                        (meta) => meta.key === 'vendedor',
+                    )?.value
+                    if (!id_wooCommerce)
+                        console.log(
+                            `vendedor no encontrado para el producto: ${product.id}`,
+                        )
                     const user = id_wooCommerce
-                        ? await this.usersRepository.findOne({where: { id_wooCommerce: Number(id_wooCommerce) }})
-                        : null;
+                        ? await this.usersRepository.findOne({
+                              where: { id_wooCommerce: Number(id_wooCommerce) },
+                          })
+                        : null
                     const newProduct = this.productsRepository.create({
                         id: product.id,
                         name: product.name,
@@ -120,17 +191,19 @@ export class WooCommerceService {
                         catalog_visibility: product.catalog_visibility,
                         description: product.description,
                         price: product.price ? parseFloat(product.price) : 0,
-                        regular_price: product.regular_price ? parseFloat(product.regular_price) : 0,
-                        user: user
-                    });
-    
-                    await this.productsRepository.save(newProduct);
+                        regular_price: product.regular_price
+                            ? parseFloat(product.regular_price)
+                            : 0,
+                        user: user,
+                    })
+
+                    await this.productsRepository.save(newProduct)
                 }
             } catch (error) {
-                console.log('Error especifico:', error);
-                throw new Error('Error al obtener los productos');
+                console.log('Error especifico:', error)
+                throw new Error('Error al obtener los productos')
             }
         }
-        return { message: 'Productos obtenidos' };
+        return { message: 'Productos obtenidos' }
     }
 }
