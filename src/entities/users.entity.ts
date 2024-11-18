@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { v4 as uuid } from 'uuid'
+import { Products } from './products.entity'
 @Entity({
     name: 'users',
 })
@@ -37,4 +38,7 @@ export class Users {
 
     @Column({ type: 'varchar', length: 128, nullable: false })
     password: string
+
+    @OneToMany(() => Products, (product) => product.user)
+    products: Products[]
 }

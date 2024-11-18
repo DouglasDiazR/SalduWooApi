@@ -1,19 +1,17 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
-import { Users } from 'src/entitys/users.entity'
-import IWooCommerceuser from './wooApi.interface'
+import IWooCommerceCustomer from './wooApi.interface'
 import { Repository } from 'typeorm'
 import * as bcrypt from 'bcrypt'
-import { Products } from 'src/entitys/products.entity'
+import { Products } from 'src/entities/products.entity'
+import { Users } from 'src/entities/users.entity'
 
 @Injectable()
 export class WooCommerceService {
     constructor(
-        @InjectRepository(Users)
-        private readonly usersRepository: Repository<Users>,
-        @InjectRepository(Products)
-        private readonly productsRepository: Repository<Products>,
+        @InjectRepository(Users) private readonly usersRepository: Repository<Users>,
+        @InjectRepository(Products) private readonly productsRepository: Repository<Products>,
         private readonly WooCommerce: WooCommerceRestApi,
     ) {}
 
@@ -29,7 +27,7 @@ export class WooCommerceService {
     async getUsers() {
         const roles = ['vendedor', 'administrator']
         const perPage = 100
-        let users: IWooCommerceuser[] = []
+        let users: IWooCommerceCustomer[] = []
 
         try {
             for (const role of roles) {
@@ -49,7 +47,7 @@ export class WooCommerceService {
             }
 
             const newUsers = await Promise.all(
-                users.map(async (user: IWooCommerceuser) => {
+                users.map(async (user: IWooCommerceCustomer) => {
                     const existinguser = await this.usersRepository
                         .createQueryBuilder('user')
                         .where('user.email = :email', {
@@ -99,8 +97,7 @@ export class WooCommerceService {
     }
 
     async getProducts() {
-        const per_page = 50
-        // const allProducts = []
+        const per_page = 50;
         for (let page = 1; ; page++) {
             try {
                 const response = await this.WooCommerce.get('products', {
@@ -109,24 +106,31 @@ export class WooCommerceService {
                 })
                 if (response.data.length === 0) break
                 for (const product of response.data) {
-                    const newProduct = await this.productsRepository.create({
+                    const id_wooCommerce = await product.meta_data.find((meta) => meta.key === 'vendedor')?.value
+                    if (!id_wooCommerce) console.log(`vendedor no encontrado para el producto: ${product.id}`);
+                    const user = id_wooCommerce
+                        ? await this.usersRepository.findOne({where: { id_wooCommerce: Number(id_wooCommerce) }})
+                        : null;
+                    const newProduct = this.productsRepository.create({
                         id: product.id,
                         name: product.name,
-                        permalink: product.permalink,
                         type: product.type,
                         status: product.status,
                         featured: product.featured,
                         catalog_visibility: product.catalog_visibility,
                         description: product.description,
-                    })
-                    await this.productsRepository.save(newProduct)
+                        price: product.price ? parseFloat(product.price) : 0,
+                        regular_price: product.regular_price ? parseFloat(product.regular_price) : 0,
+                        user: user
+                    });
+    
+                    await this.productsRepository.save(newProduct);
                 }
-                // allProducts.push(...response.data)
             } catch (error) {
-                throw new Error('Error al obtener los productos')
+                console.log('Error especifico:', error);
+                throw new Error('Error al obtener los productos');
             }
         }
-        // return allProducts
-        return { message: 'Productos obtenidos' }
+        return { message: 'Productos obtenidos' };
     }
 }
