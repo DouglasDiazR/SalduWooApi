@@ -9,7 +9,8 @@ import { AuthModule } from './auth/auth.module'
 import { JwtModule } from '@nestjs/jwt'
 import { JWT_SECRET } from './config/envs'
 import { UsersModule } from './users/users.module'
-import { ProductsModule } from './products/products.module';
+import { ProductsModule } from './products/products.module'
+import { OrdersModule } from './orders/orders.module'
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { ProductsModule } from './products/products.module';
             useFactory: (configService: ConfigService) =>
                 configService.get('typeorm'),
         }),
+        OrdersModule,
         UsersModule,
         WooApiModule,
         AuthModule,

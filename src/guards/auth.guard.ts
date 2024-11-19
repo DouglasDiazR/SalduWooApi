@@ -37,7 +37,7 @@ export class AuthGuard implements CanActivate {
             })
             request.user = {
                 id: payload.id,
-                id_wooComerce: payload.id_wooComerce,
+                id_wooCommerce: payload.id_wooCommerce,
                 role: payload.role,
             }
             if (!roles.includes(payload.role)) {
