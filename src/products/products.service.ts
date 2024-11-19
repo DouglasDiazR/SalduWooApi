@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateProductDto } from './dto/update-product.dto';
+// import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsRepository } from './products.repository';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class ProductsService {
     return await this.productsRepository.getProductById(id)
   }
 
-  async updateProduct(id: number, updateProductDto: UpdateProductDto) {
-    return await this.productsRepository.updateProduct(id, updateProductDto)
-  }
+  // async updateProduct(id: number, updateProductDto: UpdateProductDto) {
+  //   return await this.productsRepository.updateProduct(id, updateProductDto)
+  // }
 }
