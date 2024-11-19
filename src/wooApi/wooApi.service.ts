@@ -1,8 +1,4 @@
-import {
-    Injectable,
-    InternalServerErrorException,
-    NotFoundException,
-} from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import IWooCommerceCustomer from './wooApi.interface'
@@ -98,64 +94,6 @@ export class WooCommerceService {
             console.log(error)
             throw new InternalServerErrorException(
                 'Error al registrar los Clientes',
-            )
-        }
-    }
-
-    async getOrders() {
-        const perPage = 100
-        let page = 1
-        let allOrders = []
-
-        try {
-            while (true) {
-                const response = await this.WooCommerce.get('orders', {
-                    page,
-                    per_page: perPage,
-                })
-
-                if (response.data.length === 0) break
-
-                allOrders = allOrders.concat(response.data)
-
-                page += 1
-
-                return allOrders
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    async getOrdersUser(idWooUser: number) {
-        try {
-            const orders = await this.WooCommerce.get('orders', {
-                customer: idWooUser,
-            })
-
-            if (orders.data.length === 0)
-                throw new NotFoundException(
-                    `No se encontraron órdenes para el usuario con ID: ${idWooUser}`,
-                )
-
-            orders.data.map((order) => ({
-                idOrder: order.id,
-                statusOrder: order.status,
-                totalOrder: order.total,
-                date_createdOrder: order.date_created,
-                products: order.line_items.map((item) => ({
-                    product_id: item.product_id,
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: item.price,
-                    total: item.total,
-                })),
-            }))
-            return orders
-        } catch (error) {
-            console.log(error)
-            throw new InternalServerErrorException(
-                'Hubo un error al obtener las órdenes. Por favor, intente nuevamente.',
             )
         }
     }
