@@ -24,7 +24,6 @@ export class AuthRepository {
                 throw new BadRequestException('Credenciales incorrectas')
             }
             const validPassword = await bcrypt.compare(password, user.password)
-            console.log('pass', password, 'BdPass', user.password)
 
             if (!validPassword) {
                 throw new BadRequestException('Credenciales incorrectas')

@@ -19,8 +19,8 @@ export class OrdersController {
 
     @Get()
     @HttpCode(200)
-    /*     @UseGuards(AuthGuard)
-    @Roles(Role.Admin) */
+    @UseGuards(AuthGuard)
+    @Roles(Role.Admin)
     async getOrders(
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
@@ -30,8 +30,8 @@ export class OrdersController {
 
     @Get('byProduct')
     @HttpCode(200)
-    /*     @UseGuards(AuthGuard)
-    @Roles(Role.Admin) */
+    @UseGuards(AuthGuard)
+    @Roles(Role.Admin)
     async getOrdersByProduct(
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
@@ -42,17 +42,6 @@ export class OrdersController {
             endDate,
             idProduct,
         })
-    }
-
-    @Get()
-    @HttpCode(200)
-    @UseGuards(AuthGuard)
-    @Roles(Role.Admin)
-    async getOrdersById(
-        @Query('startDate') startDate?: string,
-        @Query('endDate') endDate?: string,
-    ) {
-        return await this.ordersService.getOrders({ startDate, endDate })
     }
 
     @Get('ordersUser')
@@ -66,7 +55,6 @@ export class OrdersController {
         @Req() req: Request,
     ) {
         const idWooUser = req.user.id_wooCommerce
-        console.log('id_wooUser', idWooUser)
         return await this.ordersService.getOrdersUser(
             { startDate, endDate, idProduct },
             idWooUser,
@@ -75,6 +63,8 @@ export class OrdersController {
 
     @Get(':id')
     @HttpCode(200)
+    @UseGuards(AuthGuard)
+    @Roles(Role.Admin)
     async getOrderById(@Param('id') id: number) {
         return await this.ordersService.getOrderById(id)
     }
