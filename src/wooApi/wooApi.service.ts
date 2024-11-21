@@ -22,7 +22,7 @@ export class WooCommerceService {
             const response = await this.WooCommerce.get('')
             return response.data
         } catch (error) {
-            throw new Error('Error al obtener los puntos finales')
+            throw new InternalServerErrorException('Error al obtener las rutas')
         }
     }
 
@@ -43,7 +43,7 @@ export class WooCommerceService {
 
                     if (response.data.length === 0) break
 
-                    users = users.concat(response.data)
+                    users = [...users, ...response.data]
                     page += 1
                 }
             }
@@ -89,9 +89,12 @@ export class WooCommerceService {
                 await this.usersRepository.save(saveUsers)
             }
 
-            return saveUsers
+            const usersWithoutPassword = saveUsers.map(
+                ({ password, ...rest }) => rest,
+            )
+
+            return usersWithoutPassword
         } catch (error) {
-            console.log(error)
             throw new InternalServerErrorException(
                 'Error al registrar los Clientes',
             )

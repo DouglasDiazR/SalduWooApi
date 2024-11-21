@@ -13,14 +13,30 @@ export class UsersRepository {
         @InjectRepository(Users)
         private usersRepository: Repository<Users>,
     ) {}
+
     async getUsers(role?: string): Promise<Users[]> {
         try {
-            const users = this.usersRepository.createQueryBuilder('user')
+            const findedUsers = this.usersRepository
+                .createQueryBuilder('user')
+                .select([
+                    'user.id_user',
+                    'user.id_wooCommerce',
+                    'user.name',
+                    'user.email',
+                    'user.role',
+                ])
             if (role) {
-                users.where('user.role = :role', { role })
+                findedUsers.where('user.role = :role', { role })
             }
-            return await users.getMany()
+
+            const users = await findedUsers.getMany()
+
+            if (users.length === 0) {
+                throw new NotFoundException('No se encontraron usuarios.')
+            }
+            return users
         } catch (error) {
+            if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
                 'Ocurrió un error inesperado al buscar los usuarios',
                 error,
@@ -31,9 +47,16 @@ export class UsersRepository {
     async getUserByEmail(email: string): Promise<Partial<Users>> {
         try {
             const user = await this.usersRepository
-                .createQueryBuilder('customer')
-                .select()
-                .where('customer.email = :email', { email })
+                .createQueryBuilder('user')
+                .select([
+                    'user.id_user',
+                    'user.id_wooCommerce',
+                    'user.name',
+                    'user.email',
+                    'user.role',
+                    'user.password',
+                ])
+                .where('user.email = :email', { email })
                 .getOne()
 
             if (!user)
@@ -49,11 +72,17 @@ export class UsersRepository {
         }
     }
 
-    async getUserById(id: string) {
+    async getUserById(id: string): Promise<Partial<Users>> {
         try {
             const user = await this.usersRepository
                 .createQueryBuilder()
-                .select('user')
+                .select([
+                    'user.id_user',
+                    'user.id_wooCommerce',
+                    'user.name',
+                    'user.email',
+                    'user.role',
+                ])
                 .from(Users, 'user')
                 .where('user.id_user = :id', { id })
                 .getOne()
@@ -63,7 +92,6 @@ export class UsersRepository {
                 )
             return user
         } catch (error) {
-            console.log(error)
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
                 'Ocurrió un error inesperado al buscar el usuario.',

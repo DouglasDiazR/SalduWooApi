@@ -4,6 +4,7 @@ import {
     NotFoundException,
 } from '@nestjs/common'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
+import IOrders from './orders.interface'
 
 @Injectable()
 export class OrdersService {
@@ -15,24 +16,27 @@ export class OrdersService {
     }: {
         startDate?: string
         endDate?: string
-    }) {
+    }): Promise<IOrders[]> {
         const perPage = 100
         let page = 1
-        let allOrders = []
+        let allOrders: IOrders[] = []
 
         try {
             while (true) {
-                const response = await this.WooCommerce.get('orders', {
-                    page,
-                    per_page: perPage,
-                    after: startDate,
-                    before: endDate,
-                })
+                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                    'orders',
+                    {
+                        page,
+                        per_page: perPage,
+                        after: startDate,
+                        before: endDate,
+                    },
+                )
 
-                if (response.data.length === 0) break
+                if (orders.data.length === 0) break
 
-                const formattOrder = response.data.map((order) => ({
-                    order_id: order.id,
+                const formattOrder = orders.data.map((order) => ({
+                    id: order.id,
                     number: order.number,
                     status: order.status,
                     total: order.total,
@@ -40,7 +44,7 @@ export class OrdersService {
                     date_modified: order.date_modified,
                     customer_id: order.customer_id,
                     date_paid: order.date_paid,
-                    products: order.line_items.map((item) => ({
+                    line_items: order.line_items.map((item) => ({
                         product_id: item.product_id,
                         name: item.name,
                         quantity: item.quantity,
@@ -48,15 +52,16 @@ export class OrdersService {
                         total: item.total,
                     })),
                 }))
-
-                allOrders = allOrders.concat(formattOrder)
-
+                allOrders = [...allOrders, ...formattOrder]
                 page += 1
+
+                if (allOrders.length === 0)
+                    throw new NotFoundException('No se encontraron órdenes.')
 
                 return allOrders
             }
         } catch (error) {
-            console.log(error)
+            if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
                 'Hubo un error al obtener las órdenes. Por favor, intente nuevamente.',
             )
@@ -71,26 +76,28 @@ export class OrdersService {
         startDate?: string
         endDate?: string
         idProduct?: number
-    }) {
-        console.log(idProduct)
+    }): Promise<IOrders[]> {
         const perPage = 100
         let page = 1
-        let allOrders = []
+        let allOrders: IOrders[] = []
 
         try {
             while (true) {
-                const response = await this.WooCommerce.get('orders', {
-                    page,
-                    per_page: perPage,
-                    after: startDate,
-                    before: endDate,
-                    product: idProduct,
-                })
+                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                    'orders',
+                    {
+                        page,
+                        per_page: perPage,
+                        after: startDate,
+                        before: endDate,
+                        product: idProduct,
+                    },
+                )
 
-                if (response.data.length === 0) break
+                if (orders.data.length === 0) break
 
-                const formattOrder = response.data.map((order) => ({
-                    order_id: order.id,
+                const formattOrder = orders.data.map((order: IOrders) => ({
+                    id: order.id,
                     number: order.number,
                     status: order.status,
                     total: order.total,
@@ -98,23 +105,28 @@ export class OrdersService {
                     date_modified: order.date_modified,
                     customer_id: order.customer_id,
                     date_paid: order.date_paid,
-                    products: order.line_items.map((item) => ({
-                        product_id: item.product_id,
-                        name: item.name,
-                        quantity: item.quantity,
-                        price: item.price,
-                        total: item.total,
+                    line_items: order.line_items.map((product) => ({
+                        product_id: product.product_id,
+                        name: product.name,
+                        quantity: product.quantity,
+                        price: product.price,
+                        total: product.total,
                     })),
                 }))
 
-                allOrders = allOrders.concat(formattOrder)
+                allOrders = [...allOrders, ...formattOrder]
 
                 page += 1
+
+                if (allOrders.length === 0)
+                    throw new NotFoundException(
+                        'No se encontraron órdenes asociadas al producto.',
+                    )
 
                 return allOrders
             }
         } catch (error) {
-            console.log(error)
+            if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
                 'Hubo un error al obtener las órdenes. Por favor, intente nuevamente.',
             )
@@ -128,28 +140,28 @@ export class OrdersService {
             idProduct,
         }: { startDate?: string; endDate?: string; idProduct?: number },
         idWooUser: number,
-    ) {
-        console.log('startDate: ', startDate)
-        console.log(idWooUser)
-        console.log('idProduct', idProduct)
+    ): Promise<IOrders[]> {
         const perPage = 100
         let page = 1
-        let allOrdersUser = []
+        let allOrdersUser: IOrders[] = []
         try {
             while (true) {
-                const orders = await this.WooCommerce.get('orders', {
-                    page,
-                    per_page: perPage,
-                    customer: idWooUser,
-                    product: idProduct,
-                    after: startDate,
-                    before: endDate,
-                })
+                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                    'orders',
+                    {
+                        page,
+                        per_page: perPage,
+                        customer: idWooUser,
+                        product: idProduct,
+                        after: startDate,
+                        before: endDate,
+                    },
+                )
 
                 if (orders.data.length === 0) break
 
-                const formattOrder = orders.data.map((order) => ({
-                    order_id: order.id,
+                const formattOrder: IOrders[] = orders.data.map((order) => ({
+                    id: order.id,
                     number: order.number,
                     status: order.status,
                     total: order.total,
@@ -157,7 +169,7 @@ export class OrdersService {
                     date_modified: order.date_modified,
                     customer_id: order.customer_id,
                     date_paid: order.date_paid,
-                    products: order.line_items.map((item) => ({
+                    line_items: order.line_items.map((item) => ({
                         product_id: item.product_id,
                         name: item.name,
                         quantity: item.quantity,
@@ -165,23 +177,29 @@ export class OrdersService {
                         total: item.total,
                     })),
                 }))
-
-                allOrdersUser = allOrdersUser.concat(formattOrder)
+                allOrdersUser = [...allOrdersUser, ...formattOrder]
 
                 page += 1
             }
+            if (allOrdersUser.length === 0)
+                throw new NotFoundException(
+                    'No se encontraron órdenes asociadas al vendedor.',
+                )
+
             return allOrdersUser
         } catch (error) {
-            console.log(error)
+            if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
                 'Hubo un error al obtener las órdenes. Por favor, intente nuevamente.',
             )
         }
     }
 
-    async getOrderById(id: number) {
+    async getOrderById(id: number): Promise<IOrders | string> {
         try {
-            const response = await this.WooCommerce.get(`orders/${id}`)
+            const response: { data: IOrders } = await this.WooCommerce.get(
+                `orders/${id}`,
+            )
 
             if (!response || !response.data) {
                 throw new NotFoundException(
@@ -191,8 +209,8 @@ export class OrdersService {
 
             const order = response.data
 
-            const formattedOrder = {
-                order_id: order.id,
+            const formattedOrder: IOrders = {
+                id: order.id,
                 number: order.number,
                 status: order.status,
                 total: order.total,
@@ -200,7 +218,7 @@ export class OrdersService {
                 date_modified: order.date_modified,
                 customer_id: order.customer_id,
                 date_paid: order.date_paid,
-                products: Array.isArray(order.line_items)
+                line_items: Array.isArray(order.line_items)
                     ? order.line_items.map((item) => ({
                           product_id: item.product_id,
                           name: item.name,
@@ -213,9 +231,9 @@ export class OrdersService {
 
             return formattedOrder
         } catch (error) {
-            console.error(`Error al obtener la orden con ID ${id}:`, error)
+            if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
-                `Hubo un error al obtener la orden con ID ${id}. Por favor, intente nuevamente.`,
+                'Hubo un error al obtener la orden. Por favor, intente nuevamente.',
             )
         }
     }
