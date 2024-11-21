@@ -1,3 +1,3 @@
-// import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/mapped-types';
 
-// export class UpdateProductDto {}
+export class UpdateProductDto {}

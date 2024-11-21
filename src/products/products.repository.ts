@@ -10,18 +10,22 @@ export class ProductsRepository {
     ) {}
 
     async getAllProducts() {
-        return this.productsRepository.find()
+        return await this.productsRepository.find()
     }
 
     async getProductsByUser(id: number) {
-        return this.productsRepository.find({ where: { user: { id_wooCommerce: id } } });
+        return await this.productsRepository.find({ where: { user: { id_wooCommerce: id } } });
     }
 
-    async getProductById(id: number) {
-        return this.productsRepository.findOne({ where: { id } });
+    async createProduct(product: any) {
+        return await this.productsRepository.save(product);
     }
 
     async updateProduct(id: number, updateProductDto: any) {
-        return this.productsRepository.update(id, updateProductDto);
+        return await this.productsRepository.update(id, updateProductDto);
+    }
+
+    async deleteProduct(id: number) {
+        return await this.productsRepository.update(id, { status: 'draft' });
     }
 }

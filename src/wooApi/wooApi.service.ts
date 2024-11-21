@@ -102,9 +102,9 @@ export class WooCommerceService {
     }
 
     async getProducts() {
+        try {
         const per_page = 50
         for (let page = 1; ; page++) {
-            try {
                 const response = await this.WooCommerce.get('products', {
                     per_page,
                     page,
@@ -124,27 +124,56 @@ export class WooCommerceService {
                           })
                         : null
                     const newProduct = this.productsRepository.create({
-                        id: product.id,
-                        name: product.name,
-                        type: product.type,
-                        status: product.status,
-                        featured: product.featured,
-                        catalog_visibility: product.catalog_visibility,
-                        description: product.description,
-                        price: product.price ? parseFloat(product.price) : 0,
-                        regular_price: product.regular_price
-                            ? parseFloat(product.regular_price)
-                            : 0,
+                        ...product,
+                        date_created: response.data.date_created ?? '',
+                        date_created_gmt: response.data.date_created_gmt ?? '',
+                        date_modified: response.data.date_modified ?? '',
+                        date_modified_gmt: response.data.date_modified_gmt ?? '',
+                        price: response.data.price ? parseFloat(response.data.price) : 0,
+                        regular_price: response.data.regular_price ? parseFloat(response.data.regular_price) : 0,
+                        sale_price: response.data.sale_price ? parseFloat(response.data.sale_price) : 0,
+                        date_on_sale_from: response.data.date_on_sale_from ?? '',
+                        date_on_sale_from_gmt: response.data.date_on_sale_from_gmt ?? '',
+                        date_on_sale_to: response.data.date_on_sale_to ?? '',
+                        date_on_sale_to_gmt: response.data.date_on_sale_to_gmt ?? '',
+                        stock_quantity: response.data.stock_quantity ?? 0,
+                        low_stock_amount: response.data.low_stock_amount ?? '',
                         user: user,
                     })
-
                     await this.productsRepository.save(newProduct)
                 }
-            } catch (error) {
-                console.log('Error especifico:', error)
-                throw new Error('Error al obtener los productos')
             }
+            return { message: 'Productos obtenidos' }
+        } catch (error) {
+            console.log('Error especifico:', error)
+            throw new Error('Error al obtener los productos')
         }
-        return { message: 'Productos obtenidos' }
     }
+
+    // async getProduct() {
+    //     try {
+    //         const response = await this.WooCommerce.get('products/3829')
+    //         const newProduct = this.productsRepository.create({
+    //             ...response.data,
+    //             date_created: response.data.date_created ?? '',
+    //             date_created_gmt: response.data.date_created_gmt ?? '',
+    //             date_modified: response.data.date_modified ?? '',
+    //             date_modified_gmt: response.data.date_modified_gmt ?? '',
+    //             price: response.data.price ? parseFloat(response.data.price) : 0,
+    //             regular_price: response.data.regular_price ? parseFloat(response.data.regular_price) : 0,
+    //             sale_price: response.data.sale_price ? parseFloat(response.data.sale_price) : 0,
+    //             date_on_sale_from: response.data.date_on_sale_from ?? '',
+    //             date_on_sale_from_gmt: response.data.date_on_sale_from_gmt ?? '',
+    //             date_on_sale_to: response.data.date_on_sale_to ?? '',
+    //             date_on_sale_to_gmt: response.data.date_on_sale_to_gmt ?? '',
+    //             stock_quantity: response.data.stock_quantity ?? 0,
+    //             low_stock_amount: response.data.low_stock_amount ?? '',
+                
+    //         })
+    //         return await this.productsRepository.save(newProduct)
+
+    //     } catch (error) {
+    //         throw new Error('Error al obtener los productos')
+    //     }
+    // }
 }
