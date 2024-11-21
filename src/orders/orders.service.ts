@@ -63,7 +63,7 @@ export class OrdersService {
         } catch (error) {
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
-                'Hubo un error al obtener las órdenes. Por favor, intente nuevamente.',
+                'Hubo un error al obtener las órdenes. Por favor, intente nuevamente..',
             )
         }
     }
