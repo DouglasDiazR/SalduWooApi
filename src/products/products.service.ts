@@ -11,12 +11,44 @@ export class ProductsService {
   ) {}
 
   async getAllProducts() {
-    return await this.productsRepository.getAllProducts();
+    try {
+      const products = await this.productsRepository.getAllProducts();
+      const productsData = await Promise.all(
+        products.map(async (product) => {
+          return {
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            status: product.status,
+            price: product.price,
+            images: product.images,
+            stock_status: product.stock_status
+          }
+        }) 
+      )  
+      return productsData
+      } catch (error) {
+      throw new Error('Error al obtener los productos');
+    }
   }
 
   async getProductsByUser(id: number) {
     try {
-      return await this.productsRepository.getProductsByUser(id)
+      const products = await this.productsRepository.getProductsByUser(id)
+      const productsData = await Promise.all(
+        products.map(async (product) => {
+          return {
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            status: product.status,
+            price: product.price,
+            images: product.images,
+            stock_status: product.stock_status
+          }
+        })
+      )
+      return productsData
     } catch (error) {
       throw new Error(`Error al obtener los productos del usuario con id: ${id}`)
     }
@@ -25,7 +57,15 @@ export class ProductsService {
   async getProductById(id: number) {
     try {
       const response = await this.WooComerce.get(`products/${id}`)
-      return response.data
+        return {
+          id: response.data.id,
+          name: response.data.name,
+          description: response.data.description,
+          status: response.data.status,
+          price: response.data.price,
+          images: response.data.images,
+          stock_quantity: response.data.stock_quantity
+        }
     } catch (error) {
       throw new Error(`Error al obtener el producto con id: ${id}`)
     }
