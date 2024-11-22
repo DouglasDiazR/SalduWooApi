@@ -64,7 +64,7 @@ export class ProductsService {
           status: response.data.status,
           price: response.data.price,
           images: response.data.images,
-          stock_quantity: response.data.stock_quantity
+          stock_status: response.data.stock_status
         }
     } catch (error) {
       throw new Error(`Error al obtener el producto con id: ${id}`)
