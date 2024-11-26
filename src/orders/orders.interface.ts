@@ -5,7 +5,6 @@ interface IOrders {
     total: number
     date_created: string
     date_modified: string
-    customer_id: number
     date_paid: string
     line_items: ILineItem[]
 }
@@ -16,5 +15,11 @@ interface ILineItem {
     quantity: number
     price: number
     total: number
+    meta_data: IMetaData[]
+}
+
+interface IMetaData {
+    key: string
+    value: string
 }
 export default IOrders
