@@ -11,54 +11,77 @@ import { OrdersService } from './orders.service'
 import { AuthGuard } from 'src/guards/auth.guard'
 import { Roles } from 'src/decorators/roles.decorator'
 import { Role } from 'src/enum/role.enum'
-import { Request } from 'express'
 
 @Controller('orders')
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
 
-    @Get()
+    @Get('admin')
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
-    async getOrders(
+    async getOrdersForAdmin(
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
     ) {
-        return await this.ordersService.getOrders({ startDate, endDate })
+        return await this.ordersService.getAllOrders({
+            startDate,
+            endDate,
+        })
     }
 
-    @Get('byProduct')
+    @Get('admin/product')
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
     async getOrdersByProduct(
+        @Query('productId') productId: number,
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
-        @Query('idProduct') idProduct?: number,
     ) {
         return await this.ordersService.getOrdersByProduct({
+            productId,
             startDate,
             endDate,
-            idProduct,
         })
     }
 
-    @Get('ordersUser')
+    @Get('seller')
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)
-    async getOrdersUser(
-        @Query('startDate') startDate: string,
-        @Query('endDate') endDate: string,
-        @Query('idProduct') idProduct: number,
-        @Req() req: Request,
+    async getOrdersForSeller(
+        @Req() request: Express.Request,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
     ) {
-        const idWooUser = req.user.id_wooCommerce
-        return await this.ordersService.getOrdersUser(
-            { startDate, endDate, idProduct },
-            idWooUser,
-        )
+        const user = request.user
+        const { id_wooCommerce: vendorId } = user
+        return await this.ordersService.getAllOrdersForSeller({
+            startDate,
+            endDate,
+            vendorId,
+        })
+    }
+
+    @Get('seller/product')
+    @HttpCode(200)
+    @UseGuards(AuthGuard)
+    @Roles(Role.Seller)
+    async getOrdersForProduct(
+        @Req() request: Express.Request,
+        @Query('productId') productId: string,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        const user = request.user
+        const { id_wooCommerce: vendorId } = user
+        return await this.ordersService.getOrdersSellerByProduct({
+            productId,
+            startDate,
+            endDate,
+            vendorId,
+        })
     }
 
     @Get(':id')

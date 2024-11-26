@@ -17,15 +17,6 @@ export class WooCommerceService {
         private readonly WooCommerce: WooCommerceRestApi,
     ) {}
 
-    async getApiEndpoints() {
-        try {
-            const response = await this.WooCommerce.get('')
-            return response.data
-        } catch (error) {
-            throw new InternalServerErrorException('Error al obtener las rutas')
-        }
-    }
-
     async getUsers() {
         const roles = ['vendedor', 'administrator']
         const perPage = 100
@@ -103,8 +94,8 @@ export class WooCommerceService {
 
     async getProducts() {
         try {
-        const per_page = 50
-        for (let page = 1; ; page++) {
+            const per_page = 50
+            for (let page = 1; ; page++) {
                 const response = await this.WooCommerce.get('products', {
                     per_page,
                     page,
@@ -128,14 +119,24 @@ export class WooCommerceService {
                         date_created: response.data.date_created ?? '',
                         date_created_gmt: response.data.date_created_gmt ?? '',
                         date_modified: response.data.date_modified ?? '',
-                        date_modified_gmt: response.data.date_modified_gmt ?? '',
-                        price: response.data.price ? parseFloat(response.data.price) : 0,
-                        regular_price: response.data.regular_price ? parseFloat(response.data.regular_price) : 0,
-                        sale_price: response.data.sale_price ? parseFloat(response.data.sale_price) : 0,
-                        date_on_sale_from: response.data.date_on_sale_from ?? '',
-                        date_on_sale_from_gmt: response.data.date_on_sale_from_gmt ?? '',
+                        date_modified_gmt:
+                            response.data.date_modified_gmt ?? '',
+                        price: response.data.price
+                            ? parseFloat(response.data.price)
+                            : 0,
+                        regular_price: response.data.regular_price
+                            ? parseFloat(response.data.regular_price)
+                            : 0,
+                        sale_price: response.data.sale_price
+                            ? parseFloat(response.data.sale_price)
+                            : 0,
+                        date_on_sale_from:
+                            response.data.date_on_sale_from ?? '',
+                        date_on_sale_from_gmt:
+                            response.data.date_on_sale_from_gmt ?? '',
                         date_on_sale_to: response.data.date_on_sale_to ?? '',
-                        date_on_sale_to_gmt: response.data.date_on_sale_to_gmt ?? '',
+                        date_on_sale_to_gmt:
+                            response.data.date_on_sale_to_gmt ?? '',
                         stock_quantity: response.data.stock_quantity ?? 0,
                         low_stock_amount: response.data.low_stock_amount ?? '',
                         user: user,
@@ -168,7 +169,7 @@ export class WooCommerceService {
     //             date_on_sale_to_gmt: response.data.date_on_sale_to_gmt ?? '',
     //             stock_quantity: response.data.stock_quantity ?? 0,
     //             low_stock_amount: response.data.low_stock_amount ?? '',
-                
+
     //         })
     //         return await this.productsRepository.save(newProduct)
 
