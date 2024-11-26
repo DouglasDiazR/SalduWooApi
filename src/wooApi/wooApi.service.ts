@@ -102,19 +102,12 @@ export class WooCommerceService {
                 })
                 if (response.data.length === 0) break
                 for (const product of response.data) {
-                    const id_wooCommerce = await product.meta_data.find(
-                        (meta) => meta.key === 'vendedor',
-                    )?.value
-                    if (!id_wooCommerce)
-                        console.log(
-                            `vendedor no encontrado para el producto: ${product.id}`,
-                        )
+                    const id_wooCommerce = await product.meta_data.find((meta) => meta.key === 'vendedor')?.value
+                    if (!id_wooCommerce) console.log(`vendedor no encontrado para el producto: ${product.id}`)
                     const user = id_wooCommerce
-                        ? await this.usersRepository.findOne({
-                              where: { id_wooCommerce: Number(id_wooCommerce) },
-                          })
+                        ? await this.usersRepository.findOne({where: { id_wooCommerce: Number(id_wooCommerce) }})
                         : null
-                    const newProduct = this.productsRepository.create({
+                    const newProduct = await this.productsRepository.create({
                         ...product,
                         date_created: response.data.date_created ?? '',
                         date_created_gmt: response.data.date_created_gmt ?? '',
@@ -151,9 +144,9 @@ export class WooCommerceService {
         }
     }
 
-    // async getProduct() {
+    // async getProduct(id) {
     //     try {
-    //         const response = await this.WooCommerce.get('products/3829')
+    //         const response = await this.WooCommerce.get(`products/${id}`)
     //         const newProduct = this.productsRepository.create({
     //             ...response.data,
     //             date_created: response.data.date_created ?? '',
