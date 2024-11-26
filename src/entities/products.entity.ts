@@ -92,32 +92,6 @@ export class Products {
     regular_price: number
 
     @Column({
-        type: 'float'
-    })
-    sale_price: number
-
-    @Column({
-        type: 'varchar'
-    })
-    date_on_sale_from: string
-    
-    @Column({
-        type: 'varchar'
-    })
-    date_on_sale_from_gmt: string
-
-
-    @Column({
-        type: 'varchar'
-    })
-    date_on_sale_to: string
-
-    @Column({
-        type: 'varchar'
-    })
-    date_on_sale_to_gmt: string
-
-    @Column({
         type: 'boolean'
     })
     on_sale: boolean
@@ -143,11 +117,6 @@ export class Products {
     downloadable: boolean
 
     @Column({
-        type: 'json'
-    })
-    downloads: any[]
-
-    @Column({
         type: 'int'
     })
     download_limit: number
@@ -160,22 +129,7 @@ export class Products {
     @Column({
         type: 'varchar'
     })
-    external_url: string
-
-    @Column({
-        type: 'varchar'
-    })
-    button_text: string
-
-    @Column({
-        type: 'varchar'
-    })
     tax_status: string
-
-    @Column({
-        type: 'varchar'
-    })
-    tax_class: string
 
     @Column({
         type: 'boolean'
@@ -201,11 +155,6 @@ export class Products {
         type: 'boolean'
     })
     backordered: boolean
-
-    @Column({
-        type: 'varchar'
-    })
-    low_stock_amount: string
 
     @Column({
         type: 'boolean'
@@ -238,44 +187,9 @@ export class Products {
     shipping_class: string
 
     @Column({
-        type: 'int'
-    })
-    shipping_class_id: number
-
-    @Column({
         type: 'boolean'
     })
     reviews_allowed: boolean
-
-    @Column({
-        type: 'varchar'
-    })
-    average_rating: string
-
-    @Column({
-        type: 'int'
-    })
-    rating_count: number
-
-    @Column({
-        type: 'json'
-    })
-    upsell_ids: any[]
-
-    @Column({
-        type: 'json'
-    })
-    cross_sell_ids: any[]
-
-    @Column({
-        type: 'int'
-    })
-    parent_id: number
-
-    @Column({
-        type: 'varchar'
-    })
-    purchase_note: string
 
     @Column({
         type: 'json'
@@ -291,31 +205,6 @@ export class Products {
         type: 'json'
     })
     images: any[]
-
-    @Column({
-        type: 'json'
-    })
-    attributes: any[]
-
-    @Column({
-        type: 'json'
-    })
-    default_attributes: any[]
-
-    @Column({
-        type: 'json'
-    })
-    variations: any[]
-
-    @Column({
-        type: 'json'
-    })
-    grouped_products: any[]
-
-    @Column({
-        type: 'int'
-    })
-    menu_order: number
 
     @Column({
         type: 'varchar'
@@ -341,21 +230,6 @@ export class Products {
         type: 'boolean'
     })
     has_options: boolean
-
-    @Column({
-        type: 'varchar'
-    })
-    post_password: string
-
-    @Column({
-        type: 'varchar'
-    })
-    global_unique_id: string
-
-    @Column({
-        type: 'json'
-    })
-    aioseo_notices: any[]
 
     @Column({
         type: 'boolean'
