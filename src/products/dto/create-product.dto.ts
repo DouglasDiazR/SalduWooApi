@@ -1,15 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
 
-class Category {
+export class Category {
     id: number
 }
 
-class Tag {
+export class Tag {
     id: number
 }
 
-class Image {
+export class Image {
     id: number
     src: string
 }
