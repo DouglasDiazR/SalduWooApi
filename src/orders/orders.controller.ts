@@ -11,12 +11,28 @@ import { OrdersService } from './orders.service'
 import { AuthGuard } from 'src/guards/auth.guard'
 import { Roles } from 'src/decorators/roles.decorator'
 import { Role } from 'src/enum/role.enum'
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
 
+@ApiTags('Ordenes')
+@ApiBearerAuth()
 @Controller('orders')
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
 
     @Get('admin')
+    @ApiOperation({ summary: 'Ruta de Administrador para obtener todas las ordenes de todos los productos' })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        description: 'Fecha de inicio de la búsqueda de ordenes (formato: YYYY-MM-DD)',
+        example: '2023-01-01',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        description: 'Fecha de fin de la búsqueda de ordenes (formato: YYYY-MM-DD)',
+        example: '2023-01-31',
+    })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
@@ -31,6 +47,25 @@ export class OrdersController {
     }
 
     @Get('admin/product')
+    @ApiOperation({ summary: 'Ruta de Administrador para obtener todas las ordenes de un producto' })
+    @ApiQuery({
+        name: 'productId',
+        required: true,
+        description: 'ID del producto',
+        example: 5122,
+    })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        description: 'Fecha de inicio de la búsqueda de ordenes (formato: YYYY-MM-DD)',
+        example: '2023-01-01',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        description: 'Fecha de fin de la búsqueda de ordenes (formato: YYYY-MM-DD)',
+        example: '2023-01-31',
+    })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
@@ -47,6 +82,19 @@ export class OrdersController {
     }
 
     @Get('seller')
+    @ApiOperation({ summary: 'Ruta de Vendedor para obtener todas las ordenes de los productos propios' })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        description: 'Fecha de inicio de la búsqueda de ordenes formato: (YYYY-MM-DD)T(HH:mm:ss)',
+        example: '2023-01-01T00:00:01',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        description: 'Fecha de fin de la búsqueda de ordenes formato: (YYYY-MM-DD)T(HH:mm:ss)',
+        example: '2023-01-31T23:59:59',
+    })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)
@@ -65,6 +113,25 @@ export class OrdersController {
     }
 
     @Get('seller/product')
+    @ApiOperation({ summary: 'Ruta de Vendedor para obtener todas las ordenes de un producto propio' })
+    @ApiQuery({
+        name: 'productId',
+        required: true,
+        description: 'ID del producto',
+        example: 5122,
+    })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        description: 'Fecha de inicio de la búsqueda de ordenes formato: (YYYY-MM-DD)T(HH:mm:ss)',
+        example: '2023-01-01T00:00:01',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        description: 'Fecha de fin de la búsqueda de ordenes formato: (YYYY-MM-DD)T(HH:mm:ss)',
+        example: '2023-01-31T23:59:59',
+    })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)
@@ -85,6 +152,13 @@ export class OrdersController {
     }
 
     @Get(':id')
+    @ApiOperation({ summary: 'Ruta de Administrador para obtener una orden por su ID' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'ID de la orden',
+        example: 5122
+    })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)

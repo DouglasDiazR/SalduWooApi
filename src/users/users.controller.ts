@@ -11,12 +11,16 @@ import { UsersService } from './users.service'
 import { AuthGuard } from 'src/guards/auth.guard'
 import { Roles } from 'src/decorators/roles.decorator'
 import { Role } from 'src/enum/role.enum'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 
+@ApiTags('Usuarios')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Get()
+    @ApiOperation({ summary: 'Ruta de Administrador para obtener todos los usuarios por rol' })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
@@ -25,6 +29,16 @@ export class UsersController {
     }
 
     @Get('email')
+    @ApiOperation({ summary: 'Ruta de Administrador para obtener un usuario por email' })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            description: 'Email del usuario',
+            example: {
+                email: 'example@mail',
+            }
+        }
+    })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
@@ -33,6 +47,13 @@ export class UsersController {
     }
 
     @Get(':id')
+    @ApiOperation({ summary: 'Ruta de Administrador para obtener un usuario por id' })
+    @ApiParam({ 
+        name: 'id', 
+        required: true,
+        description: 'ID del usuario',
+        example: '1'
+    })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
