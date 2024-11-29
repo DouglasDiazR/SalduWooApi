@@ -54,7 +54,7 @@ export class ProductsController {
         @Query('limit') limit?: string,
     ) {
         if (!page) page = '1'
-        if (!limit) limit = '10'
+        if (!limit) limit = '12'
         return await this.productsService.getAllProducts(Number(page), Number(limit))
     }
 

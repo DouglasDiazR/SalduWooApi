@@ -109,29 +109,29 @@ export class WooCommerceService {
                         : null
                     const newProduct = await this.productsRepository.create({
                         ...product,
-                        date_created: response.data.date_created ?? '',
-                        date_created_gmt: response.data.date_created_gmt ?? '',
-                        date_modified: response.data.date_modified ?? '',
+                        date_created: product.date_created ?? '',
+                        date_created_gmt: product.date_created_gmt ?? '',
+                        date_modified: product.date_modified ?? '',
                         date_modified_gmt:
-                            response.data.date_modified_gmt ?? '',
-                        price: response.data.price
-                            ? parseFloat(response.data.price)
+                            product.date_modified_gmt ?? '',
+                        price: product.price
+                            ? parseFloat(product.price)
                             : 0,
-                        regular_price: response.data.regular_price
-                            ? parseFloat(response.data.regular_price)
+                        regular_price: product.regular_price
+                            ? parseFloat(product.regular_price)
                             : 0,
-                        sale_price: response.data.sale_price
-                            ? parseFloat(response.data.sale_price)
+                        sale_price: product.sale_price
+                            ? parseFloat(product.sale_price)
                             : 0,
                         date_on_sale_from:
-                            response.data.date_on_sale_from ?? '',
+                            product.date_on_sale_from ?? '',
                         date_on_sale_from_gmt:
-                            response.data.date_on_sale_from_gmt ?? '',
-                        date_on_sale_to: response.data.date_on_sale_to ?? '',
+                            product.date_on_sale_from_gmt ?? '',
+                        date_on_sale_to: product.date_on_sale_to ?? '',
                         date_on_sale_to_gmt:
-                            response.data.date_on_sale_to_gmt ?? '',
-                        stock_quantity: response.data.stock_quantity ?? 0,
-                        low_stock_amount: response.data.low_stock_amount ?? '',
+                            product.date_on_sale_to_gmt ?? '',
+                        stock_quantity: product.stock_quantity ?? 0,
+                        low_stock_amount: product.low_stock_amount ?? '',
                         user: user,
                     })
                     await this.productsRepository.save(newProduct)
