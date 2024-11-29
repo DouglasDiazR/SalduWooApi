@@ -2,7 +2,7 @@ import { config } from 'dotenv'
 config()
 
 export const PORT = process.env.PORT
-export const PORT_FRONT = process.env.PORT_FRONTEND
+export const PORT_FRONT = process.env.PORT_FRONT
 export const WOOAPI_KEY = process.env.WOOAPI_KEY
 export const WOOAPI_SECRET = process.env.WOOAPI_SECRET
 export const WOOAPI_USER = process.env.WOOAPI_USER
