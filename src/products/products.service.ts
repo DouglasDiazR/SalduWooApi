@@ -16,9 +16,9 @@ export class ProductsService {
         private readonly WooComerce: WooCommerceRestApi,
     ) {}
 
-    async getAllProducts() {
+    async getAllProducts(page, limit) {
         try {
-            const products = await this.productsRepository.getAllProducts()
+            const [products, totalElements] = await this.productsRepository.getAllProducts(page, limit)
             const productsData = await Promise.all(
                 products.map(async (product) => {
                     return {
@@ -32,45 +32,66 @@ export class ProductsService {
                     }
                 }),
             )
-            return productsData
+            const totalPages = Math.ceil(totalElements / Number(limit));
+            const hasPrevPage = Number(page) > 1;
+            const hasNextPage = Number(page) < totalPages;
+            const prevPage = hasPrevPage ? Number(page) - 1 : null;
+            const nextPage = hasNextPage ? Number(page) + 1 : null;
+
+            return {
+                productsData,
+                totalElements,
+                page,
+                limit,
+                totalPages,
+                hasPrevPage,
+                hasNextPage,
+                prevPage,
+                nextPage,
+            };
         } catch (error) {
             throw new Error('Error al obtener los productos')
         }
     }
 
-    async getProductsByUser({
-        vendorId,
-        page = 1,
-        limit = 10,
-    }: {
-        vendorId: number
-        page?: number
-        limit?: number
-    }) {
+    async getProductsByUser( vendorId : number, page : number , limit : number ) {
         try {
-            const products = await this.productsRepository.getProductsByUser({
-                vendorId,
-                page,
-                limit,
-            })
+            const [products, totalElements] = await this.productsRepository.getProductsByUser( vendorId, page, limit )
 
-            if (products.length === 0) {
+            if (totalElements === 0) {
                 throw new NotFoundException(
                     'No se encontraron productos asociados a este vendedor.',
                 )
             }
 
-            const formattedProducts = products.map((product) => ({
-                id: product.id,
-                name: product.name,
-                description: product.description,
-                status: product.status,
-                price: product.price,
-                images: product.images,
-                stock_status: product.stock_status,
-            }))
+            const productsData = await Promise.all(
+                products.map((product) => ({
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    status: product.status,
+                    price: product.price,
+                    images: product.images,
+                    stock_status: product.stock_status,
+                }))
+            )
+            const totalPages = Math.ceil(totalElements / Number(limit));
+            const hasPrevPage = Number(page) > 1;
+            const hasNextPage = Number(page) < totalPages;
+            const prevPage = hasPrevPage ? Number(page) - 1 : null;
+            const nextPage = hasNextPage ? Number(page) + 1 : null;
 
-            return formattedProducts
+            return {
+                productsData,
+                totalElements,
+                page,
+                limit,
+                totalPages,
+                hasPrevPage,
+                hasNextPage,
+                prevPage,
+                nextPage,
+            };
         } catch (error) {
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
