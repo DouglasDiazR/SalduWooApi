@@ -35,14 +35,12 @@ export class OrdersController {
         required: false,
         description:
             'Fecha de inicio de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-01',
     })
     @ApiQuery({
         name: 'endDate',
         required: false,
         description:
             'Fecha de fin de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-31',
     })
     @ApiQuery({
         name: 'page',
@@ -91,14 +89,12 @@ export class OrdersController {
         required: false,
         description:
             'Fecha de inicio de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-01',
     })
     @ApiQuery({
         name: 'endDate',
         required: false,
         description:
             'Fecha de fin de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-31',
     })
     @ApiQuery({
         name: 'page',
@@ -143,14 +139,12 @@ export class OrdersController {
         required: false,
         description:
             'Fecha de inicio de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-01',
     })
     @ApiQuery({
         name: 'endDate',
         required: false,
         description:
             'Fecha de fin de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-31',
     })
     @ApiQuery({
         name: 'page',
@@ -196,21 +190,18 @@ export class OrdersController {
         name: 'productId',
         required: true,
         description: 'ID del producto',
-        example: 5122,
     })
     @ApiQuery({
         name: 'startDate',
         required: false,
         description:
             'Fecha de inicio de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-01',
     })
     @ApiQuery({
         name: 'endDate',
         required: false,
         description:
             'Fecha de fin de la búsqueda de ordenes (formato: YYYY-MM-DD)',
-        example: '2023-01-31',
     })
     @ApiQuery({
         name: 'page',
@@ -257,7 +248,6 @@ export class OrdersController {
         name: 'id',
         required: true,
         description: 'ID de la orden',
-        example: 5122,
     })
     @HttpCode(200)
     @UseGuards(AuthGuard)
