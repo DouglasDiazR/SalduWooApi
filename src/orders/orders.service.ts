@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import IOrders from './orders.interface'
+import { formatDate } from 'src/utils/formatDate'
 
 @Injectable()
 export class OrdersService {
@@ -13,60 +14,67 @@ export class OrdersService {
     async getAllOrders({
         startDate,
         endDate,
+        page = 1,
+        limit = 10,
     }: {
         startDate?: string
         endDate?: string
+        page?: number
+        limit?: number
     }): Promise<IOrders[]> {
-        const perPage = 100
-        let page = 1
-        let allOrders: IOrders[] = []
-
         try {
-            while (true) {
-                const orders: { data: IOrders[] } = await this.WooCommerce.get(
-                    'orders',
-                    {
-                        page,
-                        per_page: perPage,
-                        after: startDate,
-                        before: endDate,
-                    },
-                )
+            const formattedStartDate = startDate
+                ? formatDate(startDate)
+                : undefined
+            const formattedEndDate = endDate ? formatDate(endDate) : undefined
 
-                if (orders.data.length === 0) break
+            const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                'orders',
+                {
+                    page,
+                    per_page: limit,
+                    after: formattedStartDate,
+                    before: formattedEndDate,
+                },
+            )
 
-                const formattedOrders = orders.data.map((order) => ({
-                    id: order.id,
-                    number: order.number,
-                    status: order.status,
-                    total: order.total,
-                    date_created: order.date_created,
-                    date_modified: order.date_modified,
-                    date_paid: order.date_paid,
-                    line_items: order.line_items.map((product) => ({
+            if (orders.data.length === 0) {
+                throw new NotFoundException('No se encontraron órdenes')
+            }
+
+            const formattedOrders = orders.data.map((order) => ({
+                id: order.id,
+                number: order.number,
+                status: order.status,
+                total: order.total,
+                date_created: order.date_created,
+                date_modified: order.date_modified,
+                date_paid: order.date_paid,
+                line_items: order.line_items
+                    .map((product) => ({
                         product_id: product.product_id,
                         name: product.name,
                         quantity: product.quantity,
                         price: product.price,
                         total: product.total,
                         meta_data: product.meta_data || [],
+                    }))
+                    .map((product) => ({
+                        product_id: product.product_id,
+                        name: product.name,
+                        quantity: product.quantity,
+                        price: product.price,
+                        total: product.total,
+                        meta_data: product.meta_data.filter(
+                            (meta) => meta.key === 'vendedor',
+                        ),
                     })),
-                }))
+            }))
 
-                allOrders = [...allOrders, ...formattedOrders]
-                page += 1
-            }
-
-            if (allOrders.length === 0) {
-                throw new NotFoundException('No se encontraron órdenes.')
-            }
-
-            return allOrders
+            return formattedOrders
         } catch (error) {
             if (error instanceof NotFoundException) throw error
-            throw new InternalServerErrorException(
-                'Hubo un error al obtener las órdenes del administrador.',
-            )
+            throw new InternalServerErrorException('Hubo un error al obtener.')
         }
     }
 
@@ -74,24 +82,32 @@ export class OrdersService {
         productId,
         startDate,
         endDate,
+        page = 1,
+        limit = 10,
     }: {
         productId: number
         startDate?: string
         endDate?: string
+        page?: number
+        limit?: number
     }): Promise<IOrders[]> {
-        const perPage = 100
-        let page = 1
-        let filteredOrders: IOrders[] = []
-
         try {
+            const formattedStartDate = startDate
+                ? formatDate(startDate)
+                : undefined
+            const formattedEndDate = endDate ? formatDate(endDate) : undefined
+
+            let allOrders: IOrders[] = []
+            let currentPage = page
+
             while (true) {
                 const orders: { data: IOrders[] } = await this.WooCommerce.get(
                     'orders',
                     {
-                        page,
-                        per_page: perPage,
-                        after: startDate,
-                        before: endDate,
+                        page: currentPage,
+                        per_page: limit,
+                        after: formattedStartDate,
+                        before: formattedEndDate,
                     },
                 )
 
@@ -105,33 +121,42 @@ export class OrdersService {
                     date_created: order.date_created,
                     date_modified: order.date_modified,
                     date_paid: order.date_paid,
-                    line_items: order.line_items.map((product) => ({
-                        product_id: product.product_id,
-                        name: product.name,
-                        quantity: product.quantity,
-                        price: product.price,
-                        total: product.total,
-                        meta_data: product.meta_data || [],
-                    })),
+                    line_items: order.line_items
+                        .map((product) => ({
+                            product_id: product.product_id,
+                            name: product.name,
+                            quantity: product.quantity,
+                            price: product.price,
+                            total: product.total,
+                            meta_data: product.meta_data || [],
+                        }))
+                        .map((product) => ({
+                            product_id: product.product_id,
+                            name: product.name,
+                            quantity: product.quantity,
+                            price: product.price,
+                            total: product.total,
+                            meta_data: product.meta_data.filter(
+                                (meta) => meta.key === 'vendedor',
+                            ),
+                        })),
                 }))
 
-                const ordersWithProduct = formattedOrders.filter((order) =>
-                    order.line_items.some(
-                        (item) => item.product_id === productId,
-                    ),
-                )
-
-                filteredOrders = [...filteredOrders, ...ordersWithProduct]
-                page += 1
+                allOrders = [...allOrders, ...formattedOrders]
+                currentPage++
             }
-
-            if (filteredOrders.length === 0) {
+            const ordersWithProduct = allOrders.filter((order) =>
+                order.line_items.some(
+                    (item) => item.product_id === Number(productId),
+                ),
+            )
+            if (ordersWithProduct.length === 0) {
                 throw new NotFoundException(
-                    `No se encontraron órdenes con el producto ID: ${productId}.`,
+                    'No se encontraron órdenes con el producto especificado.',
                 )
             }
 
-            return filteredOrders
+            return ordersWithProduct
         } catch (error) {
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
@@ -144,72 +169,86 @@ export class OrdersService {
         startDate,
         endDate,
         vendorId,
+        page = 1,
+        limit = 10,
     }: {
         startDate?: string
         endDate?: string
+        page?: number
+        limit?: number
         vendorId: number
     }): Promise<IOrders[]> {
-        const perPage = 100
-        let page = 1
-        let allOrders: IOrders[] = []
-
         try {
-            while (true) {
-                const orders: { data: IOrders[] } = await this.WooCommerce.get(
-                    'orders',
-                    {
-                        page,
-                        per_page: perPage,
-                        after: startDate,
-                        before: endDate,
-                    },
-                )
+            const formattedStartDate = startDate
+                ? formatDate(startDate)
+                : undefined
+            const formattedEndDate = endDate ? formatDate(endDate) : undefined
 
-                if (orders.data.length === 0) break
+            const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                'orders',
+                {
+                    page,
+                    per_page: limit,
+                    after: formattedStartDate,
+                    before: formattedEndDate,
+                },
+            )
 
-                const formattedOrders = orders.data.map((order) => ({
-                    id: order.id,
-                    number: order.number,
-                    status: order.status,
-                    total: order.total,
-                    date_created: order.date_created,
-                    date_modified: order.date_modified,
-                    date_paid: order.date_paid,
-                    line_items: order.line_items.map((product) => ({
-                        product_id: product.product_id,
-                        name: product.name,
-                        quantity: product.quantity,
-                        price: product.price,
-                        total: product.total,
-                        meta_data: product.meta_data || [],
-                    })),
-                }))
-
-                allOrders = [...allOrders, ...formattedOrders]
-                page += 1
+            if (orders.data.length === 0) {
+                throw new NotFoundException('No se encontraron órdenes')
             }
 
-            // Filtrar las órdenes para incluir solo los productos del vendedor
-            allOrders = allOrders
-                .map((order) => ({
-                    ...order,
-                    line_items: order.line_items.filter((item) =>
+            const formattedOrders = orders.data
+                .map((order) => {
+                    const filteredLineItems = order.line_items.filter((item) =>
                         item.meta_data.some(
-                            (product) =>
-                                product.key === 'vendedor' &&
-                                product.value === String(vendorId),
+                            (meta) =>
+                                meta.key === 'vendedor' &&
+                                meta.value === String(vendorId),
                         ),
-                    ),
-                }))
-                .filter((order) => order.line_items.length > 0) // Excluir órdenes sin productos válidos
+                    )
 
-            if (allOrders.length === 0) {
+                    if (filteredLineItems.length > 0) {
+                        return {
+                            id: order.id,
+                            number: order.number,
+                            status: order.status,
+                            total: order.total,
+                            date_created: order.date_created,
+                            date_modified: order.date_modified,
+                            date_paid: order.date_paid,
+                            line_items: filteredLineItems
+                                .map((product) => ({
+                                    product_id: product.product_id,
+                                    name: product.name,
+                                    quantity: product.quantity,
+                                    price: product.price,
+                                    total: product.total,
+                                    meta_data: product.meta_data || [],
+                                }))
+                                .map((product) => ({
+                                    product_id: product.product_id,
+                                    name: product.name,
+                                    quantity: product.quantity,
+                                    price: product.price,
+                                    total: product.total,
+                                    meta_data: product.meta_data.filter(
+                                        (meta) => meta.key === 'vendedor',
+                                    ),
+                                })),
+                        }
+                    }
+                    return null
+                })
+                .filter((order) => order !== null)
+
+            if (formattedOrders.length === 0) {
                 throw new NotFoundException(
                     'No se encontraron órdenes con productos asociados a este vendedor.',
                 )
             }
 
-            return allOrders
+            return formattedOrders
         } catch (error) {
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
@@ -218,19 +257,114 @@ export class OrdersService {
         }
     }
 
-    async getOrdersSellerByProduct({
+    /* async getOrdersSellerByProduct({
         productId,
         startDate,
         endDate,
         vendorId,
+        page = 1,
+        limit = 10,
     }: {
         productId: string
         startDate?: string
         endDate?: string
         vendorId: number
+        page?: number
+        limit?: number
     }): Promise<IOrders[]> {
-        const perPage = 100
-        let page = 1
+        const formattedStartDate = startDate ? formatDate(startDate) : undefined
+        const formattedEndDate = endDate ? formatDate(endDate) : undefined
+
+        let allOrders: IOrders[] = []
+        let currentPage = 1
+
+        try {
+            while (true) {
+                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                    'orders',
+                    {
+                        page: currentPage,
+                        per_page: limit,
+                        after: formattedStartDate,
+                        before: formattedEndDate,
+                    },
+                )
+
+                if (orders.data.length === 0) break
+
+                allOrders = [...allOrders, ...orders.data]
+                currentPage++
+            }
+
+            const filteredOrders = allOrders
+                .map((order) => {
+                    const filteredLineItems = order.line_items.filter(
+                        (item) =>
+                            item.product_id === Number(productId) &&
+                            item.meta_data.some(
+                                (meta) =>
+                                    meta.key === 'vendedor' &&
+                                    meta.value === String(vendorId),
+                            ),
+                    )
+
+                    if (filteredLineItems.length > 0) {
+                        return {
+                            id: order.id,
+                            number: order.number,
+                            status: order.status,
+                            total: order.total,
+                            date_created: order.date_created,
+                            date_modified: order.date_modified,
+                            date_paid: order.date_paid,
+                            line_items: filteredLineItems.map((product) => ({
+                                product_id: product.product_id,
+                                name: product.name,
+                                quantity: product.quantity,
+                                price: product.price,
+                                total: product.total,
+                                meta_data: product.meta_data || [],
+                            })),
+                        }
+                    }
+                    return null
+                })
+                .filter((order) => order !== null)
+
+            if (filteredOrders.length === 0) {
+                throw new NotFoundException(
+                    `No se encontraron órdenes para el producto con ID ${productId}.`,
+                )
+            }
+
+            return filteredOrders
+        } catch (error) {
+            if (error instanceof NotFoundException) throw error
+            throw new InternalServerErrorException(
+                'Hubo un error al obtener las órdenes para el producto especificado.',
+            )
+        }
+    } */
+
+    async getOrdersSellerByProduct({
+        productId,
+        startDate,
+        endDate,
+        vendorId,
+        page = 1,
+        limit = 10,
+    }: {
+        productId: string
+        startDate?: string
+        endDate?: string
+        vendorId: number
+        page?: number
+        limit?: number
+    }): Promise<IOrders[]> {
+        const formattedStartDate = startDate ? formatDate(startDate) : undefined
+        const formattedEndDate = endDate ? formatDate(endDate) : undefined
+
+        let currentPage = page
         let allOrders: IOrders[] = []
 
         try {
@@ -238,16 +372,33 @@ export class OrdersService {
                 const orders: { data: IOrders[] } = await this.WooCommerce.get(
                     'orders',
                     {
-                        page,
-                        per_page: perPage,
-                        after: startDate,
-                        before: endDate,
+                        page: currentPage,
+                        per_page: limit,
+                        after: formattedStartDate,
+                        before: formattedEndDate,
                     },
                 )
 
                 if (orders.data.length === 0) break
 
-                const formattedOrders = orders.data.map((order) => ({
+                allOrders = [...allOrders, ...orders.data]
+
+                currentPage++
+            }
+
+            const filteredOrders = allOrders
+                .filter((order) =>
+                    order.line_items.some(
+                        (item) =>
+                            item.product_id === Number(productId) &&
+                            item.meta_data.some(
+                                (meta) =>
+                                    meta.key === 'vendedor' &&
+                                    meta.value === String(vendorId),
+                            ),
+                    ),
+                )
+                .map((order) => ({
                     id: order.id,
                     number: order.number,
                     status: order.status,
@@ -255,47 +406,39 @@ export class OrdersService {
                     date_created: order.date_created,
                     date_modified: order.date_modified,
                     date_paid: order.date_paid,
-                    line_items: order.line_items.map((item) => ({
-                        product_id: item.product_id,
-                        name: item.name,
-                        quantity: item.quantity,
-                        price: item.price,
-                        total: item.total,
-                        meta_data: item.meta_data || [],
-                    })),
-                }))
-
-                allOrders = [...allOrders, ...formattedOrders]
-                page += 1
-            }
-
-            // Filtrar las órdenes para incluir solo el producto específico
-            allOrders = allOrders
-                .map((order) => ({
-                    ...order,
-                    line_items: order.line_items.filter(
-                        (item) =>
-                            item.product_id === Number(productId) &&
-                            item.meta_data.some(
-                                (product) =>
-                                    product.key === 'vendedor' &&
-                                    product.value === String(vendorId),
+                    line_items: order.line_items
+                        .filter(
+                            (item) =>
+                                item.product_id === Number(productId) &&
+                                item.meta_data.some(
+                                    (meta) =>
+                                        meta.key === 'vendedor' &&
+                                        meta.value === String(vendorId),
+                                ),
+                        )
+                        .map((product) => ({
+                            product_id: product.product_id,
+                            name: product.name,
+                            quantity: product.quantity,
+                            price: product.price,
+                            total: product.total,
+                            meta_data: product.meta_data.filter(
+                                (meta) => meta.key === 'vendedor',
                             ),
-                    ),
+                        })),
                 }))
-                .filter((order) => order.line_items.length > 0) // Excluir órdenes sin el producto válido
 
-            if (allOrders.length === 0) {
+            if (filteredOrders.length === 0) {
                 throw new NotFoundException(
                     `No se encontraron órdenes para el producto con ID ${productId}.`,
                 )
             }
 
-            return allOrders
+            return filteredOrders
         } catch (error) {
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
-                'Hubo un error al obtener las órdenes del producto.',
+                'Hubo un error al obtener las órdenes para el producto especificado.',
             )
         }
     }
