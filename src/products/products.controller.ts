@@ -32,20 +32,34 @@ export class ProductsController {
     constructor(private readonly productsService: ProductsService) {}
 
     @Get()
-    @ApiOperation({
-        summary: 'Ruta de Administrador para obtener todos los productos',
+    @ApiOperation({ summary: 'Ruta de Administrador para obtener todos los productos' })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        description: 'Número de página',
+        example: 1,
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        description: 'Cantidad de productos por página (máximo 10)',
+        example: 10,
     })
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
-    async getAllProducts() {
-        return await this.productsService.getAllProducts()
+    async getAllProducts(
+        @Req() request: Express.Request,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        if (!page) page = '1'
+        if (!limit) limit = '10'
+        return await this.productsService.getAllProducts(Number(page), Number(limit))
     }
 
     @Get('user')
-    @ApiOperation({
-        summary: 'Ruta de Vendedor para obtener sus productos propios',
-    })
+    @ApiOperation({ summary: 'Ruta de Vendedor para obtener sus productos propios' })
     @ApiQuery({
         name: 'page',
         required: false,
@@ -68,20 +82,13 @@ export class ProductsController {
     ) {
         const user = request.user
         const { id_wooCommerce: vendorId } = user
-        const pageNum = page ? Number(page) : 1
-        const limitNum = limit ? Number(limit) : 10
-
-        return await this.productsService.getProductsByUser({
-            vendorId,
-            page: pageNum,
-            limit: limitNum,
-        })
+        if (!page) page = '1' 
+        if (!limit) limit = '10'
+        return await this.productsService.getProductsByUser( vendorId, Number(page), Number(limit) )
     }
 
     @Get(':id')
-    @ApiOperation({
-        summary: 'Ruta de Vendedor para obtener un producto propio por ID',
-    })
+    @ApiOperation({ summary: 'Ruta de Vendedor para obtener un producto propio por ID' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -132,10 +139,7 @@ export class ProductsController {
     }
 
     @Patch('delete/:id')
-    @ApiOperation({
-        summary:
-            'Ruta de vendedor para cambiar el estatus de un producto a inactivo',
-    })
+    @ApiOperation({ summary: 'Ruta de vendedor para cambiar el estatus de un producto a inactivo' })
     @ApiParam({
         name: 'id',
         required: true,

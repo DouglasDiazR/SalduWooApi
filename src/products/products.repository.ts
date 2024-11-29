@@ -10,24 +10,18 @@ export class ProductsRepository {
         private productsRepository: Repository<Products>,
     ) {}
 
-    async getAllProducts() {
-        return await this.productsRepository.find()
+    async getAllProducts( page : number , limit : number ) {
+        return await this.productsRepository.findAndCount({ 
+            take: limit, 
+            skip: (page - 1) * limit
+        })
     }
 
-    async getProductsByUser({
-        vendorId,
-        page = 1,
-        limit = 10,
-    }: {
-        vendorId: number
-        page?: number
-        limit?: number
-    }) {
-        const skip = (page - 1) * limit
-        return await this.productsRepository.find({
+    async getProductsByUser( vendorId : number , page : number , limit : number ) {
+        return await this.productsRepository.findAndCount({
             where: { user: { id_wooCommerce: vendorId } },
             take: limit,
-            skip: skip,
+            skip: (page - 1) * limit,
         })
     }
 

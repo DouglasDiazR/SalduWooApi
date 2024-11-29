@@ -39,6 +39,7 @@ export class AuthRepository {
 
             return {
                 message: 'Usuario logeado',
+                role: user.role,
                 token,
             }
         } catch (error) {
