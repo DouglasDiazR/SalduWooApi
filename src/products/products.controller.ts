@@ -9,7 +9,6 @@ import {
     HttpCode,
     Req,
     Query,
-    ForbiddenException,
 } from '@nestjs/common'
 import { ProductsService } from './products.service'
 import { UpdateProductDto } from './dto/update-product.dto'
@@ -98,7 +97,6 @@ export class ProductsController {
         const user = request.user
         const { id_wooCommerce: vendorId } = user
 
-        // Llamamos al servicio para obtener el producto
         return await this.productsService.getProductForSeller({
             productId: id,
             vendorId,

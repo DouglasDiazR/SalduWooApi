@@ -89,21 +89,18 @@ export class ProductsService {
         vendorId?: number
     }) {
         try {
-            // Obtenemos el producto desde WooCommerce
             const response = await this.WooComerce.get(`products/${productId}`)
             const product = response.data
 
-            // Construir un objeto con la estructura solicitada
             const productDetails = {
-                product_id: product.id, // Asumiendo que el id es el product_id
+                product_id: product.id,
                 name: product.name,
-                quantity: product.stock_quantity || 0, // Si no hay stock_quantity, asignamos 0 por defecto
+                quantity: product.stock_quantity || 0,
                 price: product.price,
-                total: product.total_sales || 0, // Si no hay total_sales, asignamos 0 por defecto
-                meta_data: product.meta_data || [], // meta_data puede ser vacío si no existe
+                total: product.total_sales || 0,
+                meta_data: product.meta_data || [],
             }
 
-            // Si el rol es Seller, verificamos si el producto pertenece al vendedor
             if (role === Role.Seller && product.vendor_id !== vendorId) {
                 throw new ForbiddenException(
                     'No tienes permiso para acceder a este producto.',
@@ -131,12 +128,10 @@ export class ProductsService {
         vendorId: number
     }) {
         try {
-            // Obtenemos el producto desde WooCommerce
             const response = await this.WooComerce.get(`products/${productId}`)
             const product = response.data
             console.log('Producto:', product)
 
-            // Verificamos si el producto pertenece al vendedor
             const vendorMetaData = product.meta_data.find(
                 (meta) => meta.key === 'vendedor',
             )
@@ -147,14 +142,13 @@ export class ProductsService {
                 )
             }
 
-            // Construimos el objeto con los detalles del producto
             const productDetails = {
-                product_id: product.id, // Asumiendo que el id es el product_id
+                product_id: product.id,
                 name: product.name,
-                quantity: product.stock_quantity || 0, // Si no hay stock_quantity, asignamos 0 por defecto
+                quantity: product.stock_quantity || 0,
                 price: product.price,
-                total: product.total_sales || 0, // Si no hay total_sales, asignamos 0 por defecto
-                meta_data: product.meta_data || [], // meta_data puede ser vacío si no existe
+                total: product.total_sales || 0,
+                meta_data: product.meta_data || [],
             }
 
             return productDetails
