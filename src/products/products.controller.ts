@@ -5,8 +5,11 @@ import {
     Body,
     Patch,
     Param,
-    Delete,
     UseGuards,
+    HttpCode,
+    Req,
+    Query,
+    ForbiddenException,
 } from '@nestjs/common'
 import { ProductsService } from './products.service'
 import { UpdateProductDto } from './dto/update-product.dto'
@@ -14,7 +17,14 @@ import { CreateProductDto } from './dto/create-product.dto'
 import { AuthGuard } from 'src/guards/auth.guard'
 import { Roles } from 'src/decorators/roles.decorator'
 import { Role } from 'src/enum/role.enum'
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiOperation,
+    ApiParam,
+    ApiQuery,
+    ApiTags,
+} from '@nestjs/swagger'
 
 @ApiTags('Productos')
 @ApiBearerAuth()
@@ -26,6 +36,7 @@ export class ProductsController {
     @ApiOperation({
         summary: 'Ruta de Administrador para obtener todos los productos',
     })
+    @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
     async getAllProducts() {
@@ -33,37 +44,69 @@ export class ProductsController {
     }
 
     @Get('user')
-    @ApiOperation({ summary: 'Ruta de vendedor para obtener sus productos' })
-    @ApiBody({
-        required: true,
-        schema: {
-            type: 'number',
-            description: 'id del usuario',
-            example: { id: 1 },
-        },
+    @ApiOperation({
+        summary: 'Ruta de Vendedor para obtener sus productos propios',
     })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        description: 'Número de página',
+        example: 1,
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        description: 'Cantidad de productos por página (máximo 10)',
+        example: 10,
+    })
+    @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)
-    async getProductsByUser(@Body('id') id: string) {
-        return await this.productsService.getProductsByUser(Number(id))
+    async getProductsByUser(
+        @Req() request: Express.Request,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        const user = request.user
+        const { id_wooCommerce: vendorId } = user
+        const pageNum = page ? Number(page) : 1
+        const limitNum = limit ? Number(limit) : 10
+
+        return await this.productsService.getProductsByUser({
+            vendorId,
+            page: pageNum,
+            limit: limitNum,
+        })
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Ruta de vendedor para obtener un producto por id'})
-    @ApiParam({ 
-      name: 'id', 
-      required: true, 
-      description: 'id del producto', 
-      example: '5122' 
+    @ApiOperation({
+        summary: 'Ruta de Vendedor para obtener un producto propio por ID',
+    })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'ID del producto',
+        example: 5122,
     })
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)
-    async getProductById(@Param('id') id: string) {
-        return await this.productsService.getProductById(Number(id))
+    async getProductByIdForSeller(
+        @Req() request: Express.Request,
+        @Param('id') id: string,
+    ) {
+        const user = request.user
+        const { id_wooCommerce: vendorId } = user
+
+        // Llamamos al servicio para obtener el producto
+        return await this.productsService.getProductForSeller({
+            productId: id,
+            vendorId,
+        })
     }
 
     @Post('create')
-    @ApiOperation({ summary: 'Ruta de vendedor para crear un producto'})
+    @ApiOperation({ summary: 'Ruta de vendedor para crear un producto' })
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)
     async createProduct(@Body() createProductDto: CreateProductDto) {
@@ -71,12 +114,12 @@ export class ProductsController {
     }
 
     @Patch('update/:id')
-    @ApiOperation({ summary: 'Ruta de vendedor para actualizar un producto'})
+    @ApiOperation({ summary: 'Ruta de vendedor para actualizar un producto' })
     @ApiParam({
-      name: 'id',
-      required: true,
-      description: 'id del producto',
-      example: '5122',
+        name: 'id',
+        required: true,
+        description: 'id del producto',
+        example: '5122',
     })
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)
@@ -91,12 +134,15 @@ export class ProductsController {
     }
 
     @Patch('delete/:id')
-    @ApiOperation({ summary: 'Ruta de vendedor para cambiar el estatus de un producto a inactivo'})
+    @ApiOperation({
+        summary:
+            'Ruta de vendedor para cambiar el estatus de un producto a inactivo',
+    })
     @ApiParam({
-      name: 'id',
-      required: true,
-      description: 'id del producto',
-      example: '5122',
+        name: 'id',
+        required: true,
+        description: 'id del producto',
+        example: '5122',
     })
     @UseGuards(AuthGuard)
     @Roles(Role.Seller)

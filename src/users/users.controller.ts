@@ -73,7 +73,6 @@ export class UsersController {
         name: 'id',
         required: true,
         description: 'ID del usuario',
-        example: '1',
     })
     @HttpCode(200)
     @UseGuards(AuthGuard)
