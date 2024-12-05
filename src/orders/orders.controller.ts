@@ -18,6 +18,7 @@ import {
     ApiQuery,
     ApiTags,
 } from '@nestjs/swagger'
+import { Status } from 'src/enum/status.enum'
 
 @ApiTags('Ordenes')
 @ApiBearerAuth()
@@ -29,6 +30,12 @@ export class OrdersController {
     @ApiOperation({
         summary:
             'Ruta de Administrador para obtener todas las ordenes de todos los productos',
+    })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        description:
+            'Filtrar ordenes por estado (pending, processing, on-hold, completed, cancelled, refunded, failed or trash.)',
     })
     @ApiQuery({
         name: 'startDate',
@@ -58,6 +65,7 @@ export class OrdersController {
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
     async getOrdersForAdmin(
+        @Query('status') status?: Status,
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
         @Query('page') page?: string,
@@ -66,6 +74,7 @@ export class OrdersController {
         const pageNum = page ? Number(page) : 1
         const limintNum = limit ? Number(limit) : 10
         return await this.ordersService.getAllOrders({
+            status,
             startDate,
             endDate,
             page: pageNum,
@@ -129,10 +138,77 @@ export class OrdersController {
         })
     }
 
+    @Get('admin/seller')
+    @ApiOperation({
+        summary:
+            'Ruta de Administrador para obtener las ordenes de un vendedor',
+    })
+    @ApiQuery({
+        name: 'vendorId',
+        required: false,
+        description: 'ID del vendedor',
+        example: 5122,
+    })
+    @ApiQuery({
+        name: 'name',
+        required: false,
+        description: 'Nombre del vendedor',
+        example: 'Construcciones Colombia',
+    })
+    @ApiQuery({
+        name: 'startDate',
+        required: false,
+        description:
+            'Fecha de inicio de la búsqueda de ordenes (formato: YYYY-MM-DD)',
+    })
+    @ApiQuery({
+        name: 'endDate',
+        required: false,
+        description:
+            'Fecha de fin de la búsqueda de ordenes (formato: YYYY-MM-DD)',
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        description: 'Número de página',
+        example: 1,
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        description: 'Cantidad de órdenes por página (máximo 10)',
+        example: 10,
+    })
+    @HttpCode(200)
+    @UseGuards(AuthGuard)
+    @Roles(Role.Admin)
+    async getOrdersBySeller(
+        @Query('vendorId') vendorId: string,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        const pageNum = page ? Number(page) : 1
+        const limitNum = limit ? Number(limit) : 10
+        return await this.ordersService.getOrdersBySeller({
+            vendorId,
+            startDate,
+            endDate,
+            page: pageNum,
+            limit: limitNum,
+        })
+    }
     @Get('seller')
     @ApiOperation({
         summary:
             'Ruta de Vendedor para obtener todas las ordenes de los productos propios',
+    })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        description:
+            'Filtrar ordenes por estado (pending, processing, on-hold, completed, cancelled, refunded, failed or trash.)',
     })
     @ApiQuery({
         name: 'startDate',
@@ -163,6 +239,7 @@ export class OrdersController {
     @Roles(Role.Seller)
     async getOrdersForSeller(
         @Req() request: Express.Request,
+        @Query('status') status?: Status,
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
         @Query('page') page?: string,
@@ -173,6 +250,7 @@ export class OrdersController {
         const pageNum = page ? Number(page) : 1
         const limintNum = limit ? Number(limit) : 10
         return await this.ordersService.getAllOrdersForSeller({
+            status,
             startDate,
             endDate,
             vendorId,
