@@ -5,10 +5,12 @@ import { ProductsRepository } from './products.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Products } from 'src/entities/products.entity';
 import { WooCommerceConfig } from 'src/config/wooCommerce';
+import { UsersRepository } from 'src/users/users.repository';
+import { Users } from 'src/entities/users.entity';
 
 @Module({
   controllers: [ProductsController],
-  providers: [ProductsService, ProductsRepository, WooCommerceConfig],
-  imports: [TypeOrmModule.forFeature([Products])],
+  providers: [ProductsService, ProductsRepository, UsersRepository, WooCommerceConfig],
+  imports: [TypeOrmModule.forFeature([Products, Users])],
 })
 export class ProductsModule {}
