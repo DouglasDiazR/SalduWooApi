@@ -8,11 +8,13 @@ import { UpdateProductDto } from './dto/update-product.dto'
 import { ProductsRepository } from './products.repository'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import { Role } from 'src/enum/role.enum'
+import { UsersRepository } from 'src/users/users.repository'
 
 @Injectable()
 export class ProductsService {
     constructor(
         private readonly productsRepository: ProductsRepository,
+        private readonly usersRepository: UsersRepository,
         private readonly WooComerce: WooCommerceRestApi,
     ) {}
 
@@ -100,32 +102,25 @@ export class ProductsService {
         }
     }
 
-    async getProductById({
-        productId,
-        role,
-        vendorId,
-    }: {
-        productId: number
-        role: Role
-        vendorId?: number
-    }) {
+    async getProductById( productId: number, userId ) {
         try {
             const response = await this.WooComerce.get(`products/${productId}`)
             const product = response.data
+            const user = await this.usersRepository.getUserById(userId)
+            
+            if (user.role === Role.Seller) {
+                const vendorMetaData = product.meta_data.find( (meta) => meta.key === 'vendedor' )
+                if (vendorMetaData?.value !== String(user.id_wooCommerce)) {
+                    throw new ForbiddenException('No tienes permiso para acceder a este producto.')
+                }
+            }
 
             const productDetails = {
                 product_id: product.id,
                 name: product.name,
-                quantity: product.stock_quantity || 0,
+                quantity: product.stock_quantity,
                 price: product.price,
-                total: product.total_sales || 0,
-                meta_data: product.meta_data || [],
-            }
-
-            if (role === Role.Seller && product.vendor_id !== vendorId) {
-                throw new ForbiddenException(
-                    'No tienes permiso para acceder a este producto.',
-                )
+                meta_data: product.meta_data,
             }
 
             return productDetails
@@ -141,13 +136,7 @@ export class ProductsService {
         }
     }
 
-    async getProductForSeller({
-        productId,
-        vendorId,
-    }: {
-        productId: string
-        vendorId: number
-    }) {
+    async getProductForSeller( productId : number, vendorId : number ) {
         try {
             const response = await this.WooComerce.get(`products/${productId}`)
             const product = response.data

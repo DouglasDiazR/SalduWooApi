@@ -83,7 +83,7 @@ export class ProductsController {
         const user = request.user
         const { id_wooCommerce: vendorId } = user
         if (!page) page = '1' 
-        if (!limit) limit = '10'
+        if (!limit) limit = '12'
         return await this.productsService.getProductsByUser( vendorId, Number(page), Number(limit) )
     }
 
@@ -96,18 +96,15 @@ export class ProductsController {
         example: 5122,
     })
     @UseGuards(AuthGuard)
-    @Roles(Role.Seller)
-    async getProductByIdForSeller(
+    @Roles(Role.Seller, Role.Admin)
+    async getProductById(
         @Req() request: Express.Request,
-        @Param('id') id: string,
+        @Param('id') id: string
     ) {
-        const user = request.user
-        const { id_wooCommerce: vendorId } = user
-
-        return await this.productsService.getProductForSeller({
-            productId: id,
-            vendorId,
-        })
+        const productId = Number(id)
+        const userId = request.user.id_user
+        console.log(request.user)
+        return await this.productsService.getProductById( productId, userId )
     }
 
     @Post('create')
