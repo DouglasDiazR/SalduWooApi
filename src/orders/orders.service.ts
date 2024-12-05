@@ -6,17 +6,20 @@ import {
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import IOrders from './orders.interface'
 import { formatDate } from 'src/utils/formatDate'
+import { Status } from 'src/enum/status.enum'
 
 @Injectable()
 export class OrdersService {
     constructor(private readonly WooCommerce: WooCommerceRestApi) {}
 
     async getAllOrders({
+        status,
         startDate,
         endDate,
         page = 1,
         limit = 10,
     }: {
+        status?: Status
         startDate?: string
         endDate?: string
         page?: number
@@ -31,6 +34,7 @@ export class OrdersService {
             const orders: { data: IOrders[] } = await this.WooCommerce.get(
                 'orders',
                 {
+                    status,
                     page,
                     per_page: limit,
                     after: formattedStartDate,
@@ -165,13 +169,97 @@ export class OrdersService {
         }
     }
 
+    async getOrdersBySeller({
+        vendorId,
+        startDate,
+        endDate,
+        page = 1,
+        limit = 10,
+    }: {
+        vendorId: string
+        startDate?: string
+        endDate?: string
+        page?: number
+        limit?: number
+    }): Promise<IOrders[]> {
+        try {
+            const formattedStartDate = startDate
+                ? formatDate(startDate)
+                : undefined
+            const formattedEndDate = endDate ? formatDate(endDate) : undefined
+
+            let allOrders: IOrders[] = []
+            let currentPage = page
+
+            while (true) {
+                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                    'orders',
+                    {
+                        page: currentPage,
+                        per_page: limit,
+                        after: formattedStartDate,
+                        before: formattedEndDate,
+                    },
+                )
+
+                if (orders.data.length === 0) break
+
+                const formattedOrders = orders.data.map((order) => ({
+                    id: order.id,
+                    number: order.number,
+                    status: order.status,
+                    total: order.total,
+                    date_created: order.date_created,
+                    date_modified: order.date_modified,
+                    date_paid: order.date_paid,
+                    line_items: order.line_items.map((product) => ({
+                        product_id: product.product_id,
+                        name: product.name,
+                        quantity: product.quantity,
+                        price: product.price,
+                        total: product.total,
+                        meta_data: product.meta_data?.filter(
+                            (meta) =>
+                                meta.key === 'vendedor' &&
+                                meta.value === vendorId,
+                        ),
+                    })),
+                }))
+
+                allOrders = [...allOrders, ...formattedOrders]
+                currentPage++
+            }
+
+            const ordersByVendor = allOrders.filter((order) =>
+                order.line_items.some(
+                    (item) => item.meta_data && item.meta_data.length > 0,
+                ),
+            )
+
+            if (ordersByVendor.length === 0) {
+                throw new NotFoundException(
+                    'No se encontraron órdenes para el vendedor especificado.',
+                )
+            }
+
+            return ordersByVendor
+        } catch (error) {
+            if (error instanceof NotFoundException) throw error
+            throw new InternalServerErrorException(
+                'Hubo un error al obtener las órdenes para el vendedor especificado.',
+            )
+        }
+    }
+
     async getAllOrdersForSeller({
+        status,
         startDate,
         endDate,
         vendorId,
         page = 1,
         limit = 10,
     }: {
+        status?: Status
         startDate?: string
         endDate?: string
         page?: number
@@ -187,6 +275,7 @@ export class OrdersService {
             const orders: { data: IOrders[] } = await this.WooCommerce.get(
                 'orders',
                 {
+                    status,
                     page,
                     per_page: limit,
                     after: formattedStartDate,
