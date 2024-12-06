@@ -11,6 +11,7 @@ import { JWT_SECRET } from './config/envs'
 import { UsersModule } from './users/users.module'
 import { ProductsModule } from './products/products.module'
 import { OrdersModule } from './orders/orders.module'
+import { SiigoModule } from './siigo/siigo.module';
 
 @Module({
     imports: [
@@ -33,6 +34,7 @@ import { OrdersModule } from './orders/orders.module'
             signOptions: { expiresIn: '1h' },
             secret: JWT_SECRET,
         }),
+        SiigoModule,
     ],
     controllers: [AppController],
     providers: [AppService],

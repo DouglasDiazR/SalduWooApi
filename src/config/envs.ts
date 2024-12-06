@@ -15,3 +15,9 @@ export const DB_HOST = process.env.DB_HOST
 export const DB_PORT = process.env.DB_PORT
 
 export const JWT_SECRET = process.env.JWT_SECRET
+
+export const SIIGO_AUTH_URL = process.env.SIIGO_AUTH_URL
+export const SIIGO_API_URL = process.env.SIIGO_API_URL
+export const SIIGO_USERNAME = process.env.SIIGO_USERNAME
+export const SIIGO_ACCESSKEY = process.env.SIIGO_ACCESSKEY
+export const SIIGO_PARTNERID = process.env.SIIGO_PARTNERID
