@@ -79,7 +79,7 @@ import {
   
     @IsArray()
     @IsNotEmpty()
-    readonly prices: Price[];
+    readonly prices?: Price[];
   
     @IsString()
     @IsOptional()
