@@ -22,7 +22,7 @@ export class Charge {
     taxDiscount: TaxDiscount
 
     @ManyToOne(() => SalduProduct, (salduProduct) => salduProduct.charges)
-    product: SalduProduct
+    salduProduct: SalduProduct
 
     @CreateDateColumn({
         type: 'timestamp',

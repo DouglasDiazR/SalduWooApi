@@ -34,7 +34,7 @@ export class SalduProduct {
     @Column({ type: 'float', nullable: true })
     price: number
 
-    @OneToMany(() => Charge, (charge) => charge.product)
+    @OneToMany(() => Charge, (charge) => charge.salduProduct)
     charges: Charge[]
 
     @CreateDateColumn({
