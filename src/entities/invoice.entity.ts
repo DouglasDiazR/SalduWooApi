@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { PaymentOption } from './payment-option.entity'
 import { InvoiceErrorLog } from './invoice-error-log.entity'
+import { SalduProduct } from './saldu-products.entity'
 
 @Entity('invoices')
 export class Invoice {
@@ -8,10 +9,13 @@ export class Invoice {
     id: number
 
     @Column({ type: 'int', name: 'order_id' })
-    orderId: string
+    orderId: number
 
     @Column({ type: 'float', name: 'order_total' })
-    orderTotal: string
+    orderTotal: number
+
+    @Column({ type: 'float', name: 'order_total' })
+    value: number
 
     @Column({ type: 'varchar', name: 'siigo_id', length: 256, nullable: true })
     siigoId: string
@@ -37,8 +41,11 @@ export class Invoice {
     @OneToMany(() => InvoiceErrorLog, (errorLog) => errorLog.invoice)
     errorLogs: InvoiceErrorLog
 
-    @ManyToOne(() => PaymentOption, (paymentOption) => paymentOption.orders)
+    @ManyToOne(() => PaymentOption, (paymentOption) => paymentOption.invoices)
     paymentOption: PaymentOption
+
+    @ManyToOne(() => SalduProduct, (salduProduct) => salduProduct.invoices)
+    salduProduct: SalduProduct
 
     @CreateDateColumn({
         type: 'timestamp',

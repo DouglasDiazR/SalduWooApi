@@ -3,6 +3,16 @@ interface IOrders {
     number: string
     status: string
     total: number
+    customer: {
+        documentType: string
+        document: string
+        businessName: string
+        firstname: string
+        lastname: string
+        address: string
+        phone: string
+        email: string
+    }
     date_created: string
     date_modified: string
     date_paid: string

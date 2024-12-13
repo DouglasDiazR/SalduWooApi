@@ -8,6 +8,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm'
 import { Charge } from './charge.entity'
+import { Invoice } from './invoice.entity'
 
 @Entity('saldu_products')
 export class SalduProduct {
@@ -36,6 +37,9 @@ export class SalduProduct {
 
     @OneToMany(() => Charge, (charge) => charge.salduProduct)
     charges: Charge[]
+
+    @OneToMany(() => Invoice, (invoice) => invoice.salduProduct)
+    invoices: Invoice[]
 
     @CreateDateColumn({
         type: 'timestamp',

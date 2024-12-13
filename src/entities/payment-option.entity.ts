@@ -27,7 +27,7 @@ import { Invoice } from './invoice.entity';
     isActive: boolean;
   
     @OneToMany(() => Invoice, (invoice) => invoice.paymentOption)
-    orders: Invoice[];
+    invoices: Invoice[];
   
     @CreateDateColumn({
       type: 'timestamp',

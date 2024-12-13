@@ -11,6 +11,7 @@ import {
   }
   
   class Item {
+    id: string;
     code: string;
     description?: string;
     quantity: number;
@@ -47,7 +48,7 @@ import {
       id_type: string;
       identification: string;
       name: string[];
-      addres: {
+      address: {
         address: string;
         city: {
           country_code: string;
