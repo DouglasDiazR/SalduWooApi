@@ -14,7 +14,7 @@ export class Invoice {
     @Column({ type: 'float', name: 'order_total' })
     orderTotal: number
 
-    @Column({ type: 'float', name: 'order_total' })
+    @Column({ type: 'float', name: 'value' })
     value: number
 
     @Column({ type: 'varchar', name: 'siigo_id', length: 256, nullable: true })
