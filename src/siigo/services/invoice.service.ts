@@ -7,6 +7,9 @@ import { PaymentOptionService } from './payment-option.service'
 import { SiigoInvoiceDTO } from '../dtos/siigo-invoice.dto'
 import IOrders from 'src/orders/orders.interface'
 import { SiigoService } from './siigo.service'
+import { SiigoResponseDTO } from '../dtos/siigo-response.dto'
+import { InvoiceErrorLogService } from './invoice-error-log.service'
+import { CreateInvoiceErrorLogDTO } from '../dtos/invoice-error-log.dto'
 
 @Injectable()
 export class InvoiceService {
@@ -14,6 +17,7 @@ export class InvoiceService {
         @InjectRepository(Invoice)
         private invoiceRepository: Repository<Invoice>,
         private paymentOptionService: PaymentOptionService,
+        private invoiceErrorLogService: InvoiceErrorLogService,
         private siigoService: SiigoService,
     ) {}
 
@@ -79,10 +83,11 @@ export class InvoiceService {
         return await this.invoiceRepository.save(invoice)
     }
 
-    async siigoInvoiceUpload(payload: Invoice, order: IOrders) {
+    async siigoInvoiceUpload(invoiceId: number, order: IOrders) {
+        const invoice = await this.findOne(invoiceId)
         const siigoInvoiceRequest: SiigoInvoiceDTO = {
             document: { id: 1111 },
-            date: payload.updatedAt.toISOString().substring(0, 10),
+            date: invoice.updatedAt.toISOString().substring(0, 10),
             customer: {
                 person_type:
                     order.customer.documentType == 'NIT' ? 'Company' : 'Person',
@@ -120,15 +125,15 @@ export class InvoiceService {
             mail: { send: true },
             items: [
                 {
-                    id: payload.salduProduct.siigoId,
-                    code: payload.salduProduct.internalCode,
-                    description: payload.salduProduct.description,
+                    id: invoice.salduProduct.siigoId,
+                    code: invoice.salduProduct.internalCode,
+                    description: invoice.salduProduct.description,
                     quantity: 1,
-                    taxed_price: payload.value,
+                    taxed_price: invoice.value,
                     discount: 0,
                     taxes: [
                         {
-                            id: payload.salduProduct.charges[0].taxDiscount
+                            id: invoice.salduProduct.charges[0].taxDiscount
                                 .siigoId, //Se van a manejar más de un impuesto por producto?
                         },
                     ],
@@ -136,12 +141,37 @@ export class InvoiceService {
             ],
             payments: [
                 {
-                    id: payload.paymentOption.siigoId,
-                    value: payload.value,
+                    id: invoice.paymentOption.siigoId,
+                    value: invoice.value,
                 },
             ],
             globaldiscounts: []
         }
         const siigoResponse: SiigoResponseDTO = await this.siigoService.CreateInvoice(siigoInvoiceRequest)
+        if (siigoResponse.Errors) {
+            console.log(`Siigo Request Rejection - Status: ${siigoResponse.Status}`);
+            siigoResponse.Errors.forEach(async error => {
+                console.log(`Siigo Error "${error.Code}": ${error.Message}`);
+                const errorLog: CreateInvoiceErrorLogDTO = {
+                    code: error.Code,
+                    message: error.Message,
+                    param: error.Params[0].code,
+                    invoiceId: invoiceId
+                }
+                await this.invoiceErrorLogService.createEntity(errorLog)
+            });
+        } else {
+            console.log(`Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`);
+            const siigoData: UpdateInvoiceDTO = {
+                siigoId: siigoResponse.id,
+                siigoStatus: siigoResponse.stamp.status,
+                siigoDate: siigoResponse.date,
+                siigoName: siigoResponse.name,
+                cufe: siigoResponse.stamp.cufe,
+                publicUrl: siigoResponse.public_url,
+                customerMailed: siigoResponse.mail.status == 'sent' ? true : false
+            }
+            await this.updateEntity(invoiceId, siigoData)
+        }
     }
 }

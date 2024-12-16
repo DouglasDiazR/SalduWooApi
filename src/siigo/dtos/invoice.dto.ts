@@ -50,6 +50,11 @@ export class CreateInvoiceDTO {
     @ApiProperty()
     readonly publicUrl?: string
 
+    @IsBoolean()
+    @IsOptional()
+    @ApiProperty()
+    readonly customerMailed?: boolean
+
     @IsNumber()
     @IsOptional()
     @ApiProperty()

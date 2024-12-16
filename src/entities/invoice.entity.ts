@@ -20,7 +20,7 @@ export class Invoice {
     @Column({ type: 'varchar', name: 'siigo_id', length: 256, nullable: true })
     siigoId: string
 
-    @Column({ type: 'varchar', name: 'siigo_status', length: 256, nullable: true })
+    @Column({ type: 'varchar', name: 'siigo_status', length: 256, nullable: true, default: 'On Hold' })
     siigoStatus: string
 
     @Column({ type: 'varchar', name: 'siigo_name', length: 256, nullable: true })
