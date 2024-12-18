@@ -11,6 +11,7 @@ import { SiigoResponseDTO } from '../dtos/siigo-response.dto'
 import { InvoiceErrorLogService } from './invoice-error-log.service'
 import { CreateInvoiceErrorLogDTO } from '../dtos/invoice-error-log.dto'
 import { SalduInlineProduct } from 'src/entities/saldu-inline-product.entity'
+import { SalduInlineProductService } from './saldu-inline-product.service'
 
 @Injectable()
 export class InvoiceService {
@@ -19,6 +20,7 @@ export class InvoiceService {
         private invoiceRepository: Repository<Invoice>,
         private paymentOptionService: PaymentOptionService,
         private invoiceErrorLogService: InvoiceErrorLogService,
+        private salduInlineProductService: SalduInlineProductService,
         private siigoService: SiigoService,
     ) {}
 
@@ -49,8 +51,14 @@ export class InvoiceService {
         const invoice = await this.invoiceRepository
             .createQueryBuilder('invoice')
             .leftJoinAndSelect('invoice.paymentOption', 'paymentOption')
-            .leftJoinAndSelect('invoice.salduInlineProducts', 'salduInlineProducts')
-            .leftJoinAndSelect('salduInlineProducts.salduProduct', 'salduProduct')
+            .leftJoinAndSelect(
+                'invoice.salduInlineProducts',
+                'salduInlineProducts',
+            )
+            .leftJoinAndSelect(
+                'salduInlineProducts.salduProduct',
+                'salduProduct',
+            )
             .leftJoinAndSelect('salduProduct.charges', 'charges')
             .leftJoinAndSelect('charges.taxDiscount', 'taxDiscount')
             .where('invoice.id = :id', { id })
@@ -124,46 +132,54 @@ export class InvoiceService {
             seller: 487, // Solo está registrado el usuario de Tatiana
             stamp: { send: true },
             mail: { send: true },
-            items: [
-                {
-                    id: invoice.salduInlineProducts[0].salduProduct.siigoId,
-                    code: invoice.salduInlineProducts[0].salduProduct.internalCode,
-                    description: invoice.salduInlineProducts[0].salduProduct.description,
-                    quantity: 1,
-                    taxed_price: invoice.taxedPrice,
-                    discount: 0,
-                    taxes: [
-                        {
-                            id: invoice.salduInlineProducts[0].salduProduct.charges[0].taxDiscount
-                                .siigoId, //Se van a manejar más de un impuesto por producto?
-                        },
-                    ],
-                },
-            ],
+            items: [],
             payments: [
                 {
                     id: invoice.paymentOption.siigoId,
                     value: invoice.taxedPrice,
                 },
             ],
-            globaldiscounts: []
+            globaldiscounts: [],
         }
-        const siigoResponse: SiigoResponseDTO = await this.siigoService.CreateInvoice(siigoInvoiceRequest)
+        const items =
+            await this.salduInlineProductService.findAllByInvoiceId(invoiceId)
+        for (const item of items) {
+            const inlineProduct = {
+                id: item.salduProduct.siigoId,
+                code: item.salduProduct.internalCode,
+                description: item.salduProduct.description,
+                quantity: 1,
+                taxed_price: item.taxedPrice,
+                discount: 0,
+                taxes: [],
+            }
+            for (const tax of item.salduProduct.charges) {
+                const taxApplied = { id: tax.taxDiscount.siigoId }
+                inlineProduct.taxes.push(taxApplied)
+            }
+            siigoInvoiceRequest.items.push(inlineProduct);
+        }
+        const siigoResponse: SiigoResponseDTO =
+            await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
-            console.log(`Siigo Request Rejection - Status: ${siigoResponse.Status}`);
-            siigoResponse.Errors.forEach(async error => {
-                console.log(`Siigo Error "${error.Code}": ${error.Message}`);
+            console.log(
+                `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
+            )
+            siigoResponse.Errors.forEach(async (error) => {
+                console.log(`Siigo Error "${error.Code}": ${error.Message}`)
                 const errorLog: CreateInvoiceErrorLogDTO = {
                     code: error.Code,
                     message: error.Message,
                     param: error.Params[0].code,
-                    invoiceId: invoiceId
+                    invoiceId: invoiceId,
                 }
                 await this.invoiceErrorLogService.createEntity(errorLog)
-            });
+            })
             return `Invoice ${invoiceId} was Rejected by Siigo`
         } else {
-            console.log(`Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`);
+            console.log(
+                `Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`,
+            )
             const siigoData: UpdateInvoiceDTO = {
                 siigoId: siigoResponse.id,
                 siigoStatus: siigoResponse.stamp.status,
@@ -171,7 +187,8 @@ export class InvoiceService {
                 siigoName: siigoResponse.name,
                 cufe: siigoResponse.stamp.cufe,
                 publicUrl: siigoResponse.public_url,
-                customerMailed: siigoResponse.mail.status == 'sent' ? true : false
+                customerMailed:
+                    siigoResponse.mail.status == 'sent' ? true : false,
             }
             return await this.updateEntity(invoiceId, siigoData)
         }

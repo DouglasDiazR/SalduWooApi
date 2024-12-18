@@ -15,13 +15,14 @@ import { InvoiceService } from './services/invoice.service'
 import { InvoiceErrorLog } from 'src/entities/invoice-error-log.entity'
 import { Invoice } from 'src/entities/invoice.entity'
 import { PaymentOption } from 'src/entities/payment-option.entity'
-import { TaxDiscountController } from './controllers/tax-discount.controller';
-import { PaymentOptionController } from './controllers/payment-option.controller';
-import { SalduProductController } from './controllers/saldu-product.controller';
-import { ChargeController } from './controllers/charge.controller';
-import { InvoiceErrorLogController } from './controllers/invoice-error-log.controller';
-import { InvoiceController } from './controllers/invoice.controller';
+import { TaxDiscountController } from './controllers/tax-discount.controller'
+import { PaymentOptionController } from './controllers/payment-option.controller'
+import { SalduProductController } from './controllers/saldu-product.controller'
+import { ChargeController } from './controllers/charge.controller'
+import { InvoiceErrorLogController } from './controllers/invoice-error-log.controller'
+import { InvoiceController } from './controllers/invoice.controller'
 import { SalduInlineProduct } from 'src/entities/saldu-inline-product.entity'
+import { SalduInlineProductService } from './services/saldu-inline-product.service'
 
 @Module({
     providers: [
@@ -33,8 +34,16 @@ import { SalduInlineProduct } from 'src/entities/saldu-inline-product.entity'
         PaymentOptionService,
         InvoiceErrorLogService,
         InvoiceService,
+        SalduInlineProductService,
     ],
-    controllers: [TaxDiscountController, PaymentOptionController, SalduProductController, ChargeController, InvoiceErrorLogController, InvoiceController],
+    controllers: [
+        TaxDiscountController,
+        PaymentOptionController,
+        SalduProductController,
+        ChargeController,
+        InvoiceErrorLogController,
+        InvoiceController,
+    ],
     imports: [
         TypeOrmModule.forFeature([
             Charge,
