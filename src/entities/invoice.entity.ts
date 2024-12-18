@@ -24,7 +24,7 @@ export class Invoice {
     @Column({ type: 'float', name: 'order_total' })
     orderTotal: number
 
-    @Column({ type: 'float', name: 'taxed_price' })
+    @Column({ type: 'float', name: 'taxed_price', default: 0 })
     taxedPrice: number
 
     @Column({ type: 'varchar', name: 'siigo_id', length: 256, nullable: true })
@@ -77,7 +77,7 @@ export class Invoice {
 
     @OneToMany(
         () => SalduInlineProduct,
-        (salduInlineProduct) => salduInlineProduct.salduProduct,
+        (salduInlineProduct) => salduInlineProduct.invoice,
     )
     salduInlineProducts: SalduInlineProduct[]
 

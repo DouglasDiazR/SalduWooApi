@@ -1,12 +1,12 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { IsBoolean, IsNotEmpty, IsNumber, IsPositive } from 'class-validator'
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive } from 'class-validator'
 
 export class CreateSalduInlineProductDTO {
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     @IsPositive()
     @ApiProperty()
-    readonly taxedPrice: number
+    readonly taxedPrice?: number
 
     @IsNotEmpty()
     @IsNumber()

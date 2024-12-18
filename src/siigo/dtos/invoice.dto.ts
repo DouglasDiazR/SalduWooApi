@@ -15,11 +15,6 @@ export class CreateInvoiceDTO {
     @ApiProperty()
     readonly orderId: number
 
-    @IsBoolean()
-    @IsNotEmpty()
-    @ApiProperty()
-    readonly isShipping: boolean
-
     @IsNumber()
     @IsNotEmpty()
     @ApiProperty()
@@ -29,6 +24,16 @@ export class CreateInvoiceDTO {
     @IsOptional()
     @ApiProperty()
     readonly shippingPrice?: number
+    
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty()
+    readonly paybackPrice?: number
+
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty()
+    readonly taxedPrice?: number
 
     @IsString()
     @IsOptional()

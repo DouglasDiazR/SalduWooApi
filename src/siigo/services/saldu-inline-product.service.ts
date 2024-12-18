@@ -4,7 +4,10 @@ import { SalduInlineProduct } from 'src/entities/saldu-inline-product.entity'
 import { Repository } from 'typeorm'
 import { InvoiceService } from './invoice.service'
 import { SalduProductService } from './saldu-product.service'
-import { CreateSalduInlineProductDTO, UpdateSalduInlineProductDTO } from '../dtos/saldu-inline-product.dto'
+import {
+    CreateSalduInlineProductDTO,
+    UpdateSalduInlineProductDTO,
+} from '../dtos/saldu-inline-product.dto'
 
 @Injectable()
 export class SalduInlineProductService {
@@ -15,14 +18,28 @@ export class SalduInlineProductService {
         private readonly salduProductService: SalduProductService,
     ) {}
 
-    async createEntity(payload: CreateSalduInlineProductDTO) {
+    async createEntity(payload: CreateSalduInlineProductDTO, ) {
         const inlineProduct = this.salduInlineProductRepository.create(payload)
         inlineProduct.invoice = await this.invoiceService.findOne(
             payload.invoiceId,
         )
         inlineProduct.salduProduct = await this.salduProductService.findOne(
-            payload.invoiceId,
+            payload.salduProductId,
         )
+        switch (payload.salduProductId) {
+            case 1:
+                inlineProduct.taxedPrice = inlineProduct.invoice.orderTotal * 0.1
+                break
+            case 2:
+                inlineProduct.taxedPrice = payload.taxedPrice
+                break
+            case 3:
+                inlineProduct.taxedPrice = payload.taxedPrice
+                break
+            case 4:
+                inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - inlineProduct.invoice.orderTotal * 0.1) * 4 / 1000)
+                break
+        }
         return await this.salduInlineProductRepository.save(inlineProduct)
     }
 

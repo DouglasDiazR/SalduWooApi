@@ -19,9 +19,6 @@ export class InvoiceService {
         @InjectRepository(Invoice)
         private invoiceRepository: Repository<Invoice>,
         private paymentOptionService: PaymentOptionService,
-        private invoiceErrorLogService: InvoiceErrorLogService,
-        private salduInlineProductService: SalduInlineProductService,
-        private siigoService: SiigoService,
     ) {}
 
     async findAll(status?: string) {
@@ -90,107 +87,5 @@ export class InvoiceService {
         }
         this.invoiceRepository.merge(invoice, payload)
         return await this.invoiceRepository.save(invoice)
-    }
-
-    async siigoInvoiceUpload(invoiceId: number, order: IOrders) {
-        const invoice = await this.findOne(invoiceId)
-        const siigoInvoiceRequest: SiigoInvoiceDTO = {
-            document: { id: 26375 },
-            date: invoice.updatedAt.toISOString().substring(0, 10),
-            customer: {
-                person_type:
-                    order.customer.documentType == 'NIT' ? 'Company' : 'Person',
-                id_type: order.customer.documentType == 'NIT' ? '31' : '13',
-                identification: order.customer.document,
-                name:
-                    order.customer.documentType == 'NIT'
-                        ? [order.customer.businessName]
-                        : [order.customer.firstname, order.customer.lastname],
-                address: {
-                    address: order.customer.address,
-                    city: {
-                        country_code: 'CO',
-                        state_code: '08',
-                        city_code: '08001',
-                    },
-                },
-                phones: [{ number: order.customer.phone }],
-                contacts: [
-                    {
-                        first_name:
-                            order.customer.documentType == 'NIT'
-                                ? 'No Contact'
-                                : order.customer.firstname,
-                        last_name:
-                            order.customer.documentType == 'NIT'
-                                ? 'No Contact'
-                                : order.customer.lastname,
-                        email: order.customer.email,
-                    },
-                ],
-            },
-            seller: 487, // Solo está registrado el usuario de Tatiana
-            stamp: { send: true },
-            mail: { send: true },
-            items: [],
-            payments: [
-                {
-                    id: invoice.paymentOption.siigoId,
-                    value: invoice.taxedPrice,
-                },
-            ],
-            globaldiscounts: [],
-        }
-        const items =
-            await this.salduInlineProductService.findAllByInvoiceId(invoiceId)
-        for (const item of items) {
-            const inlineProduct = {
-                id: item.salduProduct.siigoId,
-                code: item.salduProduct.internalCode,
-                description: item.salduProduct.description,
-                quantity: 1,
-                taxed_price: item.taxedPrice,
-                discount: 0,
-                taxes: [],
-            }
-            for (const tax of item.salduProduct.charges) {
-                const taxApplied = { id: tax.taxDiscount.siigoId }
-                inlineProduct.taxes.push(taxApplied)
-            }
-            siigoInvoiceRequest.items.push(inlineProduct);
-        }
-        const siigoResponse: SiigoResponseDTO =
-            await this.siigoService.CreateInvoice(siigoInvoiceRequest)
-        if (siigoResponse.Errors) {
-            console.log(
-                `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
-            )
-            siigoResponse.Errors.forEach(async (error) => {
-                console.log(`Siigo Error "${error.Code}": ${error.Message}`)
-                const errorLog: CreateInvoiceErrorLogDTO = {
-                    code: error.Code,
-                    message: error.Message,
-                    param: error.Params[0].code,
-                    invoiceId: invoiceId,
-                }
-                await this.invoiceErrorLogService.createEntity(errorLog)
-            })
-            return `Invoice ${invoiceId} was Rejected by Siigo`
-        } else {
-            console.log(
-                `Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`,
-            )
-            const siigoData: UpdateInvoiceDTO = {
-                siigoId: siigoResponse.id,
-                siigoStatus: siigoResponse.stamp.status,
-                siigoDate: siigoResponse.date,
-                siigoName: siigoResponse.name,
-                cufe: siigoResponse.stamp.cufe,
-                publicUrl: siigoResponse.public_url,
-                customerMailed:
-                    siigoResponse.mail.status == 'sent' ? true : false,
-            }
-            return await this.updateEntity(invoiceId, siigoData)
-        }
     }
 }
