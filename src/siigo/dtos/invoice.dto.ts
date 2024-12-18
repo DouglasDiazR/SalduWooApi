@@ -15,10 +15,20 @@ export class CreateInvoiceDTO {
     @ApiProperty()
     readonly orderId: number
 
+    @IsBoolean()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly isShipping: boolean
+
     @IsNumber()
     @IsNotEmpty()
     @ApiProperty()
     readonly orderTotal: number
+
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty()
+    readonly shippingPrice?: number
 
     @IsString()
     @IsOptional()

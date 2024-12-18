@@ -37,7 +37,7 @@ export class SalduProductService {
             .createQueryBuilder('salduProduct')
             .leftJoinAndSelect('salduProduct.charges', 'charges')
             .leftJoinAndSelect('charges.taxDiscount', 'taxDiscount')
-            .orderBy('product.createdAt', 'DESC')
+            .orderBy('salduProduct.createdAt', 'DESC')
             .getMany()
     }
 

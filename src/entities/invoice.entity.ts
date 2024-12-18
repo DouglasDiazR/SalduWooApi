@@ -1,7 +1,17 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm'
 import { PaymentOption } from './payment-option.entity'
 import { InvoiceErrorLog } from './invoice-error-log.entity'
 import { SalduProduct } from './saldu-products.entity'
+import { SalduInlineProduct } from './saldu-inline-product.entity'
 
 @Entity('invoices')
 export class Invoice {
@@ -14,28 +24,49 @@ export class Invoice {
     @Column({ type: 'float', name: 'order_total' })
     orderTotal: number
 
-    @Column({ type: 'float', name: 'value' })
-    value: number
+    @Column({ type: 'float', name: 'taxed_price' })
+    taxedPrice: number
 
     @Column({ type: 'varchar', name: 'siigo_id', length: 256, nullable: true })
     siigoId: string
 
-    @Column({ type: 'varchar', name: 'siigo_status', length: 256, nullable: true, default: 'On Hold' })
+    @Column({
+        type: 'varchar',
+        name: 'siigo_status',
+        length: 256,
+        nullable: true,
+        default: 'On Hold',
+    })
     siigoStatus: string
 
-    @Column({ type: 'varchar', name: 'siigo_name', length: 256, nullable: true })
+    @Column({
+        type: 'varchar',
+        name: 'siigo_name',
+        length: 256,
+        nullable: true,
+    })
     siigoName: string
 
     @Column({ type: 'varchar', length: 256, nullable: true })
     cufe: string
 
-    @Column({ type: 'varchar', name: 'siigo_date', length: 256, nullable: true })
+    @Column({
+        type: 'varchar',
+        name: 'siigo_date',
+        length: 256,
+        nullable: true,
+    })
     siigoDate: string
 
     @Column({ type: 'boolean', name: 'customer_mailed', default: false })
     customerMailed: boolean
 
-    @Column({ type: 'varchar', name: 'public_url', length: 256, nullable: true })
+    @Column({
+        type: 'varchar',
+        name: 'public_url',
+        length: 256,
+        nullable: true,
+    })
     publicUrl: string
 
     @OneToMany(() => InvoiceErrorLog, (errorLog) => errorLog.invoice)
@@ -44,8 +75,11 @@ export class Invoice {
     @ManyToOne(() => PaymentOption, (paymentOption) => paymentOption.invoices)
     paymentOption: PaymentOption
 
-    @ManyToOne(() => SalduProduct, (salduProduct) => salduProduct.invoices)
-    salduProduct: SalduProduct
+    @OneToMany(
+        () => SalduInlineProduct,
+        (salduInlineProduct) => salduInlineProduct.salduProduct,
+    )
+    salduInlineProducts: SalduInlineProduct[]
 
     @CreateDateColumn({
         type: 'timestamp',

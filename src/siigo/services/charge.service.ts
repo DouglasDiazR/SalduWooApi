@@ -16,14 +16,14 @@ export class ChargeService {
     ) {}
 
     async createEntity(payload: CreateChargeDTO) {
-        const charge = this.chargeRepository.create(payload);
+        const charge = this.chargeRepository.create(payload)
         charge.salduProduct = await this.salduProductService.findOne(
             payload.salduProductId,
-        );
+        )
         charge.taxDiscount = await this.taxDiscountService.findOne(
             payload.taxDiscountId,
-        );
-        return await this.chargeRepository.save(charge);
+        )
+        return await this.chargeRepository.save(charge)
     }
 
     async findAllByProductId(productId: number) {
@@ -32,13 +32,13 @@ export class ChargeService {
             .leftJoinAndSelect('charge.taxDiscount', 'taxDiscount')
             .leftJoinAndSelect('charge.salduProduct', 'salduProduct')
             .where('salduProduct.id = :productId', { productId })
-            .getMany();
+            .getMany()
         if (!charges) {
             throw new NotFoundException(
                 `The charge with ID: ${productId} was Not Found`,
-            );
+            )
         }
-        return charges;
+        return charges
     }
 
     async findByProductIdAndTaxDiscountId(
@@ -53,27 +53,27 @@ export class ChargeService {
             .andWhere('charge.taxDiscountId = :taxDiscountId', {
                 taxDiscountId: taxDiscountId,
             })
-            .getOne();
+            .getOne()
         if (!charge) {
             throw new NotFoundException(
                 `The Charge linked to Product ID: ${productId} and Tax or Discount ID: ${taxDiscountId} was Not Found`,
-            );
+            )
         }
-        return charge;
+        return charge
     }
 
     async updateEntity(payload: UpdateChargeDTO) {
         const charge = await this.findByProductIdAndTaxDiscountId(
             payload.salduProductId,
             payload.taxDiscountId,
-        );
+        )
         if (!charge) {
             throw new NotFoundException(
                 `The Charge with ID: ${charge.id} was Not Found`,
-            );
+            )
         }
         this.chargeRepository.merge(charge, payload)
-        return await this.chargeRepository.save(charge);
+        return await this.chargeRepository.save(charge)
     }
 
     async deleteEntity(id: number) {
@@ -81,8 +81,8 @@ export class ChargeService {
         if (!target) {
             throw new NotFoundException(
                 `The Charge with ID: ${id} was Not Found`,
-            );
+            )
         }
-        return await this.chargeRepository.softDelete(target.id);
+        return await this.chargeRepository.softDelete(target.id)
     }
 }

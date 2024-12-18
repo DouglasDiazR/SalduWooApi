@@ -36,11 +36,12 @@ export class InvoiceErrorLogService {
     }
 
     async findByInvoiceId(id: number) {
-        const errorLog = await this.invoiceErrorLogRepository
+        const errorLogs = await this.invoiceErrorLogRepository
             .createQueryBuilder('invoiceErrorLog')
             .leftJoinAndSelect('invoiceErrorLog.invoice', 'invoice')
             .where('invoice.id = :id', { id })
             .getMany()
+        return errorLogs
     }
 
     async findByInvoiceSiigoId(id: string) {

@@ -30,6 +30,11 @@ export class CreateSalduProductDTO {
     @ApiProperty()
     readonly description: string
 
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty()
+    readonly taxDiscountId?: number
+
     @IsArray()
     @IsOptional()
     @ApiProperty()

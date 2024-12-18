@@ -9,6 +9,7 @@ import {
 } from 'typeorm'
 import { Charge } from './charge.entity'
 import { Invoice } from './invoice.entity'
+import { SalduInlineProduct } from './saldu-inline-product.entity'
 
 @Entity('saldu_products')
 export class SalduProduct {
@@ -32,14 +33,11 @@ export class SalduProduct {
     @Column({ type: 'varchar', nullable: true, length: 528 })
     description: string
 
-    @Column({ type: 'float', nullable: true })
-    price: number
-
     @OneToMany(() => Charge, (charge) => charge.salduProduct)
     charges: Charge[]
 
-    @OneToMany(() => Invoice, (invoice) => invoice.salduProduct)
-    invoices: Invoice[]
+    @OneToMany(() => SalduInlineProduct, (salduInlineProduct) => salduInlineProduct.salduProduct)
+    salduInlineProducts: SalduInlineProduct[];
 
     @CreateDateColumn({
         type: 'timestamp',

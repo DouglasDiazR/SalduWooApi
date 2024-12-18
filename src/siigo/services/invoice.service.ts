@@ -10,6 +10,7 @@ import { SiigoService } from './siigo.service'
 import { SiigoResponseDTO } from '../dtos/siigo-response.dto'
 import { InvoiceErrorLogService } from './invoice-error-log.service'
 import { CreateInvoiceErrorLogDTO } from '../dtos/invoice-error-log.dto'
+import { SalduInlineProduct } from 'src/entities/saldu-inline-product.entity'
 
 @Injectable()
 export class InvoiceService {
@@ -48,8 +49,9 @@ export class InvoiceService {
         const invoice = await this.invoiceRepository
             .createQueryBuilder('invoice')
             .leftJoinAndSelect('invoice.paymentOption', 'paymentOption')
-            .leftJoinAndSelect('invoice.salduProdduct', 'salduProdduct')
-            .leftJoinAndSelect('salduProdduct.charges', 'charges')
+            .leftJoinAndSelect('invoice.salduInlineProducts', 'salduInlineProducts')
+            .leftJoinAndSelect('salduInlineProducts.salduProduct', 'salduProduct')
+            .leftJoinAndSelect('salduProduct.charges', 'charges')
             .leftJoinAndSelect('charges.taxDiscount', 'taxDiscount')
             .where('invoice.id = :id', { id })
             .getOne()
@@ -68,7 +70,6 @@ export class InvoiceService {
                 payload.paymentOptionId,
             )
         }
-        newInvoice.value = payload.orderTotal * 0.1
         return await this.invoiceRepository.save(newInvoice)
     }
 
@@ -86,7 +87,7 @@ export class InvoiceService {
     async siigoInvoiceUpload(invoiceId: number, order: IOrders) {
         const invoice = await this.findOne(invoiceId)
         const siigoInvoiceRequest: SiigoInvoiceDTO = {
-            document: { id: 1111 },
+            document: { id: 26375 },
             date: invoice.updatedAt.toISOString().substring(0, 10),
             customer: {
                 person_type:
@@ -120,20 +121,20 @@ export class InvoiceService {
                     },
                 ],
             },
-            seller: 1234, // Cómo se maneja el referente de vendedor
+            seller: 487, // Solo está registrado el usuario de Tatiana
             stamp: { send: true },
             mail: { send: true },
             items: [
                 {
-                    id: invoice.salduProduct.siigoId,
-                    code: invoice.salduProduct.internalCode,
-                    description: invoice.salduProduct.description,
+                    id: invoice.salduInlineProducts[0].salduProduct.siigoId,
+                    code: invoice.salduInlineProducts[0].salduProduct.internalCode,
+                    description: invoice.salduInlineProducts[0].salduProduct.description,
                     quantity: 1,
-                    taxed_price: invoice.value,
+                    taxed_price: invoice.taxedPrice,
                     discount: 0,
                     taxes: [
                         {
-                            id: invoice.salduProduct.charges[0].taxDiscount
+                            id: invoice.salduInlineProducts[0].salduProduct.charges[0].taxDiscount
                                 .siigoId, //Se van a manejar más de un impuesto por producto?
                         },
                     ],
@@ -142,7 +143,7 @@ export class InvoiceService {
             payments: [
                 {
                     id: invoice.paymentOption.siigoId,
-                    value: invoice.value,
+                    value: invoice.taxedPrice,
                 },
             ],
             globaldiscounts: []
@@ -160,6 +161,7 @@ export class InvoiceService {
                 }
                 await this.invoiceErrorLogService.createEntity(errorLog)
             });
+            return `Invoice ${invoiceId} was Rejected by Siigo`
         } else {
             console.log(`Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`);
             const siigoData: UpdateInvoiceDTO = {
@@ -171,7 +173,7 @@ export class InvoiceService {
                 publicUrl: siigoResponse.public_url,
                 customerMailed: siigoResponse.mail.status == 'sent' ? true : false
             }
-            await this.updateEntity(invoiceId, siigoData)
+            return await this.updateEntity(invoiceId, siigoData)
         }
     }
 }
