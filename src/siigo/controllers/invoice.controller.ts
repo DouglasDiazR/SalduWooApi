@@ -90,7 +90,7 @@ export class InvoiceController {
     ) {
         const invoice = await this.findOne(invoiceId)
         const siigoInvoiceRequest: SiigoInvoiceDTO = {
-            document: { id: 26375 },
+            document: { id: 28006 }, //Sandbox: 28006 - SalduNube: 26375
             date: invoice.updatedAt.toISOString().substring(0, 10),
             customer: {
                 person_type:
@@ -124,13 +124,13 @@ export class InvoiceController {
                     },
                 ],
             },
-            seller: 487, // Solo está registrado el usuario de Tatiana
+            seller: 841, // Sandbox 841 - SalduNube 487 (Tatiana)
             stamp: { send: true },
             mail: { send: true },
             items: [],
             payments: [
                 {
-                    id: invoice.paymentOption.siigoId,
+                    id: invoice.paymentOption.siigoId, // Sandbox 7649 - SalduNube 7706
                     value: invoice.taxedPrice,
                 },
             ],
@@ -157,6 +157,7 @@ export class InvoiceController {
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
+            console.log(siigoResponse);
             console.log(
                 `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
             )
@@ -168,19 +169,25 @@ export class InvoiceController {
                     param: error.Params[0].code,
                     invoiceId: invoiceId,
                 }
-                await this.invoiceErrorLogService.createEntity(errorLog)
+                try {
+                    await this.invoiceErrorLogService.createEntity(errorLog)
+                } catch (error) {
+                    console.log(error);
+                }
+                
             })
             return `Invoice ${invoiceId} was Rejected by Siigo`
         } else {
             console.log(
                 `Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`,
             )
+            console.log(siigoResponse);
             const siigoData: UpdateInvoiceDTO = {
                 siigoId: siigoResponse.id,
                 siigoStatus: siigoResponse.stamp.status,
                 siigoDate: siigoResponse.date,
                 siigoName: siigoResponse.name,
-                cufe: siigoResponse.stamp.cufe,
+                cufe: siigoResponse.id,
                 publicUrl: siigoResponse.public_url,
                 customerMailed:
                     siigoResponse.mail.status == 'sent' ? true : false,

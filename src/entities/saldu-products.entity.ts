@@ -19,7 +19,7 @@ export class SalduProduct {
     @Column({
         type: 'varchar',
         name: 'internal_code',
-        length: 8,
+        length: 16,
         nullable: true,
     })
     internalCode: string
