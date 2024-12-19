@@ -129,3 +129,27 @@
   }
 }
 
+
+# SandBox Prodcuts for Testing
+
+{
+  "id": "1d0a78da-da66-4cf0-a0ca-81608ee256f1",
+  "code": "2024001",
+  "name": "Comisión - uso y alquiler plataforma SALDU",
+},
+{
+  "id": "0651ad0e-5237-469a-8082-6487fa32cc27",
+  "code": "fdsf",
+  "name": "Reintegro costo de pasarela de pago",
+},
+{
+  "id": "264f8650-882f-4c5a-a251-c8c98217573c",
+  "code": "alimentacion",
+  "name": "FLETE",
+},
+{
+  "id": "794f84b2-d84d-46ca-a809-71e845bba8b9",
+  "code": "3822",
+  "name": "Reintegro de costos y gastos  no gravados  por gastos de transacción",
+}
+

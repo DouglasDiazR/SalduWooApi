@@ -27,7 +27,7 @@ export class SalduInlineProductService {
             payload.salduProductId,
         )
         switch (payload.salduProductId) {
-            case 1:
+            case 4:
                 inlineProduct.taxedPrice = inlineProduct.invoice.orderTotal * 0.1
                 break
             case 2:
@@ -36,7 +36,7 @@ export class SalduInlineProductService {
             case 3:
                 inlineProduct.taxedPrice = payload.taxedPrice
                 break
-            case 4:
+            case 1:
                 inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - inlineProduct.invoice.orderTotal * 0.1) * 4 / 1000)
                 break
         }

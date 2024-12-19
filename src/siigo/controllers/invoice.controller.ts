@@ -36,14 +36,14 @@ export class InvoiceController {
             await this.salduInlineProductService.createEntity({
                 taxedPrice: payload.shippingPrice,
                 invoiceId: newInvoice.id,
-                salduProductId: 3,
+                salduProductId: 2,
             })
         }
         if (payload.paybackPrice) {
             await this.salduInlineProductService.createEntity({
                 taxedPrice: payload.paybackPrice,
                 invoiceId: newInvoice.id,
-                salduProductId: 2,
+                salduProductId: 3,
             })
         }
         for (const prodId of salduProductIds) {
