@@ -3,7 +3,7 @@ interface IOrders {
     number: string
     status: string
     total: number
-    customer: {
+    invoicing: {
         documentType: string
         document: string
         businessName: string
@@ -12,6 +12,9 @@ interface IOrders {
         address: string
         phone: string
         email: string
+        commission: string
+        payBackPrice: string
+        shippingPrice: string
     }
     date_created: string
     date_modified: string

@@ -9,14 +9,10 @@ import {
     IsString,
 } from 'class-validator'
 
-export class SiigoErrorParam {
-    code: string
-}
-
 export class SiigoError {
     Code: string
     Message: string
-    Params: SiigoErrorParam[]
+    Params: string[]
     Detail: string
 }
 

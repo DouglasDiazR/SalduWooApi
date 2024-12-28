@@ -6,12 +6,15 @@ import {
     CreateInvoiceErrorLogDTO,
     UpdateInvoiceErrorLogDTO,
 } from '../dtos/invoice-error-log.dto'
+import { Invoice } from 'src/entities/invoice.entity'
 
 @Injectable()
 export class InvoiceErrorLogService {
     constructor(
         @InjectRepository(InvoiceErrorLog)
         private invoiceErrorLogRepository: Repository<InvoiceErrorLog>,
+        @InjectRepository(Invoice)
+        private invoiceRepository: Repository<Invoice>,
     ) {}
 
     async findAll() {
@@ -53,7 +56,9 @@ export class InvoiceErrorLogService {
     }
 
     async createEntity(payload: CreateInvoiceErrorLogDTO) {
-        return await this.invoiceErrorLogRepository.save(payload)
+        const errorLog = await this.invoiceErrorLogRepository.create(payload);
+        errorLog.invoice = await this.invoiceRepository.findOneBy({id: payload.invoiceId})
+        return await this.invoiceErrorLogRepository.save(errorLog)
     }
 
     async updateEntity(id: number, payload: UpdateInvoiceErrorLogDTO) {

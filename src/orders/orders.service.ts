@@ -31,7 +31,7 @@ export class OrdersService {
                 : undefined
             const formattedEndDate = endDate ? formatDate(endDate) : undefined
 
-            const orders: { data: IOrders[] } = await this.WooCommerce.get(
+            const orders: { data: any } = await this.WooCommerce.get(
                 'orders',
                 {
                     status,
@@ -51,15 +51,18 @@ export class OrdersService {
                 number: order.number,
                 status: order.status,
                 total: order.total,
-                customer: {
-                    documentType: 'string',
-                    document: 'string',
-                    businessName: 'string',
+                invoicing: {
+                    documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                    document: order.meta_data.find(item => item.key == '_numero_nit').value,
+                    businessName: order.meta_data.find(item => item.key == '_razon_social').value,
                     firstname: 'string',
                     lastname: 'string',
-                    address: 'string',
-                    phone: 'string',
-                    email: 'string'
+                    address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
+                    phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
+                    email: order.meta_data.find(item => item.key == '_email_rut').value,
+                    commission: 123,
+                    payBackPrice: 123,
+                    shippingPrice: 123,
                 },
                 date_created: order.date_created,
                 date_modified: order.date_modified,
@@ -111,11 +114,11 @@ export class OrdersService {
                 : undefined
             const formattedEndDate = endDate ? formatDate(endDate) : undefined
 
-            let allOrders: IOrders[] = []
+            let allOrders: any = []
             let currentPage = page
 
             while (true) {
-                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                const orders: { data: any } = await this.WooCommerce.get(
                     'orders',
                     {
                         page: currentPage,
@@ -132,15 +135,18 @@ export class OrdersService {
                     number: order.number,
                     status: order.status,
                     total: order.total,
-                    customer: {
-                        documentType: 'string',
-                        document: 'string',
-                        businessName: 'string',
+                    invoicing: {
+                        documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                        document: order.meta_data.find(item => item.key == '_numero_nit').value,
+                        businessName: order.meta_data.find(item => item.key == '_razon_social').value,
                         firstname: 'string',
                         lastname: 'string',
-                        address: 'string',
-                        phone: 'string',
-                        email: 'string'
+                        address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
+                        phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
+                        email: order.meta_data.find(item => item.key == '_email_rut').value,
+                        commission: 123,
+                        payBackPrice: 123,
+                        shippingPrice: 123,
                     },
                     date_created: order.date_created,
                     date_modified: order.date_modified,
@@ -208,11 +214,11 @@ export class OrdersService {
                 : undefined
             const formattedEndDate = endDate ? formatDate(endDate) : undefined
 
-            let allOrders: IOrders[] = []
+            let allOrders: any = []
             let currentPage = page
 
             while (true) {
-                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                const orders: { data: any } = await this.WooCommerce.get(
                     'orders',
                     {
                         page: currentPage,
@@ -229,15 +235,18 @@ export class OrdersService {
                     number: order.number,
                     status: order.status,
                     total: order.total,
-                    customer: {
-                        documentType: 'string',
-                        document: 'string',
-                        businessName: 'string',
+                    invoicing: {
+                        documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                        document: order.meta_data.find(item => item.key == '_numero_nit').value,
+                        businessName: order.meta_data.find(item => item.key == '_razon_social').value,
                         firstname: 'string',
                         lastname: 'string',
-                        address: 'string',
-                        phone: 'string',
-                        email: 'string'
+                        address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
+                        phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
+                        email: order.meta_data.find(item => item.key == '_email_rut').value,
+                        commission: 123,
+                        payBackPrice: 123,
+                        shippingPrice: 123,
                     },
                     date_created: order.date_created,
                     date_modified: order.date_modified,
@@ -302,7 +311,7 @@ export class OrdersService {
                 : undefined
             const formattedEndDate = endDate ? formatDate(endDate) : undefined
 
-            const orders: { data: IOrders[] } = await this.WooCommerce.get(
+            const orders: { data: any } = await this.WooCommerce.get(
                 'orders',
                 {
                     status,
@@ -333,15 +342,18 @@ export class OrdersService {
                             number: order.number,
                             status: order.status,
                             total: order.total,
-                            customer: {
-                                documentType: 'string',
-                                document: 'string',
-                                businessName: 'string',
+                            invoicing: {
+                                documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                                document: order.meta_data.find(item => item.key == '_numero_nit').value,
+                                businessName: order.meta_data.find(item => item.key == '_razon_social').value,
                                 firstname: 'string',
                                 lastname: 'string',
-                                address: 'string',
-                                phone: 'string',
-                                email: 'string'
+                                address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
+                                phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
+                                email: order.meta_data.find(item => item.key == '_email_rut').value,
+                                commission: 123,
+                                payBackPrice: 123,
+                                shippingPrice: 123,
                             },
                             date_created: order.date_created,
                             date_modified: order.date_modified,
@@ -405,11 +417,11 @@ export class OrdersService {
         const formattedEndDate = endDate ? formatDate(endDate) : undefined
 
         let currentPage = page
-        let allOrders: IOrders[] = []
+        let allOrders: any = []
 
         try {
             while (true) {
-                const orders: { data: IOrders[] } = await this.WooCommerce.get(
+                const orders: { data: any } = await this.WooCommerce.get(
                     'orders',
                     {
                         page: currentPage,
@@ -443,15 +455,18 @@ export class OrdersService {
                     number: order.number,
                     status: order.status,
                     total: order.total,
-                    customer: {
-                        documentType: 'string',
-                        document: 'string',
-                        businessName: 'string',
+                    invoicing: {
+                        documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                        document: order.meta_data.find(item => item.key == '_numero_nit').value,
+                        businessName: order.meta_data.find(item => item.key == '_razon_social').value,
                         firstname: 'string',
                         lastname: 'string',
-                        address: 'string',
-                        phone: 'string',
-                        email: 'string'
+                        address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
+                        phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
+                        email: order.meta_data.find(item => item.key == '_email_rut').value,
+                        commission: 123,
+                        payBackPrice: 123,
+                        shippingPrice: 123,
                     },
                     date_created: order.date_created,
                     date_modified: order.date_modified,
@@ -493,9 +508,9 @@ export class OrdersService {
         }
     }
 
-    async getOrderById(id: number): Promise<IOrders | string> {
+    async getOrderById(id: number): Promise<IOrders> {
         try {
-            const response: { data: IOrders } = await this.WooCommerce.get(
+            const response: { data: any } = await this.WooCommerce.get(
                 `orders/${id}`,
             )
 
@@ -507,20 +522,25 @@ export class OrdersService {
 
             const order = response.data
 
+            console.log('======', order);
+
             const formattedOrder: IOrders = {
                 id: order.id,
                 number: order.number,
                 status: order.status,
                 total: order.total,
-                customer: {
-                    documentType: 'string',
-                    document: 'string',
-                    businessName: 'string',
+                invoicing: {
+                    documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                    document: order.meta_data.find(item => item.key == '_numero_nit').value,
+                    businessName: order.meta_data.find(item => item.key == '_razon_social').value,
                     firstname: 'string',
                     lastname: 'string',
-                    address: 'string',
-                    phone: 'string',
-                    email: 'string'
+                    address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
+                    phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
+                    email: order.meta_data.find(item => item.key == '_email_rut').value,
+                    commission: order.meta_data.find(item => item.key == '_comision_saldu').value,
+                    payBackPrice: order.meta_data.find(item => item.key == '_reintegro_pasarela') ? order.meta_data.find(item => item.key == '_reintegro_pasarela').value : "0",
+                    shippingPrice: order.shipping_lines[0].total,
                 },
                 date_created: order.date_created,
                 date_modified: order.date_modified,

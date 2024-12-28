@@ -23,6 +23,11 @@ export class CreateInvoiceDTO {
     @IsNumber()
     @IsOptional()
     @ApiProperty()
+    readonly comission?: number
+
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty()
     readonly shippingPrice?: number
     
     @IsNumber()

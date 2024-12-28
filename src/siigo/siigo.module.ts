@@ -23,10 +23,13 @@ import { InvoiceErrorLogController } from './controllers/invoice-error-log.contr
 import { InvoiceController } from './controllers/invoice.controller'
 import { SalduInlineProduct } from 'src/entities/saldu-inline-product.entity'
 import { SalduInlineProductService } from './services/saldu-inline-product.service'
+import { OrdersService } from 'src/orders/orders.service'
+import { WooCommerceConfig } from 'src/config/wooCommerce'
 
 @Module({
     providers: [
         SiigoService,
+        OrdersService,
         HttpClientService,
         TaxDiscountService,
         ChargeService,
@@ -35,6 +38,7 @@ import { SalduInlineProductService } from './services/saldu-inline-product.servi
         InvoiceErrorLogService,
         InvoiceService,
         SalduInlineProductService,
+        WooCommerceConfig
     ],
     controllers: [
         TaxDiscountController,

@@ -18,6 +18,7 @@ import { SiigoInvoiceDTO } from '../dtos/siigo-invoice.dto'
 import { SiigoResponseDTO } from '../dtos/siigo-response.dto'
 import { CreateInvoiceErrorLogDTO } from '../dtos/invoice-error-log.dto'
 import { InvoiceErrorLogService } from '../services/invoice-error-log.service'
+import { OrdersService } from 'src/orders/orders.service'
 
 @Controller('invoice')
 export class InvoiceController {
@@ -26,37 +27,43 @@ export class InvoiceController {
         private invoiceErrorLogService: InvoiceErrorLogService,
         private salduInlineProductService: SalduInlineProductService,
         private siigoService: SiigoService,
+        private orderService: OrdersService,
     ) {}
 
     @Post()
     async createEntity(@Body() payload: CreateInvoiceDTO) {
         const newInvoice = await this.invoiceService.createEntity(payload)
-        const salduProductIds = [1, 4]
-        if (payload.shippingPrice) {
+        if (payload.shippingPrice && payload.shippingPrice > 0) {
             await this.salduInlineProductService.createEntity({
                 taxedPrice: payload.shippingPrice,
                 invoiceId: newInvoice.id,
                 salduProductId: 2,
             })
         }
-        if (payload.paybackPrice) {
+        if (payload.paybackPrice && payload.paybackPrice > 0) {
             await this.salduInlineProductService.createEntity({
                 taxedPrice: payload.paybackPrice,
                 invoiceId: newInvoice.id,
                 salduProductId: 3,
             })
         }
-        for (const prodId of salduProductIds) {
+        if (payload.comission && payload.comission > 0) {
             await this.salduInlineProductService.createEntity({
                 invoiceId: newInvoice.id,
-                salduProductId: prodId,
+                salduProductId: 4,
+                taxedPrice: payload.comission
+            })
+            await this.salduInlineProductService.createEntity({
+                invoiceId: newInvoice.id,
+                salduProductId: 1,
             })
         }
         const invoiceProds = await this.salduInlineProductService.findAllByInvoiceId(newInvoice.id)
         let invoiceTotal = 0
         for (const prod of invoiceProds) {
-            invoiceTotal += prod.taxedPrice
+            invoiceTotal += prod.taxedPrice * (1 + prod.salduProduct.charges[0].taxDiscount.value)
         }
+        invoiceTotal = Math.ceil(invoiceTotal * 100) / 100;
         return await this.invoiceService.updateEntity(newInvoice.id, { taxedPrice: invoiceTotal })
     }
 
@@ -85,53 +92,54 @@ export class InvoiceController {
 
     @Post('siigo/:id')
     async siigoInvoiceUpload(
-        @Param('id', ParseIntPipe) invoiceId: number,
-        @Body() order: IOrders,
+        @Param('id', ParseIntPipe) invoiceId: number
     ) {
         const invoice = await this.findOne(invoiceId)
+        const order = await this.orderService.getOrderById(invoice.orderId)
         const siigoInvoiceRequest: SiigoInvoiceDTO = {
-            document: { id: 28006 }, //Sandbox: 28006 - SalduNube: 26375
+            document: { id: 26375 }, //Sandbox: 28006 - SalduNube: 26375
             date: invoice.updatedAt.toISOString().substring(0, 10),
             customer: {
                 person_type:
-                    order.customer.documentType == 'NIT' ? 'Company' : 'Person',
-                id_type: order.customer.documentType == 'NIT' ? '31' : '13',
-                identification: order.customer.document,
+                    order.invoicing.documentType == 'NIT' ? 'Company' : 'Person',
+                id_type: order.invoicing.documentType == 'NIT' ? '31' : '13',
+                identification: order.invoicing.document,
                 name:
-                    order.customer.documentType == 'NIT'
-                        ? [order.customer.businessName]
-                        : [order.customer.firstname, order.customer.lastname],
+                    order.invoicing.documentType == 'NIT'
+                        ? [order.invoicing.businessName]
+                        : [order.invoicing.firstname, order.invoicing.lastname],
                 address: {
-                    address: order.customer.address,
+                    address: order.invoicing.address,
                     city: {
                         country_code: 'CO',
                         state_code: '08',
                         city_code: '08001',
                     },
                 },
-                phones: [{ number: order.customer.phone }],
+                phones: [{ number: order.invoicing.phone }],
                 contacts: [
                     {
                         first_name:
-                            order.customer.documentType == 'NIT'
+                            order.invoicing.documentType == 'NIT'
                                 ? 'No Contact'
-                                : order.customer.firstname,
+                                : order.invoicing.firstname,
                         last_name:
-                            order.customer.documentType == 'NIT'
+                            order.invoicing.documentType == 'NIT'
                                 ? 'No Contact'
-                                : order.customer.lastname,
-                        email: order.customer.email,
+                                : order.invoicing.lastname,
+                        email: order.invoicing.email,
                     },
                 ],
             },
-            seller: 841, // Sandbox 841 - SalduNube 487 (Tatiana)
+            seller: 487, // Sandbox 841 - SalduNube 487 (Tatiana)
             stamp: { send: true },
             mail: { send: true },
+            observations: `Factura comisión por uso de plataforma SALDU. Pedidos no. ${invoice.orderId}. \n SALDU pertenece al régimen simple. \n Los conceptos de reintegro de costos de transacción corresponden a los gastos bancarios incurridos por Saldu para la operación de recaudo.`,
             items: [],
             payments: [
                 {
                     id: invoice.paymentOption.siigoId, // Sandbox 7649 - SalduNube 7706
-                    value: invoice.taxedPrice,
+                    value: parseFloat(invoice.taxedPrice.toFixed(2)),
                 },
             ],
             globaldiscounts: [],
@@ -144,7 +152,7 @@ export class InvoiceController {
                 code: item.salduProduct.internalCode,
                 description: item.salduProduct.description,
                 quantity: 1,
-                taxed_price: item.taxedPrice,
+                price: parseFloat(item.taxedPrice.toFixed(2)),
                 discount: 0,
                 taxes: [],
             }
@@ -157,7 +165,7 @@ export class InvoiceController {
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
-            console.log(siigoResponse);
+            console.log(JSON.stringify(siigoResponse));
             console.log(
                 `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
             )
@@ -166,8 +174,8 @@ export class InvoiceController {
                 const errorLog: CreateInvoiceErrorLogDTO = {
                     code: error.Code,
                     message: error.Message,
-                    param: error.Params[0].code,
-                    invoiceId: invoiceId,
+                    param: error.Params[0],
+                    invoiceId: invoice.id,
                 }
                 try {
                     await this.invoiceErrorLogService.createEntity(errorLog)

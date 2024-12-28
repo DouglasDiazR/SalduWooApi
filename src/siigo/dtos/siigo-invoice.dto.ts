@@ -15,7 +15,7 @@ import {
     code: string;
     description?: string;
     quantity: number;
-    taxed_price: number;
+    price: number;
     discount: number;
     taxes: Tax[];
   }
