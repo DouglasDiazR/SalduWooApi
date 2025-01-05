@@ -19,6 +19,8 @@ import { SiigoResponseDTO } from '../dtos/siigo-response.dto'
 import { CreateInvoiceErrorLogDTO } from '../dtos/invoice-error-log.dto'
 import { InvoiceErrorLogService } from '../services/invoice-error-log.service'
 import { OrdersService } from 'src/orders/orders.service'
+import { CreatePendingInvoiceDTO } from '../dtos/pending-invoice.dto'
+import { Status } from 'src/enum/status.enum'
 
 @Controller('invoice')
 export class InvoiceController {
@@ -51,20 +53,27 @@ export class InvoiceController {
             await this.salduInlineProductService.createEntity({
                 invoiceId: newInvoice.id,
                 salduProductId: 4,
-                taxedPrice: payload.comission
+                taxedPrice: payload.comission,
             })
             await this.salduInlineProductService.createEntity({
                 invoiceId: newInvoice.id,
                 salduProductId: 1,
             })
         }
-        const invoiceProds = await this.salduInlineProductService.findAllByInvoiceId(newInvoice.id)
+        const invoiceProds =
+            await this.salduInlineProductService.findAllByInvoiceId(
+                newInvoice.id,
+            )
         let invoiceTotal = 0
         for (const prod of invoiceProds) {
-            invoiceTotal += prod.taxedPrice * (1 + prod.salduProduct.charges[0].taxDiscount.value)
+            invoiceTotal +=
+                prod.taxedPrice *
+                (1 + prod.salduProduct.charges[0].taxDiscount.value)
         }
-        invoiceTotal = Math.ceil(invoiceTotal * 100) / 100;
-        return await this.invoiceService.updateEntity(newInvoice.id, { taxedPrice: invoiceTotal })
+        invoiceTotal = Math.ceil(invoiceTotal * 100) / 100
+        return await this.invoiceService.updateEntity(newInvoice.id, {
+            taxedPrice: invoiceTotal,
+        })
     }
 
     @Get()
@@ -90,10 +99,46 @@ export class InvoiceController {
         return this.invoiceService.updateEntity(id, payload)
     }
 
+    @Post('all-pending')
+    async getAllPending(@Body() payload: CreatePendingInvoiceDTO) {
+        let pendingOrders = []
+        const orders = await this.orderService.getAllOrders({
+            status: Status.Entregado,
+            startDate: payload.startDate,
+            endDate: payload.endDate,
+        })
+        for (const order of orders) {
+            const invoice = await this.invoiceService.findOneByOrderId(order.id)
+            if (!invoice) {
+                const wooOrder = await this.orderService.getOrderById(order.id)
+                const newInvoiceDTO: CreateInvoiceDTO = {
+                    orderId: wooOrder.id,
+                    orderTotal: wooOrder.total,
+                    documentType: wooOrder.invoicing.documentType,
+                    document: wooOrder.invoicing.document,
+                    businessName: wooOrder.invoicing.businessName || '',
+                    firstname: wooOrder.invoicing.firstname || '',
+                    lastname: wooOrder.invoicing.lastname || '',
+                    address: wooOrder.invoicing.address || '',
+                    phone: wooOrder.invoicing.phone,
+                    email: wooOrder.invoicing.email,
+                    comission: parseFloat(wooOrder.invoicing.commission) || 0,
+                    shippingPrice:
+                        parseFloat(wooOrder.invoicing.shippingPrice) || 0,
+                    paybackPrice:
+                        parseFloat(wooOrder.invoicing.payBackPrice) || 0,
+                }
+                pendingOrders.push(this.createEntity(newInvoiceDTO))
+            } else {
+                pendingOrders.push(invoice)
+            }
+            console.log('Step 4', pendingOrders)
+        }
+        return pendingOrders
+    }
+
     @Post('siigo/:id')
-    async siigoInvoiceUpload(
-        @Param('id', ParseIntPipe) invoiceId: number
-    ) {
+    async siigoInvoiceUpload(@Param('id', ParseIntPipe) invoiceId: number) {
         const invoice = await this.findOne(invoiceId)
         const order = await this.orderService.getOrderById(invoice.orderId)
         const siigoInvoiceRequest: SiigoInvoiceDTO = {
@@ -101,7 +146,9 @@ export class InvoiceController {
             date: invoice.updatedAt.toISOString().substring(0, 10),
             customer: {
                 person_type:
-                    order.invoicing.documentType == 'NIT' ? 'Company' : 'Person',
+                    order.invoicing.documentType == 'NIT'
+                        ? 'Company'
+                        : 'Person',
                 id_type: order.invoicing.documentType == 'NIT' ? '31' : '13',
                 identification: order.invoicing.document,
                 name:
@@ -165,7 +212,7 @@ export class InvoiceController {
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
-            console.log(JSON.stringify(siigoResponse));
+            console.log(JSON.stringify(siigoResponse))
             console.log(
                 `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
             )
@@ -180,16 +227,15 @@ export class InvoiceController {
                 try {
                     await this.invoiceErrorLogService.createEntity(errorLog)
                 } catch (error) {
-                    console.log(error);
+                    console.log(error)
                 }
-                
             })
             return `Invoice ${invoiceId} was Rejected by Siigo`
         } else {
             console.log(
                 `Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`,
             )
-            console.log(siigoResponse);
+            console.log(siigoResponse)
             const siigoData: UpdateInvoiceDTO = {
                 siigoId: siigoResponse.id,
                 siigoStatus: siigoResponse.stamp.status,

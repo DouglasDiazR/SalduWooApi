@@ -7,4 +7,5 @@ export enum Status {
     Refunded = 'refunded',
     Failed = 'failed',
     Trash = 'trash',
+    Entregado = 'entregado'
 }

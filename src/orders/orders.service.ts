@@ -52,14 +52,25 @@ export class OrdersService {
                 status: order.status,
                 total: order.total,
                 invoicing: {
-                    documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
-                    document: order.meta_data.find(item => item.key == '_numero_nit').value,
-                    businessName: order.meta_data.find(item => item.key == '_razon_social').value,
+                    // documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                    // document: order.meta_data.find(item => item.key == '_numero_nit').value || 'NA',
+                    // businessName: order.meta_data.find(item => item.key == '_razon_social').value || 'NA',
+                    // firstname: 'string',
+                    // lastname: 'string',
+                    // address: order.meta_data.find(item => item.key == '_direccion_facturacion').value || 'NA',
+                    // phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value || 'NA',
+                    // email: order.meta_data.find(item => item.key == '_email_rut').value || 'NA',
+                    // commission: 123,
+                    // payBackPrice: 123,
+                    // shippingPrice: 123,
+                    documentType: 'CC',
+                    document: 'NA',
+                    businessName: 'NA',
                     firstname: 'string',
                     lastname: 'string',
-                    address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
-                    phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
-                    email: order.meta_data.find(item => item.key == '_email_rut').value,
+                    address: 'NA',
+                    phone: 'NA',
+                    email: 'NA',
                     commission: 123,
                     payBackPrice: 123,
                     shippingPrice: 123,
@@ -521,8 +532,6 @@ export class OrdersService {
             }
 
             const order = response.data
-
-            console.log('======', order);
 
             const formattedOrder: IOrders = {
                 id: order.id,

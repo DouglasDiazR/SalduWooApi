@@ -68,6 +68,25 @@ export class InvoiceService {
         return invoice
     }
 
+    async findOneByOrderId(id: number): Promise<Invoice> {
+        const invoice = await this.invoiceRepository
+            .createQueryBuilder('invoice')
+            .leftJoinAndSelect('invoice.paymentOption', 'paymentOption')
+            .leftJoinAndSelect(
+                'invoice.salduInlineProducts',
+                'salduInlineProducts',
+            )
+            .leftJoinAndSelect(
+                'salduInlineProducts.salduProduct',
+                'salduProduct',
+            )
+            .leftJoinAndSelect('salduProduct.charges', 'charges')
+            .leftJoinAndSelect('charges.taxDiscount', 'taxDiscount')
+            .where('invoice.orderId = :id', { id })
+            .getOne()
+        return invoice
+    }
+
     async createEntity(payload: CreateInvoiceDTO) {
         const newInvoice = this.invoiceRepository.create(payload)
         if (payload.paymentOptionId) {

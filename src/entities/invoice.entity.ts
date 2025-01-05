@@ -24,6 +24,30 @@ export class Invoice {
     @Column({ type: 'float', name: 'order_total' })
     orderTotal: number
 
+    @Column({ type: 'varchar', name: 'document_type', nullable: true })
+    documentType: string
+
+    @Column({ type: 'varchar', name: 'document', nullable: true })
+    document: string
+
+    @Column({ type: 'varchar', name: 'business_name', nullable: true })
+    businessName: string
+
+    @Column({ type: 'varchar', name: 'first_name', nullable: true })
+    firstname: string
+
+    @Column({ type: 'varchar', name: 'last_name', nullable: true })
+    lastname: string
+
+    @Column({ type: 'varchar', nullable: true })
+    address: string
+
+    @Column({ type: 'varchar', nullable: true })
+    phone: string
+
+    @Column({ type: 'varchar', nullable: true })
+    email: string
+
     @Column({ type: 'float', name: 'taxed_price', default: 0 })
     taxedPrice: number
 

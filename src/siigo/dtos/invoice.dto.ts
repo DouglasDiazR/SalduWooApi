@@ -20,6 +20,46 @@ export class CreateInvoiceDTO {
     @ApiProperty()
     readonly orderTotal: number
 
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly documentType: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly document: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly businessName: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly firstname: string
+    
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly lastname: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly address: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly phone: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly email: string
+
     @IsNumber()
     @IsOptional()
     @ApiProperty()
