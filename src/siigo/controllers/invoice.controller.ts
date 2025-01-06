@@ -241,11 +241,12 @@ export class InvoiceController {
                 siigoStatus: siigoResponse.stamp.status,
                 siigoDate: siigoResponse.date,
                 siigoName: siigoResponse.name,
-                cufe: siigoResponse.id,
+                //cufe: siigoResponse.id,
                 publicUrl: siigoResponse.public_url,
                 customerMailed:
                     siigoResponse.mail.status == 'sent' ? true : false,
             }
+            // TODO: Update WooCommerce status method!!
             return await this.updateEntity(invoiceId, siigoData)
         }
     }

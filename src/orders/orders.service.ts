@@ -332,7 +332,8 @@ export class OrdersService {
                     before: formattedEndDate,
                 },
             )
-
+            console.log();
+            
             if (orders.data.length === 0) {
                 throw new NotFoundException('No se encontraron órdenes')
             }
@@ -533,6 +534,8 @@ export class OrdersService {
 
             const order = response.data
 
+            console.log(order);
+
             const formattedOrder: IOrders = {
                 id: order.id,
                 number: order.number,
@@ -540,16 +543,16 @@ export class OrdersService {
                 total: order.total,
                 invoicing: {
                     documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
-                    document: order.meta_data.find(item => item.key == '_numero_nit').value,
-                    businessName: order.meta_data.find(item => item.key == '_razon_social').value,
+                    document: order.meta_data.find(item => item.key == '_numero_nit').value || '0',
+                    businessName: order.meta_data.find(item => item.key == '_razon_social').value || '',
                     firstname: 'string',
                     lastname: 'string',
                     address: order.meta_data.find(item => item.key == '_direccion_facturacion').value,
-                    phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value,
-                    email: order.meta_data.find(item => item.key == '_email_rut').value,
+                    phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value ? order.meta_data.find(item => item.key == '_telefono').value : '0',
+                    email: order.meta_data.find(item => item.key == '_email_rut').value ? order.billing.email : '',
                     commission: order.meta_data.find(item => item.key == '_comision_saldu').value,
                     payBackPrice: order.meta_data.find(item => item.key == '_reintegro_pasarela') ? order.meta_data.find(item => item.key == '_reintegro_pasarela').value : "0",
-                    shippingPrice: order.shipping_lines[0].total,
+                    shippingPrice: order.shipping_lines[0].total || 0,
                 },
                 date_created: order.date_created,
                 date_modified: order.date_modified,
