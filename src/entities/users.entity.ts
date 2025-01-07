@@ -6,7 +6,7 @@ import { Products } from './products.entity'
 })
 export class Users {
     @PrimaryGeneratedColumn('uuid')
-    id_user: string = uuid()
+    id_user: string
 
     @Column({
         type: 'int',
