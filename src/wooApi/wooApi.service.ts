@@ -61,7 +61,7 @@ export class WooCommerceService {
                         randomPassword,
                     )
                     const hashedPassword = await bcrypt.hash(randomPassword, 10)
-
+                    
                     return {
                         id_wooCommerce: user.id,
                         email: user.email.toLocaleLowerCase(),
