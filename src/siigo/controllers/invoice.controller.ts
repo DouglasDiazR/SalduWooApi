@@ -200,7 +200,7 @@ export class InvoiceController {
             const inlineProduct = {
                 id: item.salduProduct.siigoId,
                 code: item.salduProduct.internalCode,
-                description: item.salduProduct.description,
+                //description: item.salduProduct.description,
                 quantity: 1,
                 price: parseFloat(item.taxedPrice.toFixed(2)),
                 discount: 0,
