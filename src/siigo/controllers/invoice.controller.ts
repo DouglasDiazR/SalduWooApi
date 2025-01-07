@@ -49,17 +49,15 @@ export class InvoiceController {
                 salduProductId: 3,
             })
         }
-        if (payload.comission && payload.comission >= 0) {
-            await this.salduInlineProductService.createEntity({
-                invoiceId: newInvoice.id,
-                salduProductId: 4,
-                taxedPrice: payload.comission,
-            })
-            await this.salduInlineProductService.createEntity({
-                invoiceId: newInvoice.id,
-                salduProductId: 1,
-            })
-        }
+        await this.salduInlineProductService.createEntity({
+            invoiceId: newInvoice.id,
+            salduProductId: 4,
+            taxedPrice: payload.comission ? payload.comission : 0,
+        })
+        await this.salduInlineProductService.createEntity({
+            invoiceId: newInvoice.id,
+            salduProductId: 1,
+        })
         const invoiceProds =
             await this.salduInlineProductService.findAllByInvoiceId(
                 newInvoice.id,
@@ -99,8 +97,16 @@ export class InvoiceController {
         @Body() payload: UpdateInvoiceDTO,
     ) {
         if (payload.comission && payload.comission > 0) {
-            const commission = await this.salduInlineProductService.findByProductIdAndInvoiceId(4, id)
-            const recharge = await this.salduInlineProductService.findByProductIdAndInvoiceId(1, id)
+            const commission =
+                await this.salduInlineProductService.findByProductIdAndInvoiceId(
+                    4,
+                    id,
+                )
+            const recharge =
+                await this.salduInlineProductService.findByProductIdAndInvoiceId(
+                    1,
+                    id,
+                )
             if (!commission) {
                 await this.salduInlineProductService.createEntity({
                     invoiceId: id,
@@ -157,7 +163,7 @@ export class InvoiceController {
                         parseFloat(wooOrder.invoicing.shippingPrice) || 0,
                     paybackPrice:
                         parseFloat(wooOrder.invoicing.payBackPrice) || 0,
-                    paymentOptionId: 1
+                    paymentOptionId: 1,
                 }
                 pendingOrders.push(await this.createEntity(newInvoiceDTO))
             } else {
@@ -176,13 +182,11 @@ export class InvoiceController {
             date: invoice.updatedAt.toISOString().substring(0, 10),
             customer: {
                 person_type:
-                    invoice.documentType == 'NIT'
-                        ? 'Company'
-                        : 'Person',
+                    invoice.documentType == 'NIT' ? 'Company' : 'Person',
                 id_type: invoice.documentType == 'NIT' ? '31' : '13',
                 identification: invoice.document,
                 name:
-                invoice.documentType == 'NIT'
+                    invoice.documentType == 'NIT'
                         ? [invoice.businessName]
                         : [invoice.firstname, invoice.lastname],
                 address: {
@@ -197,11 +201,11 @@ export class InvoiceController {
                 contacts: [
                     {
                         first_name:
-                        invoice.documentType == 'NIT'
+                            invoice.documentType == 'NIT'
                                 ? 'No Contact'
                                 : invoice.firstname,
                         last_name:
-                        invoice.documentType == 'NIT'
+                            invoice.documentType == 'NIT'
                                 ? 'No Contact'
                                 : invoice.lastname,
                         email: invoice.email,
