@@ -52,7 +52,7 @@ export class InvoiceController {
         await this.salduInlineProductService.createEntity({
             invoiceId: newInvoice.id,
             salduProductId: 4,
-            taxedPrice: payload.comission ? payload.comission : 0,
+            taxedPrice: payload.commission ? payload.commission : 0,
         })
         await this.salduInlineProductService.createEntity({
             invoiceId: newInvoice.id,
@@ -96,7 +96,7 @@ export class InvoiceController {
         @Param('id', ParseIntPipe) id: number,
         @Body() payload: UpdateInvoiceDTO,
     ) {
-        if (payload.comission && payload.comission > 0) {
+        if (payload.commission && payload.commission > 0) {
             const commission =
                 await this.salduInlineProductService.findByProductIdAndInvoiceId(
                     4,
@@ -111,13 +111,13 @@ export class InvoiceController {
                 await this.salduInlineProductService.createEntity({
                     invoiceId: id,
                     salduProductId: 4,
-                    taxedPrice: payload.comission,
+                    taxedPrice: payload.commission,
                 })
             } else {
                 await this.salduInlineProductService.updateEntity({
                     invoiceId: id,
                     salduProductId: 4,
-                    taxedPrice: payload.comission,
+                    taxedPrice: payload.commission,
                 })
             }
             if (!commission) {
@@ -158,7 +158,7 @@ export class InvoiceController {
                     address: wooOrder.invoicing.address || '',
                     phone: wooOrder.invoicing.phone,
                     email: wooOrder.invoicing.email,
-                    comission: parseFloat(wooOrder.invoicing.commission) || 0,
+                    commission: parseFloat(wooOrder.invoicing.commission) || 0,
                     shippingPrice:
                         parseFloat(wooOrder.invoicing.shippingPrice) || 0,
                     paybackPrice:

@@ -63,7 +63,7 @@ export class CreateInvoiceDTO {
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly comission?: number
+    readonly commission?: number
 
     @IsNumber()
     @IsOptional()
