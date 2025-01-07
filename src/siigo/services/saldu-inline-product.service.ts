@@ -69,6 +69,7 @@ export class SalduInlineProductService {
     ): Promise<SalduInlineProduct> {
         const inlineProduct = await this.salduInlineProductRepository
             .createQueryBuilder('salduInlineProduct')
+            .leftJoinAndSelect('salduInlineProduct.invoice', 'invoice')
             .where('salduInlineProduct.salduProductId = :salduProductId', {
                 salduProductId,
             })
