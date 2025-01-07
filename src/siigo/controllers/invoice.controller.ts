@@ -49,7 +49,7 @@ export class InvoiceController {
                 salduProductId: 3,
             })
         }
-        if (payload.comission && payload.comission > 0) {
+        if (payload.comission && payload.comission >= 0) {
             await this.salduInlineProductService.createEntity({
                 invoiceId: newInvoice.id,
                 salduProductId: 4,
@@ -94,10 +94,38 @@ export class InvoiceController {
     }
 
     @Put(':id')
-    updateEntity(
+    async updateEntity(
         @Param('id', ParseIntPipe) id: number,
         @Body() payload: UpdateInvoiceDTO,
     ) {
+        if (payload.comission && payload.comission > 0) {
+            const commission = await this.salduInlineProductService.findByProductIdAndInvoiceId(4, id)
+            const recharge = await this.salduInlineProductService.findByProductIdAndInvoiceId(1, id)
+            if (!commission) {
+                await this.salduInlineProductService.createEntity({
+                    invoiceId: id,
+                    salduProductId: 4,
+                    taxedPrice: payload.comission,
+                })
+            } else {
+                await this.salduInlineProductService.updateEntity({
+                    invoiceId: id,
+                    salduProductId: 4,
+                    taxedPrice: payload.comission,
+                })
+            }
+            if (!commission) {
+                await this.salduInlineProductService.createEntity({
+                    invoiceId: id,
+                    salduProductId: 1,
+                })
+            } else {
+                await this.salduInlineProductService.updateEntity({
+                    invoiceId: id,
+                    salduProductId: 1,
+                })
+            }
+        }
         return this.invoiceService.updateEntity(id, payload)
     }
 
@@ -143,41 +171,40 @@ export class InvoiceController {
     @Post('siigo/:id')
     async siigoInvoiceUpload(@Param('id', ParseIntPipe) invoiceId: number) {
         const invoice = await this.findOne(invoiceId)
-        const order = await this.orderService.getOrderById(invoice.orderId)
         const siigoInvoiceRequest: SiigoInvoiceDTO = {
             document: { id: 26375 }, //Sandbox: 28006 - SalduNube: 26375
             date: invoice.updatedAt.toISOString().substring(0, 10),
             customer: {
                 person_type:
-                    order.invoicing.documentType == 'NIT'
+                    invoice.documentType == 'NIT'
                         ? 'Company'
                         : 'Person',
-                id_type: order.invoicing.documentType == 'NIT' ? '31' : '13',
-                identification: order.invoicing.document,
+                id_type: invoice.documentType == 'NIT' ? '31' : '13',
+                identification: invoice.document,
                 name:
-                    order.invoicing.documentType == 'NIT'
-                        ? [order.invoicing.businessName]
-                        : [order.invoicing.firstname, order.invoicing.lastname],
+                invoice.documentType == 'NIT'
+                        ? [invoice.businessName]
+                        : [invoice.firstname, invoice.lastname],
                 address: {
-                    address: order.invoicing.address,
+                    address: invoice.address,
                     city: {
                         country_code: 'CO',
                         state_code: '08',
                         city_code: '08001',
                     },
                 },
-                phones: [{ number: order.invoicing.phone }],
+                phones: [{ number: invoice.phone }],
                 contacts: [
                     {
                         first_name:
-                            order.invoicing.documentType == 'NIT'
+                        invoice.documentType == 'NIT'
                                 ? 'No Contact'
-                                : order.invoicing.firstname,
+                                : invoice.firstname,
                         last_name:
-                            order.invoicing.documentType == 'NIT'
+                        invoice.documentType == 'NIT'
                                 ? 'No Contact'
-                                : order.invoicing.lastname,
-                        email: order.invoicing.email,
+                                : invoice.lastname,
+                        email: invoice.email,
                     },
                 ],
             },
