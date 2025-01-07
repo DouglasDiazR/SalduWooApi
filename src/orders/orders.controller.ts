@@ -1,8 +1,10 @@
 import {
+    Body,
     Controller,
     Get,
     HttpCode,
     Param,
+    Put,
     Query,
     Req,
     UseGuards,
@@ -19,6 +21,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger'
 import { Status } from 'src/enum/status.enum'
+import { UpdateInvoiceDTO } from 'src/siigo/dtos/invoice.dto'
 
 @ApiTags('Ordenes')
 @ApiBearerAuth()
@@ -332,5 +335,10 @@ export class OrdersController {
     @Roles(Role.Admin)
     async getOrderById(@Param('id') id: number) {
         return await this.ordersService.getOrderById(id)
+    }
+
+    @Put(':id')
+    async updateOrder(@Param('id') id: number, @Body() payload: string) {
+        return await this.ordersService.updateOrder(id, payload)
     }
 }

@@ -582,4 +582,62 @@ export class OrdersService {
             )
         }
     }
+
+    async updateOrder(id: number, payload: string): Promise<IOrders> {
+        try {
+            const response: { data: any } = await this.WooCommerce.put(
+                `orders/${id}`,
+                { status: payload }
+            )
+
+            if (!response || !response.data) {
+                throw new NotFoundException(
+                    `La orden con ID ${id} no fue encontrada.`,
+                )
+            }
+            const order = response.data
+            const formattedOrder: IOrders = {
+                id: order.id,
+                number: order.number,
+                status: order.status,
+                total: order.total,
+                invoicing: {
+                    documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
+                    document: order.meta_data.find(item => item.key == '_numero_nit')?.value || '0',
+                    businessName: order.meta_data.find(item => item.key == '_razon_social')?.value || '',
+                    firstname: order.meta_data.find(item => item.key == '_nombre')?.value || '',
+                    lastname: order.meta_data.find(item => item.key == '_apellido')?.value || '',
+                    address: order.meta_data.find(item => item.key == '_direccion_facturacion')?.value || '',
+                    phone: order.meta_data.find(item => item.key == '_telefono_emp') 
+                        ? order.meta_data.find(item => item.key == '_telefono_emp')?.value
+                        : order.meta_data.find(item => item.key == '_telefono')?.value || '0',
+                    email: order.meta_data.find(item => item.key == '_email_rut')?.value 
+                        ? order.billing.email 
+                        : '',
+                    commission: order.meta_data.find(item => item.key == '_comision_saldu')?.value || 0,
+                    payBackPrice: order.meta_data.find(item => item.key == '_reintegro_pasarela')?.value || "0",
+                    shippingPrice: order.shipping_lines[0]?.total || 0,
+                },
+                date_created: order.date_created,
+                date_modified: order.date_modified,
+                date_paid: order.date_paid || '',
+                line_items: Array.isArray(order.line_items)
+                    ? order.line_items.map((item) => ({
+                          product_id: item.product_id,
+                          name: item.name,
+                          quantity: item.quantity,
+                          price: item.price,
+                          total: item.total,
+                          meta_data: item.meta_data || [],
+                      }))
+                    : [],
+            };            
+            return formattedOrder
+        } catch (error) {
+            if (error instanceof NotFoundException) throw error
+            throw new InternalServerErrorException(
+                'Hubo un error al obtener la orden. Por favor, intente nuevamente.',
+            ) 
+        }
+    }
 }

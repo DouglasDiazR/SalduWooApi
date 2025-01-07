@@ -249,7 +249,7 @@ export class InvoiceController {
                 customerMailed:
                     siigoResponse.mail.status == 'sent' ? true : false,
             }
-            // TODO: Update WooCommerce status method!!
+            await this.orderService.updateOrder(invoice.orderId, 'completado')
             return await this.updateEntity(invoiceId, siigoData)
         }
     }
