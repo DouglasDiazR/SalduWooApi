@@ -102,16 +102,15 @@ export class InvoiceController {
                     4,
                     id,
                 )
-            const recharge =
-                await this.salduInlineProductService.findByProductIdAndInvoiceId(
-                    1,
-                    id,
-                )
             if (!commission) {
                 await this.salduInlineProductService.createEntity({
                     invoiceId: id,
                     salduProductId: 4,
                     taxedPrice: payload.commission,
+                })
+                await this.salduInlineProductService.createEntity({
+                    invoiceId: id,
+                    salduProductId: 1,
                 })
             } else {
                 await this.salduInlineProductService.updateEntity({
@@ -119,13 +118,6 @@ export class InvoiceController {
                     salduProductId: 4,
                     taxedPrice: payload.commission,
                 })
-            }
-            if (!commission) {
-                await this.salduInlineProductService.createEntity({
-                    invoiceId: id,
-                    salduProductId: 1,
-                })
-            } else {
                 await this.salduInlineProductService.updateEntity({
                     invoiceId: id,
                     salduProductId: 1,
