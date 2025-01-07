@@ -131,7 +131,7 @@ export class InvoiceController {
                         parseFloat(wooOrder.invoicing.payBackPrice) || 0,
                     paymentOptionId: 1
                 }
-                await pendingOrders.push(this.createEntity(newInvoiceDTO))
+                pendingOrders.push(await this.createEntity(newInvoiceDTO))
             } else {
                 pendingOrders.push(invoice)
             }
