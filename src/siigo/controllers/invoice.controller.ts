@@ -65,10 +65,12 @@ export class InvoiceController {
                 newInvoice.id,
             )
         let invoiceTotal = 0
-        for (const prod of invoiceProds) {
-            invoiceTotal +=
-                prod.taxedPrice *
-                (1 + prod.salduProduct.charges[0].taxDiscount.value)
+        if (invoiceProds.length > 0) {
+            for (const prod of invoiceProds) {
+                invoiceTotal +=
+                    prod.taxedPrice *
+                    (1 + prod.salduProduct.charges[0].taxDiscount.value)
+            }
         }
         invoiceTotal = Math.ceil(invoiceTotal * 100) / 100
         return await this.invoiceService.updateEntity(newInvoice.id, {
@@ -127,8 +129,9 @@ export class InvoiceController {
                         parseFloat(wooOrder.invoicing.shippingPrice) || 0,
                     paybackPrice:
                         parseFloat(wooOrder.invoicing.payBackPrice) || 0,
+                    paymentOptionId: 1
                 }
-                pendingOrders.push(this.createEntity(newInvoiceDTO))
+                await pendingOrders.push(this.createEntity(newInvoiceDTO))
             } else {
                 pendingOrders.push(invoice)
             }
