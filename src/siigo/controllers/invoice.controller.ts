@@ -203,7 +203,7 @@ export class InvoiceController {
                         city_code: '08001',
                     },
                 },
-                phones: [{ number: `${invoice.phone}` }],
+                phones: [{ number: invoice.phone.replace(/\D/g, '') }],
                 contacts: [
                     {
                         first_name:
