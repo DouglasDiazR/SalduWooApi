@@ -287,7 +287,7 @@ export class InvoiceController {
                     siigoResponse.mail.status == 'sent' ? true : false,
             }
             //await this.orderService.updateOrder(invoice.orderId, 'completado')
-            return await this.updateEntity(invoiceId, siigoData)
+            return await this.invoiceService.updateEntity(invoiceId, siigoData)
         }
     }
 }
