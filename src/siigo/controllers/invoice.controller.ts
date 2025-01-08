@@ -238,7 +238,7 @@ export class InvoiceController {
                 id: item.salduProduct.siigoId,
                 code: item.salduProduct.internalCode,
                 quantity: 1,
-                price: parseFloat(item.taxedPrice.toFixed(2)),
+                taxed_price: parseFloat((item.taxedPrice *(1 + item.salduProduct.charges[0].taxDiscount.value)).toFixed(2)),
                 discount: 0,
                 taxes: [],
             }
