@@ -248,6 +248,10 @@ export class InvoiceController {
             }
             siigoInvoiceRequest.items.push(inlineProduct)
         }
+        console.log('Tipado de number', siigoInvoiceRequest.customer.phones[0].number, typeof siigoInvoiceRequest.customer.phones[0].number);
+        
+        console.log(siigoInvoiceRequest);
+        
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
