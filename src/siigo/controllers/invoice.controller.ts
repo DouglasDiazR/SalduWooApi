@@ -251,6 +251,7 @@ export class InvoiceController {
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
+            console.log(JSON.stringify(siigoResponse))
             console.log(
                 `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
             )
@@ -273,16 +274,18 @@ export class InvoiceController {
             console.log(
                 `Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`,
             )
+            console.log(siigoResponse)
             const siigoData: UpdateInvoiceDTO = {
                 siigoId: siigoResponse.id,
                 siigoStatus: siigoResponse.stamp.status,
                 siigoDate: siigoResponse.date,
                 siigoName: siigoResponse.name,
+                //cufe: siigoResponse.id,
                 publicUrl: siigoResponse.public_url,
                 customerMailed:
                     siigoResponse.mail.status == 'sent' ? true : false,
             }
-            await this.orderService.updateOrder(invoice.orderId, Status.Completed)
+            await this.orderService.updateOrder(invoice.orderId, 'completado')
             return await this.updateEntity(invoiceId, siigoData)
         }
     }
