@@ -70,7 +70,7 @@ export class InvoiceController {
                     (1 + prod.salduProduct.charges[0].taxDiscount.value)
             }
         }
-        invoiceTotal = Math.ceil(invoiceTotal * 100) / 100
+        invoiceTotal = Math.trunc(invoiceTotal * 100) / 100
         return await this.invoiceService.updateEntity(newInvoice.id, {
             taxedPrice: invoiceTotal,
         })
