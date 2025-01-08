@@ -137,7 +137,7 @@ export class InvoiceController {
                     (1 + prod.salduProduct.charges[0].taxDiscount.value)
             }
         }
-        invoiceTotal = Math.ceil(invoiceTotal * 100) / 100
+        invoiceTotal = Math.floor(invoiceTotal * 100) / 100
         invoice.taxedPrice = invoiceTotal
         return this.invoiceService.updateEntity(id, invoice)
     }
