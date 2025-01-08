@@ -48,6 +48,9 @@ export class Invoice {
     @Column({ type: 'varchar', nullable: true })
     email: string
 
+    @Column({ type: 'varchar', nullable: true })
+    orderDate: string
+
     @Column({ type: 'float', name: 'taxed_price', default: 0 })
     taxedPrice: number
 

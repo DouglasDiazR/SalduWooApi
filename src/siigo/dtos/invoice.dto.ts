@@ -15,6 +15,11 @@ export class CreateInvoiceDTO {
     @ApiProperty()
     readonly orderId: number
 
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly orderDate: string
+
     @IsNumber()
     @IsNotEmpty()
     @ApiProperty()

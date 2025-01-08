@@ -21,6 +21,7 @@ import { InvoiceErrorLogService } from '../services/invoice-error-log.service'
 import { OrdersService } from 'src/orders/orders.service'
 import { CreatePendingInvoiceDTO } from '../dtos/pending-invoice.dto'
 import { Status } from 'src/enum/status.enum'
+import { Invoice } from 'src/entities/invoice.entity'
 
 @Controller('invoice')
 export class InvoiceController {
@@ -144,7 +145,7 @@ export class InvoiceController {
 
     @Post('all-pending')
     async getAllPending(@Body() payload: CreatePendingInvoiceDTO) {
-        let pendingOrders = []
+        let pendingOrders: Invoice[] = []
         const orders = await this.orderService.getAllOrders({
             status: Status.Entregado,
             startDate: payload.startDate,
@@ -165,6 +166,7 @@ export class InvoiceController {
                     address: wooOrder.invoicing.address || '',
                     phone: wooOrder.invoicing.phone,
                     email: wooOrder.invoicing.email,
+                    orderDate: wooOrder.date_modified,
                     commission: parseFloat(wooOrder.invoicing.commission) || 0,
                     shippingPrice:
                         parseFloat(wooOrder.invoicing.shippingPrice) || 0,
@@ -177,7 +179,7 @@ export class InvoiceController {
                 pendingOrders.push(invoice)
             }
         }
-        return pendingOrders
+        return pendingOrders.filter((order) => order.siigoStatus == 'Error Siigo' || 'Pendiente de Facturar')
     }
 
     @Post('siigo/:id')
@@ -267,7 +269,7 @@ export class InvoiceController {
                     param: error.Params[0],
                     invoiceId: invoice.id,
                 }
-                await this.invoiceService.updateEntity(invoice.id, {siigoStatus: `Error Siigo: ${error.Code}`})
+                await this.invoiceService.updateEntity(invoice.id, {siigoStatus: `Error Siigo`})
                 try {
                     await this.invoiceErrorLogService.createEntity(errorLog)
                 } catch (error) {
