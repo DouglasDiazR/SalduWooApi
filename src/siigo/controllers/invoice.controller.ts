@@ -96,6 +96,7 @@ export class InvoiceController {
         @Param('id', ParseIntPipe) id: number,
         @Body() payload: UpdateInvoiceDTO,
     ) {
+        const invoice = await this.invoiceService.findOne(id)
         if (payload.commission && payload.commission > 0) {
             const commission =
                 await this.salduInlineProductService.findByProductIdAndInvoiceId(
@@ -124,7 +125,21 @@ export class InvoiceController {
                 })
             }
         }
-        return this.invoiceService.updateEntity(id, payload)
+        const invoiceProds =
+            await this.salduInlineProductService.findAllByInvoiceId(
+                invoice.id,
+            )
+        let invoiceTotal = 0
+        if (invoiceProds.length > 0) {
+            for (const prod of invoiceProds) {
+                invoiceTotal +=
+                    prod.taxedPrice *
+                    (1 + prod.salduProduct.charges[0].taxDiscount.value)
+            }
+        }
+        invoiceTotal = Math.ceil(invoiceTotal * 100) / 100
+        invoice.taxedPrice = invoiceTotal
+        return this.invoiceService.updateEntity(id, invoice)
     }
 
     @Post('all-pending')
