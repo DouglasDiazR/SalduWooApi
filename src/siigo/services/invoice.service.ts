@@ -34,6 +34,31 @@ export class InvoiceService {
         return await queryBuilder.getMany()
     }
 
+    async findAllSiigoGenerated() {
+        const status = ['Dratf', 'Accepted', 'Sending']
+        let queryBuilder = this.invoiceRepository
+            .createQueryBuilder('invoice')
+            .leftJoinAndSelect('invoice.paymentOption', 'paymentOption')
+            .leftJoinAndSelect('invoice.errorLogs', 'errorLogs')
+            .leftJoinAndSelect(
+                'invoice.salduInlineProducts',
+                'salduInlineProducts',
+            )
+            .leftJoinAndSelect(
+                'salduInlineProducts.salduProduct',
+                'salduProduct',
+            )
+            .leftJoinAndSelect('salduProduct.charges', 'charges')
+            .leftJoinAndSelect('charges.taxDiscount', 'taxDiscount')
+            .orderBy('invoice.createdAt', 'DESC')
+        if (status !== undefined) {
+            queryBuilder = queryBuilder.where('invoice.siigoStatus = :status', {
+                status,
+            })
+        }
+        return await queryBuilder.getMany()
+    }
+
     async findAllSiigoRejected() {
         const invoices = await this.invoiceRepository
             .createQueryBuilder('invoice')

@@ -71,7 +71,7 @@ export class InvoiceController {
                     (1 + prod.salduProduct.charges[0].taxDiscount.value)
             }
         }
-        invoiceTotal = Math.trunc(invoiceTotal * 100) / 100
+        invoiceTotal = parseFloat(invoiceTotal.toFixed(2))
         return await this.invoiceService.updateEntity(newInvoice.id, {
             taxedPrice: invoiceTotal,
         })
@@ -82,7 +82,12 @@ export class InvoiceController {
         return this.invoiceService.findAll(status)
     }
 
-    @Get()
+    @Get('siigo-generated')
+    findAllSiigoGenerated() {
+        return this.invoiceService.findAllSiigoGenerated()
+    }
+
+    @Get('siigo-rejected')
     findAllSiigoRejected() {
         return this.invoiceService.findAllSiigoRejected()
     }
