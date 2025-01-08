@@ -263,6 +263,7 @@ export class InvoiceController {
                     param: error.Params[0],
                     invoiceId: invoice.id,
                 }
+                await this.updateEntity(invoice.id, {siigoStatus: `Error Siigo: ${error.Code}`})
                 try {
                     await this.invoiceErrorLogService.createEntity(errorLog)
                 } catch (error) {
