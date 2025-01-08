@@ -184,7 +184,9 @@ export class InvoiceController {
                 pendingOrders.push(invoice)
             }
         }
-        return pendingOrders.filter((order) => order.siigoStatus == 'Error Siigo' || 'Pendiente de Facturar')
+        return pendingOrders.filter((order) => 
+            order.siigoStatus === 'Error Siigo' || order.siigoStatus === 'Pendiente de Facturar'
+          );
     }
 
     @Post('siigo/:id')
