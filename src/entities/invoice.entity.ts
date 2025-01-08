@@ -59,7 +59,7 @@ export class Invoice {
         name: 'siigo_status',
         length: 256,
         nullable: true,
-        default: 'On Hold',
+        default: 'Pendiente de Facturar',
     })
     siigoStatus: string
 

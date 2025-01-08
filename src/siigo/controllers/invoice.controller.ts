@@ -176,7 +176,6 @@ export class InvoiceController {
             } else {
                 pendingOrders.push(invoice)
             }
-            console.log('Step 4', pendingOrders)
         }
         return pendingOrders
     }
@@ -220,8 +219,8 @@ export class InvoiceController {
                 ],
             },
             seller: 487, // Sandbox 841 - SalduNube 487 (Tatiana)
-            stamp: { send: true },
-            mail: { send: true },
+            stamp: { send: false },
+            mail: { send: false },
             observations: `Factura comisión por uso de plataforma SALDU. Pedidos no. ${invoice.orderId}. \n SALDU pertenece al régimen simple. \n Los conceptos de reintegro de costos de transacción corresponden a los gastos bancarios incurridos por Saldu para la operación de recaudo.`,
             items: [],
             payments: [
@@ -238,7 +237,6 @@ export class InvoiceController {
             const inlineProduct = {
                 id: item.salduProduct.siigoId,
                 code: item.salduProduct.internalCode,
-                //description: item.salduProduct.description,
                 quantity: 1,
                 price: parseFloat(item.taxedPrice.toFixed(2)),
                 discount: 0,
@@ -253,7 +251,6 @@ export class InvoiceController {
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
-            console.log(JSON.stringify(siigoResponse))
             console.log(
                 `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
             )
@@ -276,18 +273,16 @@ export class InvoiceController {
             console.log(
                 `Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`,
             )
-            console.log(siigoResponse)
             const siigoData: UpdateInvoiceDTO = {
                 siigoId: siigoResponse.id,
                 siigoStatus: siigoResponse.stamp.status,
                 siigoDate: siigoResponse.date,
                 siigoName: siigoResponse.name,
-                //cufe: siigoResponse.id,
                 publicUrl: siigoResponse.public_url,
                 customerMailed:
                     siigoResponse.mail.status == 'sent' ? true : false,
             }
-            await this.orderService.updateOrder(invoice.orderId, 'completado')
+            await this.orderService.updateOrder(invoice.orderId, Status.Completed)
             return await this.updateEntity(invoiceId, siigoData)
         }
     }

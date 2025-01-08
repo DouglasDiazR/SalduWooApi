@@ -17,7 +17,7 @@ export class OrdersService {
         startDate,
         endDate,
         page = 1,
-        limit = 10,
+        limit = 50,
     }: {
         status?: Status
         startDate?: string
