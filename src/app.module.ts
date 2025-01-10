@@ -12,6 +12,7 @@ import { UsersModule } from './users/users.module'
 import { ProductsModule } from './products/products.module'
 import { OrdersModule } from './orders/orders.module'
 import { SiigoModule } from './siigo/siigo.module';
+import { UploadProductModule } from './upload-product/upload-product.module';
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { SiigoModule } from './siigo/siigo.module';
             secret: JWT_SECRET,
         }),
         SiigoModule,
+        UploadProductModule,
     ],
     controllers: [AppController],
     providers: [AppService],
