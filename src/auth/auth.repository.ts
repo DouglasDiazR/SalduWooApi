@@ -40,6 +40,7 @@ export class AuthRepository {
             return {
                 message: 'Usuario logeado',
                 role: user.role,
+                name: user.name,
                 token,
             }
         } catch (error) {
