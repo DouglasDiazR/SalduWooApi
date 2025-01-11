@@ -35,7 +35,9 @@ export class AuthRepository {
                 name: user.name,
                 role: user.role,
             }
-            const token = this.jwtService.sign(payload)
+            const token = this.jwtService.sign(payload, {
+                expiresIn: '7d'
+            })
 
             return {
                 message: 'Usuario logeado',
