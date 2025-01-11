@@ -66,7 +66,7 @@ export class UploadProductController {
     ) {
         if (!file) {
             throw new BadRequestException(
-                'Upload a file to excecute this request',
+                'Upload a file to execute this request',
             )
         }
         const newUpload = await this.csvManagerService.processCsvBuffer(
