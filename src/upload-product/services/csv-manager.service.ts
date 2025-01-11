@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { parse } from 'csv-parse'
 import { Readable } from 'stream'
 import { CreateUploadProductDTO } from '../dtos/upload-product.dto'
+import { UploadProduct } from 'src/entities/upload-product.entity'
+import { format } from 'fast-csv'
 
 @Injectable()
 export class CsvManagerService {
@@ -113,6 +115,48 @@ export class CsvManagerService {
         }
     }
 
+    transformProductToRow(row: UploadProduct): Record<string, any> {
+        return {
+            providerId: row.providerId,
+            sku: row.sku,
+            description: row.description,
+            shortDescription: row.shortDescription || '',
+            stock: row.stock || 0,
+            unit: row.unit || '',
+            weightKg: row.weightKg || 0,
+            lengthCm: row.lengthCm || 0,
+            widthCm: row.widthCm || 0,
+            heightCm: row.heightCm || 0,
+            type: row.type || '',
+            basePrice: row.basePrice,
+            iva: row.iva || 0,
+            baseIva: row.baseIva || 0,
+            salduCommission: row.salduCommission || 0,
+            commissionIva: row.commissionIva || 0,
+            finalPrice: row.finalPrice || 0,
+            categories: row.categories || '',
+            brand: row.brand || '',
+            imagesUrl: row.imagesUrl || '',
+            status: row.status,
+            address: row.address || '',
+            city: row.city,
+            state: row.state,
+            dueDate: row.dueDate ? row.dueDate.toISOString() : '',
+            macrocategory: row.macrocategory || '',
+            category: row.category || '',
+            subcategory: row.subcategory || '',
+            class: row.class || '',
+            priceUrl1: row.priceUrl1 || '',
+            priceUrl2: row.priceUrl2 || '',
+            priceUrl3: row.priceUrl3 || '',
+            urlImage1: row.urlImage1 || '',
+            urlImage2: row.urlImage2 || '',
+            urlImage3: row.urlImage3 || '',
+            urlImage4: row.urlImage4 || '',
+            urlImage5: row.urlImage5 || '',
+        }
+    }
+
     processCsvBuffer(buffer: Buffer): Promise<CreateUploadProductDTO[]> {
         const stream = Readable.from(buffer)
         const records = []
@@ -128,7 +172,8 @@ export class CsvManagerService {
                 )
                 .on('data', (row) => {
                     const renamedRow = this.renameHeaders(row)
-                    const transformedRow = this.transformRowToProduct(renamedRow)
+                    const transformedRow =
+                        this.transformRowToProduct(renamedRow)
                     records.push(transformedRow)
                 })
                 .on('error', function (error) {
@@ -139,5 +184,33 @@ export class CsvManagerService {
                     resolve(records)
                 })
         })
+    }
+
+    processEntityToCsv(products: UploadProduct[]): Readable {
+        const stream = new Readable({
+            read() {}, // No se necesita implementar lectura manual
+        })
+        const BOM = '\uFEFF'
+        const csvStream = format<UploadProduct, UploadProduct>({
+            headers: true,
+            delimiter: ';',
+        })
+            .transform((row: UploadProduct) => this.transformProductToRow(row))
+            .on('error', (err) => {
+                console.error('Error generando CSV:', err)
+            })
+            .on('end', () => {
+                console.log('Archivo CSV generado exitosamente.')
+            })
+        stream.push(BOM)
+        // Escribimos los productos en el stream CSV
+        products.forEach((product) => csvStream.write(product))
+        csvStream.end()
+
+        // Conectar el stream del CSV con el stream de salida
+        csvStream.on('data', (chunk) => stream.push(chunk)) // Pasamos datos al stream
+        csvStream.on('end', () => stream.push(null)) // Indicamos que el stream ha terminado
+
+        return stream
     }
 }

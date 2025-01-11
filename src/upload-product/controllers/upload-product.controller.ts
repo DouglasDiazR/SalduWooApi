@@ -8,6 +8,7 @@ import {
     Post,
     Put,
     Query,
+    Res,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common'
@@ -18,6 +19,7 @@ import {
 } from '../dtos/upload-product.dto'
 import { CsvManagerService } from '../services/csv-manager.service'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { Response } from 'express'
 
 @Controller('upload-product')
 export class UploadProductController {
@@ -31,7 +33,10 @@ export class UploadProductController {
         @Query('providerId') providerId?: string,
         @Query('uploadStatus') uploadStatus?: string,
     ) {
-        return await this.uploadProductService.findAll(parseInt(providerId), uploadStatus)
+        return await this.uploadProductService.findAll(
+            parseInt(providerId),
+            uploadStatus,
+        )
     }
 
     @Get(':id')
@@ -64,21 +69,27 @@ export class UploadProductController {
                 'Upload a file to excecute this request',
             )
         }
-        const newUpload =
-            await this.csvManagerService.processCsvBuffer(file.buffer)
-
-        console.log(newUpload)
+        const newUpload = await this.csvManagerService.processCsvBuffer(
+            file.buffer,
+        )
         return await this.uploadProductService.massiveUpload(
             providerId,
             newUpload,
         )
     }
 
-    // @Post('rejected-products')
-    // async downloadRejectedProducts(@Body() payload: RejectedProductsDTO) {}
-
-    // @Post('accepted-products')
-    // async downloadProviderProducts(
-    //     @Query('providerId', ParseIntPipe) providerId: number,
-    // ) {}
+    @Get(':providerId/csv')
+    async downloadProducts(
+        @Param('providerId') providerId: string,
+        @Res() response: Response,
+    ) {
+        const products = await this.findAll(providerId, 'seleccionada')
+        response.setHeader('Content-Type', 'text/csv');
+        response.setHeader(
+          'Content-Disposition',
+          'attachment; filename="upload-products.csv"',
+        );
+        const csvStream = this.csvManagerService.processEntityToCsv(products);
+        csvStream.pipe(response);
+    }
 }
