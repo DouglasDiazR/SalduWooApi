@@ -15,26 +15,25 @@ export class UploadProductService {
     ) {}
 
     async findAll(providerId?: number, uploadStatus?: string) {
-        let queryBuilder = this.uploadProductRepository
+        const queryBuilder = this.uploadProductRepository
             .createQueryBuilder('uploadProduct')
             .orderBy('uploadProduct.createdAt', 'DESC')
-        if (uploadStatus !== undefined) {
-            queryBuilder = queryBuilder.where(
-                'uploadProduct.status = :uploadStatus',
-                {
-                    uploadStatus,
-                },
-            )
+
+        // Agregar filtro por uploadStatus
+        if (uploadStatus === 'seleccionada') {
+            queryBuilder.where('uploadProduct.imagesUrl IS NOT NULL')
+        } else if (uploadStatus === 'no seleccionada') {
+            queryBuilder.where('uploadProduct.imagesUrl IS NULL')
         }
+
+        // Agregar filtro por providerId
         if (providerId !== undefined) {
-            queryBuilder = queryBuilder.andWhere(
-                'uploadProduct.providerId = :providerId',
-                {
-                    providerId,
-                },
-            )
+            queryBuilder.andWhere('uploadProduct.providerId = :providerId', {
+                providerId,
+            })
         }
-        return await queryBuilder.getMany()
+
+        return queryBuilder.getMany()
     }
 
     async findOne(id: number) {
@@ -74,5 +73,30 @@ export class UploadProductService {
             )
         }
         return await this.uploadProductRepository.softDelete(product.id)
+    }
+
+    async massiveUpload(providerId: number, payload: CreateUploadProductDTO[]) {
+        const processedProducts = []
+        const rejectedProducts = []
+
+        for (const product of payload) {
+            try {
+                let newProduct = this.uploadProductRepository.create(product)
+                newProduct.providerId = providerId
+                newProduct = await this.uploadProductRepository.save(newProduct)
+                processedProducts.push(newProduct)
+            } catch (error) {
+                rejectedProducts.push({
+                    product,
+                    reason: error.message || 'Unknown error',
+                })
+            }
+        }
+        return {
+            total: payload.length,
+            processed: processedProducts.length,
+            rejected: rejectedProducts.length,
+            rejectedProducts,
+        }
     }
 }

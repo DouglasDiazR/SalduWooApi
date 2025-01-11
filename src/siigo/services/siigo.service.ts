@@ -59,7 +59,7 @@ export class SiigoService {
             ]
           );
           this.authToken = response;
-          console.log('Token refreshed:', this.authToken);
+          //console.log('Token refreshed:', this.authToken);
         } catch (error) {
           console.error('Token refresh failed:', error);
         }

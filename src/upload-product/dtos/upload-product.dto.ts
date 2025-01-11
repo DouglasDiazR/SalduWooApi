@@ -25,7 +25,7 @@ export class CreateUploadProductDTO {
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly stock?: number
+    stock?: number
 
     @IsString()
     @IsOptional()
@@ -35,22 +35,22 @@ export class CreateUploadProductDTO {
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly weightKg?: number
+    weightKg?: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly lengthCm?: number
+    lengthCm?: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly widthCm?: number
+    widthCm?: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly heightCm?: number
+    heightCm?: number
 
     @IsString()
     @IsOptional()
@@ -60,37 +60,37 @@ export class CreateUploadProductDTO {
     @IsNumber()
     @IsNotEmpty()
     @ApiProperty()
-    readonly basePrice: number
+    basePrice: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly iva?: number
+    iva?: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly baseIva?: number
+    baseIva?: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly salduCommission?: number
+    salduCommission?: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly commissionIva?: number
+    commissionIva?: number
 
     @IsNumber()
     @IsOptional()
     @ApiProperty()
-    readonly finalPrice?: number
+    finalPrice?: number
 
     @IsString()
     @IsOptional()
     @ApiProperty()
-    readonly categories?: string
+    categories?: string
 
     @IsString()
     @IsOptional()

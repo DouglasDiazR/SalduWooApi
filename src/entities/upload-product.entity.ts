@@ -17,7 +17,8 @@ export class UploadProduct {
         type: 'varchar',
         name: 'sku',
         length: 64,
-        nullable: true,
+        nullable: false,
+        unique: true
     })
     sku: string	
     
