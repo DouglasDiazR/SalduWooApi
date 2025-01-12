@@ -30,7 +30,7 @@ export class UploadProductService {
         if (providerId !== undefined) {
             const parsedId = parseInt(providerId)
             queryBuilder.andWhere('uploadProduct.providerId = :providerId', {
-                parsedId
+                providerId: parsedId
             })
         }
 
