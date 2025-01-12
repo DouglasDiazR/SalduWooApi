@@ -14,7 +14,7 @@ export class UploadProductService {
         private uploadProductRepository: Repository<UploadProduct>,
     ) {}
 
-    async findAll(providerId?: number, uploadStatus?: string) {
+    async findAll(providerId?: string, uploadStatus?: string) {
         const queryBuilder = this.uploadProductRepository
             .createQueryBuilder('uploadProduct')
             .orderBy('uploadProduct.createdAt', 'DESC')
@@ -28,8 +28,9 @@ export class UploadProductService {
 
         // Agregar filtro por providerId
         if (providerId !== undefined) {
+            const parsedId = parseInt(providerId)
             queryBuilder.andWhere('uploadProduct.providerId = :providerId', {
-                providerId,
+                parsedId
             })
         }
 

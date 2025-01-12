@@ -34,7 +34,7 @@ export class UploadProductController {
         @Query('uploadStatus') uploadStatus?: string,
     ) {
         return await this.uploadProductService.findAll(
-            parseInt(providerId),
+            providerId,
             uploadStatus,
         )
     }
