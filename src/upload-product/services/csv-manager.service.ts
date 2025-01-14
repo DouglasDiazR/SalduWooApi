@@ -8,7 +8,7 @@ import { format } from 'fast-csv'
 @Injectable()
 export class CsvManagerService {
     headerMap: Record<string, string> = {
-        'Número de artículo': 'SKU',
+        'Número de artículo': 'sku',
         'name': 'name',
         'Cantidad Stock': 'stock',
         'Unidad de medida de inventario': 'unit',
@@ -68,6 +68,7 @@ export class CsvManagerService {
         return {
             providerId: row.providerId ? parseInt(row.providerId, 10) : 0,
             sku: String(row.sku),
+            name: String(row.name),
             description: String(row.description),
             shortDescription: row.shortDescription
                 ? String(row.shortDescription)
