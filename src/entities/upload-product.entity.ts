@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import { Load } from './load.entity'
 
 @Entity('upload_products')
 export class UploadProduct {
@@ -18,9 +19,27 @@ export class UploadProduct {
         name: 'sku',
         length: 64,
         nullable: false,
+        unique: false
+    })
+    sku: string
+
+    @Column({
+        type: 'varchar',
+        name: 'sku_saldu',
+        length: 64,
+        nullable: false,
         unique: true
     })
-    sku: string	
+    sku_saldu: string
+
+    @Column({
+        type: 'varchar',
+        name: 'name',
+        length: 64,
+        nullable: false,
+        unique: true
+    })
+    name: string	
     
     @Column({
         type: 'varchar',
@@ -94,6 +113,14 @@ export class UploadProduct {
         nullable: true,
     })
     type:string
+
+    @Column({
+        type: 'int',
+        name: 'pvp',
+        nullable: true,
+        default: null
+    })
+    pvp: number
     
     @Column({
         type: 'int',
@@ -101,7 +128,7 @@ export class UploadProduct {
         nullable: false,
         default: 0
     })
-    basePrice: number	
+    basePrice: number
     
     @Column({
         type: 'int',
@@ -302,6 +329,8 @@ export class UploadProduct {
     })
     urlImage5: string
 
+    @ManyToOne(() => Load, (load) => load.uploadProducts)
+    load: Load
 
     @CreateDateColumn({
         type: 'timestamp',

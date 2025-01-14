@@ -6,30 +6,37 @@ import {
     CreateUploadProductDTO,
     UpdateUploadProductDTO,
 } from '../dtos/upload-product.dto'
+import { Load } from 'src/entities/load.entity'
 
 @Injectable()
 export class UploadProductService {
     constructor(
         @InjectRepository(UploadProduct)
         private uploadProductRepository: Repository<UploadProduct>,
+        @InjectRepository(Load)
+        private loadRepository: Repository<Load>,
     ) {}
 
-    async findAll(providerId?: string, uploadStatus?: string) {
+    async findAll(providerId?: string, uploadStatus?: string, loadId?: string) {
         const queryBuilder = this.uploadProductRepository
             .createQueryBuilder('uploadProduct')
             .orderBy('uploadProduct.createdAt', 'DESC')
 
-        // Agregar filtro por uploadStatus
         if (uploadStatus === 'seleccionada') {
             queryBuilder.where('uploadProduct.imagesUrl IS NOT NULL')
         } else if (uploadStatus === 'no seleccionada') {
             queryBuilder.where('uploadProduct.imagesUrl IS NULL')
         }
 
-        // Agregar filtro por providerId
         if (providerId !== undefined) {
             queryBuilder.andWhere('uploadProduct.providerId = :providerId', {
-                providerId: parseInt(providerId)
+                providerId: parseInt(providerId),
+            })
+        }
+
+        if (loadId !== undefined) {
+            queryBuilder.andWhere('uploadProduct.loadId = :loadId', {
+                loadId: parseInt(loadId),
             })
         }
 
@@ -49,8 +56,17 @@ export class UploadProductService {
         return product
     }
 
+    async findAllProviderLoads(providerId: number) {
+        const queryBuilder = this.loadRepository
+            .createQueryBuilder('load')
+            .where('load.providerId')
+            .getRawMany()
+    }
+
     async createEntity(payload: CreateUploadProductDTO) {
         const newProduct = this.uploadProductRepository.create(payload)
+        newProduct.sku_saldu = `${payload.providerId}_${payload.sku}_${payload.codeHash}`
+        newProduct.categories = `${payload.category} > ${payload.subcategory} > ${payload.class}`
         return await this.uploadProductRepository.save(newProduct)
     }
 
@@ -78,11 +94,18 @@ export class UploadProductService {
     async massiveUpload(providerId: number, payload: CreateUploadProductDTO[]) {
         const processedProducts = []
         const rejectedProducts = []
+        const load = await this.loadRepository.save({
+            providerId,
+            reference: `${providerId}_${Date.now()}`,
+        })
 
         for (const product of payload) {
             try {
                 let newProduct = this.uploadProductRepository.create(product)
                 newProduct.providerId = providerId
+                newProduct.load = load
+                newProduct.sku_saldu = `${providerId}_${product.sku}_${product.codeHash}`
+                newProduct.categories = `${product.category} > ${product.subcategory} > ${product.class}`
                 newProduct = await this.uploadProductRepository.save(newProduct)
                 processedProducts.push(newProduct)
             } catch (error) {

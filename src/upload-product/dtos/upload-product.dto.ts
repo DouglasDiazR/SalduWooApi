@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger'
-import { IsNumber, IsNotEmpty, IsString, IsDate, IsOptional } from 'class-validator'
+import { IsNumber, IsNotEmpty, IsString, IsDate, IsOptional, Min } from 'class-validator'
 
 export class CreateUploadProductDTO {
     @IsNumber()
@@ -11,6 +11,11 @@ export class CreateUploadProductDTO {
     @IsNotEmpty()
     @ApiProperty()
     readonly sku: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly name: string
 
     @IsString()
     @IsNotEmpty()
@@ -56,6 +61,12 @@ export class CreateUploadProductDTO {
     @IsOptional()
     @ApiProperty()
     readonly type?: string
+
+    @IsNumber()
+    @IsOptional()
+    @Min(0.01, { message: 'El valor debe ser mayor que cero' })
+    @ApiProperty()
+    pvp?: number
 
     @IsNumber()
     @IsNotEmpty()
@@ -146,6 +157,11 @@ export class CreateUploadProductDTO {
     @IsOptional()
     @ApiProperty()
     readonly class?: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
+    readonly codeHash: string
 
     @IsString()
     @IsOptional()

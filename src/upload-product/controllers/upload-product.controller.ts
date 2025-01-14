@@ -32,11 +32,18 @@ export class UploadProductController {
     async findAll(
         @Query('providerId') providerId?: string,
         @Query('uploadStatus') uploadStatus?: string,
+        @Query('load') load?: string,
     ) {
         return await this.uploadProductService.findAll(
             providerId,
             uploadStatus,
+            load
         )
+    }
+
+    @Get('loads/:providerId')
+    async findLoads(@Param('providerId', ParseIntPipe) providerId: number) {
+        return await this.uploadProductService.findAllProviderLoads(providerId)
     }
 
     @Get(':id')
