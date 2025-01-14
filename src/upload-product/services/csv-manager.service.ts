@@ -92,6 +92,7 @@ export class CsvManagerService {
             finalPrice: row.finalPrice ? parseFloat(row.finalPrice) : undefined,
             categories: row.categories ? String(row.categories) : undefined,
             brand: row.brand ? String(row.brand) : undefined,
+            codeHash: row.codHash,
             imagesUrl: row.imagesUrl ? String(row.imagesUrl) : undefined,
             status: String(row.status),
             address: row.address ? String(row.address) : undefined,
