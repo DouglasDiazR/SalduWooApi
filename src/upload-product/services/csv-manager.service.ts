@@ -8,17 +8,14 @@ import { format } from 'fast-csv'
 @Injectable()
 export class CsvManagerService {
     headerMap: Record<string, string> = {
-        SKU: 'SKU',
-        name: 'name',
-        Descripción: 'description',
-        'Descripción corta': 'shortDescription',
-        Inventario: 'stock',
-        Unidad: 'unit',
+        'Número de artículo': 'SKU',
+        'name': 'name',
+        'Cantidad Stock': 'stock',
+        'Unidad de medida de inventario': 'unit',
         'Peso (kg)': 'weightKg',
         'Longitud (cm)': 'lengthCm',
         'Anchura (cm)': 'widthCm',
         'Altura (cm)': 'heightCm',
-        TIPO: 'type',
         'PVP': 'pvp',
         'Precio Base': 'basePrice',
         'Iva Base': 'baseIva',
@@ -26,7 +23,7 @@ export class CsvManagerService {
         'Iva Comision': 'commissionIva',
         'Precio Final': 'finalPrice',
         Categorías: 'categories',
-        Marca: 'brand',
+        'FABRICANTE': 'brand',
         'Imágenes(URL)': 'imagesUrl',
         condicion: 'status',
         Direccion: 'address',
@@ -128,7 +125,7 @@ export class CsvManagerService {
             'Longitud (cm)': row.lengthCm || 0,
             'Anchura (cm)': row.widthCm || 0,
             'Altura (cm)': row.heightCm || 0,
-            'Precio normal': row.basePrice,
+            'Precio normal': row.finalPrice,
             'Categorías': row.categories || '',
             'Etiquetas': row.brand || '',
             'Imágenes': row.imagesUrl || '',
@@ -148,7 +145,6 @@ export class CsvManagerService {
             'Meta: _pvp': row.pvp || null,
             // iva: row.iva || 0,
             // type: row.type || '',
-            // finalPrice: row.finalPrice || 0,
         }
     }
 
