@@ -116,10 +116,10 @@ export class UploadProductService {
             }
         }
         return {
+            load: load,
             total: payload.length,
             processed: processedProducts.length,
             rejected: rejectedProducts.length,
-            load: load,
             rejectedProducts,
         }
     }
