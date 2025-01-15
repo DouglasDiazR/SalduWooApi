@@ -159,7 +159,7 @@ export class CsvManagerService {
                 .pipe(
                     parse({
                         columns: true,
-                        delimiter: ',',
+                        delimiter: ';',
                         skipRecordsWithEmptyValues: true,
                         trim: true,
                     }),
@@ -187,7 +187,7 @@ export class CsvManagerService {
         const BOM = '\uFEFF'
         const csvStream = format<UploadProduct, UploadProduct>({
             headers: true,
-            delimiter: ';',
+            delimiter: ',',
         })
             .transform((row: UploadProduct) => this.transformProductToRow(row))
             .on('error', (err) => {
