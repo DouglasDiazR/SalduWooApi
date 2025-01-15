@@ -41,9 +41,9 @@ export class OrdersService {
                     before: formattedEndDate,
                 },
             )
-
+            console.log(orders)
             if (orders.data.length === 0) {
-                throw new NotFoundException('No se encontraron órdenes')
+                return []
             }
 
             const formattedOrders = orders.data.map((order) => ({
