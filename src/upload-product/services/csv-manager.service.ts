@@ -118,6 +118,7 @@ export class CsvManagerService {
 
     transformProductToRow(row: UploadProduct): Record<string, any> {
         return {
+            'SKU': row.sku_saldu,
             'Meta: _sku_vendedor': row.sku,
             'Nombre': row.name,
             'Descripción corta': row.shortDescription || '',
