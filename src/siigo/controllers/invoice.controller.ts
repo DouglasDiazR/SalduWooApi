@@ -151,6 +151,7 @@ export class InvoiceController {
     @Post('all-pending')
     async getAllPending(@Body() payload: CreatePendingInvoiceDTO) {
         let pendingOrders: Invoice[] = []
+        console.log('holi');
         const orders = await this.orderService.getAllOrders({
             status: Status.Entregado,
             startDate: payload.startDate,
