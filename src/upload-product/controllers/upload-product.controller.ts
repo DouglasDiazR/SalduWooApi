@@ -72,7 +72,7 @@ export class UploadProductController {
         @Param('providerId') providerId: string,
         @UploadedFile() file: Express.Multer.File,
     ) {
-        if (!providerId) {
+        if (!providerId || '') {
             throw new BadRequestException({
                 trigger: 'providerId',
                 message: 'This request needs a Selected Provider'
