@@ -59,7 +59,7 @@ export class UploadProductService {
     async findAllProviderLoads(providerId: number) {
         const queryBuilder = this.loadRepository
             .createQueryBuilder('load')
-            .where('load.providerId')
+            .where('load.providerId = :providerId', { providerId })
             .getRawMany()
     }
 

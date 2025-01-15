@@ -132,9 +132,7 @@ export class InvoiceController {
             }
         }
         const invoiceProds =
-            await this.salduInlineProductService.findAllByInvoiceId(
-                invoice.id,
-            )
+            await this.salduInlineProductService.findAllByInvoiceId(invoice.id)
         let invoiceTotal = 0
         if (invoiceProds.length > 0) {
             for (const prod of invoiceProds) {
@@ -151,44 +149,55 @@ export class InvoiceController {
     @Post('all-pending')
     async getAllPending(@Body() payload: CreatePendingInvoiceDTO) {
         let pendingOrders: Invoice[] = []
-        console.log('holi');
+        console.log('holi')
         const orders = await this.orderService.getAllOrders({
             status: Status.Entregado,
             startDate: payload.startDate,
             endDate: payload.endDate,
         })
         console.log('Órdenes Pendientes WooCommerce: ', orders)
-        for (const order of orders) {
-            const invoice = await this.invoiceService.findOneByOrderId(order.id)
-            if (!invoice) {
-                const wooOrder = await this.orderService.getOrderById(order.id)
-                const newInvoiceDTO: CreateInvoiceDTO = {
-                    orderId: wooOrder.id,
-                    orderTotal: wooOrder.total,
-                    documentType: wooOrder.invoicing.documentType,
-                    document: wooOrder.invoicing.document,
-                    businessName: wooOrder.invoicing.businessName || '',
-                    firstname: wooOrder.invoicing.firstname || '',
-                    lastname: wooOrder.invoicing.lastname || '',
-                    address: wooOrder.invoicing.address || '',
-                    phone: wooOrder.invoicing.phone,
-                    email: wooOrder.invoicing.email,
-                    orderDate: wooOrder.date_modified,
-                    commission: parseFloat(wooOrder.invoicing.commission) || 0,
-                    shippingPrice:
-                        parseFloat(wooOrder.invoicing.shippingPrice) || 0,
-                    paybackPrice:
-                        parseFloat(wooOrder.invoicing.payBackPrice) || 0,
-                    paymentOptionId: 1,
+        if (!orders || orders.length == 0) {
+            
+        } else {
+            for (const order of orders) {
+                const invoice = await this.invoiceService.findOneByOrderId(
+                    order.id,
+                )
+                if (!invoice) {
+                    const wooOrder = await this.orderService.getOrderById(
+                        order.id,
+                    )
+                    const newInvoiceDTO: CreateInvoiceDTO = {
+                        orderId: wooOrder.id,
+                        orderTotal: wooOrder.total,
+                        documentType: wooOrder.invoicing.documentType,
+                        document: wooOrder.invoicing.document,
+                        businessName: wooOrder.invoicing.businessName || '',
+                        firstname: wooOrder.invoicing.firstname || '',
+                        lastname: wooOrder.invoicing.lastname || '',
+                        address: wooOrder.invoicing.address || '',
+                        phone: wooOrder.invoicing.phone,
+                        email: wooOrder.invoicing.email,
+                        orderDate: wooOrder.date_modified,
+                        commission:
+                            parseFloat(wooOrder.invoicing.commission) || 0,
+                        shippingPrice:
+                            parseFloat(wooOrder.invoicing.shippingPrice) || 0,
+                        paybackPrice:
+                            parseFloat(wooOrder.invoicing.payBackPrice) || 0,
+                        paymentOptionId: 1,
+                    }
+                    pendingOrders.push(await this.createEntity(newInvoiceDTO))
+                } else {
+                    pendingOrders.push(invoice)
                 }
-                pendingOrders.push(await this.createEntity(newInvoiceDTO))
-            } else {
-                pendingOrders.push(invoice)
             }
         }
-        return pendingOrders.filter((order) => 
-            order.siigoStatus === 'Error Siigo' || order.siigoStatus === 'Pendiente de Facturar'
-          );
+        return pendingOrders.filter(
+            (order) =>
+                order.siigoStatus === 'Error Siigo' ||
+                order.siigoStatus === 'Pendiente de Facturar',
+        )
     }
 
     @Post('siigo/:id')
@@ -249,7 +258,12 @@ export class InvoiceController {
                 id: item.salduProduct.siigoId,
                 code: item.salduProduct.internalCode,
                 quantity: 1,
-                taxed_price: parseFloat((item.taxedPrice *(1 + item.salduProduct.charges[0].taxDiscount.value)).toFixed(2)),
+                taxed_price: parseFloat(
+                    (
+                        item.taxedPrice *
+                        (1 + item.salduProduct.charges[0].taxDiscount.value)
+                    ).toFixed(2),
+                ),
                 discount: 0,
                 taxes: [],
             }
@@ -259,10 +273,14 @@ export class InvoiceController {
             }
             siigoInvoiceRequest.items.push(inlineProduct)
         }
-        console.log('Tipado de number', siigoInvoiceRequest.customer.phones[0].number, typeof siigoInvoiceRequest.customer.phones[0].number);
-        
-        console.log(siigoInvoiceRequest);
-        
+        console.log(
+            'Tipado de number',
+            siigoInvoiceRequest.customer.phones[0].number,
+            typeof siigoInvoiceRequest.customer.phones[0].number,
+        )
+
+        console.log(siigoInvoiceRequest)
+
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
@@ -278,7 +296,9 @@ export class InvoiceController {
                     param: error.Params[0],
                     invoiceId: invoice.id,
                 }
-                await this.invoiceService.updateEntity(invoice.id, {siigoStatus: `Error Siigo`})
+                await this.invoiceService.updateEntity(invoice.id, {
+                    siigoStatus: `Error Siigo`,
+                })
                 try {
                     await this.invoiceErrorLogService.createEntity(errorLog)
                 } catch (error) {
