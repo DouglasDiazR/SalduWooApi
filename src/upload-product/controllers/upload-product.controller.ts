@@ -33,7 +33,7 @@ export class UploadProductController {
     async findAll(
         @Query('providerId') providerId?: string,
         @Query('uploadStatus') uploadStatus?: string,
-        @Query('load') load?: string,
+        @Query('loadId') load?: string,
     ) {
         return await this.uploadProductService.findAll(
             providerId,
