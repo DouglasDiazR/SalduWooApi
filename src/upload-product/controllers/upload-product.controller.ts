@@ -3,6 +3,7 @@ import {
     Body,
     Controller,
     Get,
+    NotFoundException,
     Param,
     ParseIntPipe,
     Post,
@@ -71,10 +72,17 @@ export class UploadProductController {
         @Param('providerId', ParseIntPipe) providerId: number,
         @UploadedFile() file: Express.Multer.File,
     ) {
+        if (!providerId) {
+            throw new BadRequestException({
+                trigger: 'providerId',
+                message: 'This request needs a Selected Provider'
+            })
+        }
         if (!file) {
-            throw new BadRequestException(
-                'Upload a file to execute this request',
-            )
+            throw new BadRequestException({
+                trigger: 'file',
+                message: 'This request needs a Product Provider .csv file'
+            })
         }
         const newUpload = await this.csvManagerService.processCsvBuffer(
             file.buffer,
@@ -96,6 +104,12 @@ export class UploadProductController {
           'Content-Disposition',
           'attachment; filename="upload-products.csv"',
         );
+        if (!products) {
+            throw new NotFoundException({
+                trigger: 'Empty',
+                message: 'The provider has no ready products to download'
+            })
+        }
         const csvStream = this.csvManagerService.processEntityToCsv(products);
         csvStream.pipe(response);
     }
