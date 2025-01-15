@@ -95,14 +95,14 @@ export class UploadProductService {
         const processedProducts = []
         const rejectedProducts = []
         const load = await this.loadRepository.save({
-            providerId: parseInt(providerId),
+            providerId: parseInt(providerId, 10),
             reference: `${providerId}_${Date.now()}`,
         })
 
         for (const product of payload) {
             try {
                 let newProduct = this.uploadProductRepository.create(product)
-                newProduct.providerId = parseInt(providerId)
+                newProduct.providerId = parseInt(providerId, 10)
                 newProduct.load = load
                 newProduct.sku_saldu = `${providerId}_${product.sku}_${product.codeHash}`
                 newProduct.categories = `${product.category} > ${product.subcategory} > ${product.class}`
