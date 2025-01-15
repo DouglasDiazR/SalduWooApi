@@ -57,12 +57,9 @@ export class UploadProductService {
     }
 
     async findAllProviderLoads(providerId: number) {
-        console.log('load meth');
-        
         const queryBuilder = this.loadRepository
             .createQueryBuilder('load')
             .where('load.providerId = :providerId', { providerId })
-
         return queryBuilder.getMany()
     }
 
@@ -99,7 +96,7 @@ export class UploadProductService {
         const rejectedProducts = []
         const load = await this.loadRepository.save({
             providerId: parseInt(providerId, 10),
-            reference: `${providerId}_${Date.now()}`,
+            reference: `${providerId}_${new Date().toUTCString()}`,
         })
 
         for (const product of payload) {
@@ -122,6 +119,7 @@ export class UploadProductService {
             total: payload.length,
             processed: processedProducts.length,
             rejected: rejectedProducts.length,
+            load: load,
             rejectedProducts,
         }
     }
