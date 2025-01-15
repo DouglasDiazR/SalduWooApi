@@ -156,6 +156,7 @@ export class InvoiceController {
             startDate: payload.startDate,
             endDate: payload.endDate,
         })
+        console.log('Órdenes Pendientes WooCommerce: ', orders)
         for (const order of orders) {
             const invoice = await this.invoiceService.findOneByOrderId(order.id)
             if (!invoice) {
