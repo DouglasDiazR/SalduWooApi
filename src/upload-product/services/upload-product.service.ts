@@ -57,10 +57,13 @@ export class UploadProductService {
     }
 
     async findAllProviderLoads(providerId: number) {
+        console.log('load meth');
+        
         const queryBuilder = this.loadRepository
             .createQueryBuilder('load')
             .where('load.providerId = :providerId', { providerId })
-            .getRawMany()
+
+        return queryBuilder.getMany()
     }
 
     async createEntity(payload: CreateUploadProductDTO) {
