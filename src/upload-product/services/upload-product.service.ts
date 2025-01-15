@@ -33,7 +33,7 @@ export class UploadProductService {
                 providerId: parseInt(providerId),
             })
         }
-
+        console.log('load: ', loadId)
         if (loadId !== undefined) {
             queryBuilder.andWhere('uploadProduct.loadId = :loadId', {
                 loadId: parseInt(loadId),
