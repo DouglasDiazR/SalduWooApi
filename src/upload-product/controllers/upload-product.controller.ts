@@ -69,7 +69,7 @@ export class UploadProductController {
     @Post('massive-upload/:providerId')
     @UseInterceptors(FileInterceptor('file'))
     async massiveUpload(
-        @Param('providerId', ParseIntPipe) providerId: number,
+        @Param('providerId') providerId: string,
         @UploadedFile() file: Express.Multer.File,
     ) {
         if (!providerId) {

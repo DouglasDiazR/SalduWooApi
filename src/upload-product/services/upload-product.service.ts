@@ -91,18 +91,18 @@ export class UploadProductService {
         return await this.uploadProductRepository.softDelete(product.id)
     }
 
-    async massiveUpload(providerId: number, payload: CreateUploadProductDTO[]) {
+    async massiveUpload(providerId: string, payload: CreateUploadProductDTO[]) {
         const processedProducts = []
         const rejectedProducts = []
         const load = await this.loadRepository.save({
-            providerId,
+            providerId: parseInt(providerId),
             reference: `${providerId}_${Date.now()}`,
         })
 
         for (const product of payload) {
             try {
                 let newProduct = this.uploadProductRepository.create(product)
-                newProduct.providerId = providerId
+                newProduct.providerId = parseInt(providerId)
                 newProduct.load = load
                 newProduct.sku_saldu = `${providerId}_${product.sku}_${product.codeHash}`
                 newProduct.categories = `${product.category} > ${product.subcategory} > ${product.class}`
