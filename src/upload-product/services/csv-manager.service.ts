@@ -159,7 +159,7 @@ export class CsvManagerService {
                 .pipe(
                     parse({
                         columns: true,
-                        delimiter: ';',
+                        delimiter: ',',
                         skipRecordsWithEmptyValues: true,
                         trim: true,
                     }),
