@@ -104,7 +104,7 @@ export class UploadProductController {
           'Content-Disposition',
           'attachment; filename="upload-products.csv"',
         );
-        if (!products) {
+        if (!products || products.length == 0) {
             throw new NotFoundException({
                 trigger: 'Empty',
                 message: 'The provider has no ready products to download'
