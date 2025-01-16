@@ -37,7 +37,7 @@ export class SalduInlineProductService {
                 inlineProduct.taxedPrice = payload.taxedPrice
                 break
             case 1:
-                inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice) * 4 / 1000)
+                inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice) * 1.19 * 4 / 1000)
                 break
         }
         return await this.salduInlineProductRepository.save(inlineProduct)
