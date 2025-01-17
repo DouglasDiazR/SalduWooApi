@@ -86,7 +86,7 @@ export class SalduInlineProductService {
     }
 
     async updateEntity(payload: UpdateSalduInlineProductDTO) {
-        const inlineProduct = await this.findByProductIdAndInvoiceId(
+        let inlineProduct = await this.findByProductIdAndInvoiceId(
             payload.salduProductId,
             payload.invoiceId,
         )
