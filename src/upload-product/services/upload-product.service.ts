@@ -65,8 +65,6 @@ export class UploadProductService {
 
     async createEntity(payload: CreateUploadProductDTO) {
         const newProduct = this.uploadProductRepository.create(payload)
-        newProduct.sku_saldu = `${payload.providerId}_${payload.sku}_${payload.codeHash}`
-        newProduct.categories = `${payload.category} > ${payload.subcategory} > ${payload.class}`
         return await this.uploadProductRepository.save(newProduct)
     }
 
@@ -104,8 +102,6 @@ export class UploadProductService {
                 let newProduct = this.uploadProductRepository.create(product)
                 newProduct.providerId = parseInt(providerId, 10)
                 newProduct.load = load
-                newProduct.sku_saldu = `${providerId}_${product.sku}_${product.codeHash}`
-                newProduct.categories = `${product.category} > ${product.subcategory} > ${product.class}`
                 newProduct = await this.uploadProductRepository.save(newProduct)
                 processedProducts.push(newProduct)
             } catch (error) {
