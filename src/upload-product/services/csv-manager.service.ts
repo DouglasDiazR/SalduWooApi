@@ -8,42 +8,39 @@ import { format } from 'fast-csv'
 @Injectable()
 export class CsvManagerService {
     headerMap: Record<string, string> = {
-        'Número de artículo': 'sku',
-        'name': 'name',
-        'Cantidad Stock': 'stock',
-        'Unidad de medida de inventario': 'unit',
+        'SKU': 'skuSaldu',
+        'Meta: _sku_vendedor': 'sku',
+        'Nombre': 'name',
+        'Descripción': 'description',
+        'Descripción corta': 'shortDescription',
+        'Inventario': 'stock',
         'Peso (kg)': 'weightKg',
         'Longitud (cm)': 'lengthCm',
         'Anchura (cm)': 'widthCm',
         'Altura (cm)': 'heightCm',
-        'PVP': 'pvp',
-        'Precio Base': 'basePrice',
-        'Iva Base': 'baseIva',
-        'Comision Saldu': 'salduCommission',
-        'Iva Comision': 'commissionIva',
-        'Precio Final': 'finalPrice',
-        Categorías: 'categories',
-        'FABRICANTE': 'brand',
-        'Imágenes(URL)': 'imagesUrl',
-        condicion: 'status',
-        Direccion: 'address',
-        Ciudad: 'city',
-        Departamento: 'state',
-        Iva: 'iva',
-        'Fecha de vencimiento': 'dueDate',
-        macrocategoria: 'macrocategory',
-        categoria: 'category',
-        subcategoria: 'subcategory',
-        clase: 'class',
-        cod_hash: 'codHash',
-        price_url1: 'priceUrl1',
-        price_url2: 'priceUrl2',
-        price_url3: 'priceUrl3',
-        url_image1: 'urlImage1',
-        url_image2: 'urlImage2',
-        url_image3: 'urlImage3',
-        url_image4: 'urlImage4',
-        url_image5: 'urlImage5',
+        'Precio normal': 'finalPrice',
+        'Categorías': 'categories',
+        'Imágenes': 'imagesUrl',
+        'Meta: _departamento': 'state',
+        'Meta: product_ciudad': 'city',
+        'Meta: _direccion_origen': 'address',
+        'Meta: product_condition': 'status',
+        'Meta: _product_original_price': 'basePrice',
+        //'': 'iva',
+        'Meta: _iva_base': 'baseIva',
+        'Meta: _percentage_commission': 'salduCommissionPercentage',
+        'Meta: _base_saldu': 'salduCommission',
+        'Meta: _iva_base_saldu': 'commissionIva',
+        'Meta: _comision_saldu': 'totalSalduCommission',
+        'Meta: _unit': 'unit',
+        'Meta: fecha_vencimiento': 'dueDate',
+        'Meta: _pvp': 'pvp',
+        'url_image1': 'urlImage1',
+        'url_image2': 'urlImage2',
+        'url_image3': 'urlImage3',
+        'url_image4': 'urlImage4',
+        'url_image5': 'urlImage5',
+        //'FABRICANTE': 'brand',
     }
 
     renameHeaders(row: Record<string, any>): object {
@@ -66,7 +63,7 @@ export class CsvManagerService {
 
     transformRowToProduct(row) {
         return {
-            providerId: row.providerId ? parseInt(row.providerId, 10) : 0,
+            skuSaldu: String(row.skuSaldu),
             sku: String(row.sku),
             name: String(row.name),
             description: String(row.description),
@@ -80,19 +77,25 @@ export class CsvManagerService {
             widthCm: row.widthCm ? parseFloat(row.widthCm) : undefined,
             heightCm: row.heightCm ? parseFloat(row.heightCm) : undefined,
             type: row.type ? String(row.type) : undefined,
+            pvp: row.pvp,
             basePrice: row.basePrice ? parseFloat(row.basePrice) : 0,
             iva: row.iva ? parseFloat(row.iva) : undefined,
             baseIva: row.baseIva ? parseFloat(row.baseIva) : undefined,
+            salduCommissionPercentage: row.salduCommissionPercentage
+            ? parseFloat(row.salduCommissionPercentage)
+            : undefined,
             salduCommission: row.salduCommission
                 ? parseFloat(row.salduCommission)
                 : undefined,
             commissionIva: row.commissionIva
                 ? parseFloat(row.commissionIva)
                 : undefined,
+            totalSalduCommission: row.totalSalduCommission
+            ? parseFloat(row.totalSalduCommission)
+            : undefined,
             finalPrice: row.finalPrice ? parseFloat(row.finalPrice) : undefined,
             categories: row.categories ? String(row.categories) : undefined,
             brand: row.brand ? String(row.brand) : undefined,
-            codeHash: row.codHash,
             imagesUrl: row.imagesUrl ? String(row.imagesUrl) : undefined,
             status: String(row.status),
             address: row.address ? String(row.address) : undefined,
@@ -118,7 +121,7 @@ export class CsvManagerService {
 
     transformProductToRow(row: UploadProduct): Record<string, any> {
         return {
-            'SKU': row.sku_saldu,
+            'SKU': row.skuSaldu,
             'Meta: _sku_vendedor': row.sku,
             'Nombre': row.name,
             'Descripción corta': row.shortDescription || '',

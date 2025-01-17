@@ -36,7 +36,7 @@ export class UploadProduct {
         nullable: false,
         unique: true,
     })
-    sku_saldu: string
+    skuSaldu: string
 
     @Column({
         type: 'varchar',
@@ -148,6 +148,14 @@ export class UploadProduct {
 
     @Column({
         type: 'int',
+        name: 'saldu_commission_percentage',
+        nullable: false,
+        default: 0,
+    })
+    salduCommissionPercentage: number
+
+    @Column({
+        type: 'int',
         name: 'saldu_commission',
         nullable: false,
         default: 0,
@@ -161,6 +169,14 @@ export class UploadProduct {
         default: 0,
     })
     commissionIva: number
+
+    @Column({
+        type: 'int',
+        name: 'total_saldu_commission',
+        nullable: false,
+        default: 0,
+    })
+    totalSalduCommission: number
 
     @Column({
         type: 'int',
