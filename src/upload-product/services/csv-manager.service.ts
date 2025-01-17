@@ -78,7 +78,7 @@ export class CsvManagerService {
             widthCm: row.widthCm ? parseFloat(row.widthCm) : undefined,
             heightCm: row.heightCm ? parseFloat(row.heightCm) : undefined,
             type: row.type ? String(row.type) : undefined,
-            pvp: row.pvp,
+            pvp: row.pvp != '' ? parseFloat(row.pvp) : null,
             basePrice: row.basePrice ? parseFloat(row.basePrice) : 0,
             iva: row.iva ? parseFloat(row.iva) : undefined,
             baseIva: row.baseIva ? parseFloat(row.baseIva) : undefined,
@@ -102,7 +102,7 @@ export class CsvManagerService {
             address: row.address ? String(row.address) : undefined,
             city: String(row.city),
             state: String(row.state),
-            dueDate: row.dueDate ? new Date(row.dueDate) : undefined,
+            dueDate: row.dueDate != '' ? new Date(row.dueDate) : null,
             macrocategory: row.macrocategory
                 ? String(row.macrocategory)
                 : undefined,
