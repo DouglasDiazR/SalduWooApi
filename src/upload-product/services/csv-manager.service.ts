@@ -40,7 +40,7 @@ export class CsvManagerService {
         'url_image3': 'urlImage3',
         'url_image4': 'urlImage4',
         'url_image5': 'urlImage5',
-        //'FABRICANTE': 'brand',
+        'Etiquetas': 'brand',
     }
 
     renameHeaders(row: Record<string, any>): object {
@@ -141,10 +141,10 @@ export class CsvManagerService {
             'Meta: product_condition': row.status,
             'Meta: _product_original_price': row.basePrice,
             'Meta: _iva_base': row.baseIva || 0,
-            'Meta: _percentage_commission': null,
+            'Meta: _percentage_commission': row.salduCommissionPercentage,
             'Meta: _base_saldu': row.salduCommission || 0,
             'Meta: _iva_base_saldu': row.commissionIva || 0,
-            'Meta: _comision_saldu': row.salduCommission + row.commissionIva || 0,
+            'Meta: _comision_saldu': row.totalSalduCommission || 0,
             'Meta: vendedor': row.providerId,
             'Meta: _unit': row.unit || '',
             'Meta: fecha_vencimiento': row.dueDate ? row.dueDate.toISOString() : '',
