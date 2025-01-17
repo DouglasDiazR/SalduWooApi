@@ -103,7 +103,7 @@ export class SalduInlineProductService {
             const holi3 = holi2 * 0.004
             console.log('=========', holi, holi2, holi3, holi3 + 1800)
 
-            inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice)* 1.19) * 4 / 1000
+            inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice)* 1.19) * 0.004
             console.log(inlineProduct.taxedPrice)
         }
         await this.salduInlineProductRepository.merge(inlineProduct, payload)
