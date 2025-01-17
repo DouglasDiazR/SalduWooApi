@@ -50,7 +50,7 @@ export class CsvManagerService {
         keys.forEach((header, index) => {
             if (index === 0) {
                 // Si es la primera clave, asigna 'sku' como nueva clave
-                renamedRow['sku'] = row[header]
+                renamedRow['skuSaldu'] = row[header]
             } else {
                 // Para las demás claves, usa el mapeo o deja el nombre original
                 const newHeader = this.headerMap[header] || header
