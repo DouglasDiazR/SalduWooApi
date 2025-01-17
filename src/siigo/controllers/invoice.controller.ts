@@ -103,6 +103,7 @@ export class InvoiceController {
         @Body() payload: UpdateInvoiceDTO,
     ) {
         const invoice = await this.invoiceService.findOne(id)
+        console.log(payload);
         if (payload.commission && payload.commission > 0) {
             const commission =
                 await this.salduInlineProductService.findByProductIdAndInvoiceId(
