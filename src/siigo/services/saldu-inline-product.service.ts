@@ -37,7 +37,7 @@ export class SalduInlineProductService {
                 inlineProduct.taxedPrice = payload.taxedPrice
                 break
             case 1:
-                inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice) * 1.19 * 4 / 1000)
+                inlineProduct.taxedPrice = ((inlineProduct.invoice.orderTotal - ((await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice * 1.19)) * 0.004) + 1800
                 break
         }
         return await this.salduInlineProductRepository.save(inlineProduct)
@@ -97,11 +97,7 @@ export class SalduInlineProductService {
             )
         }
         if (payload.salduProductId == 1) {
-            console.log(inlineProduct.taxedPrice)
-            console.log('=========', ((inlineProduct.invoice.orderTotal - ((await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice * 1.19)) * 0.004) + 1800)
-            //inlineProduct.taxedPrice = 1800 + ((inlineProduct.invoice.orderTotal - (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice)* 1.19) * 0.004
             inlineProduct.taxedPrice = ((inlineProduct.invoice.orderTotal - ((await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice * 1.19)) * 0.004) + 1800
-            console.log(inlineProduct.taxedPrice)
         }
         await this.salduInlineProductRepository.merge(inlineProduct, payload)
         console.log(inlineProduct)
