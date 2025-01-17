@@ -22,6 +22,7 @@ import { OrdersService } from 'src/orders/orders.service'
 import { CreatePendingInvoiceDTO } from '../dtos/pending-invoice.dto'
 import { Status } from 'src/enum/status.enum'
 import { Invoice } from 'src/entities/invoice.entity'
+import { log } from 'console'
 
 @Controller('invoice')
 export class InvoiceController {
@@ -111,6 +112,7 @@ export class InvoiceController {
                     id,
                 )
             if (!commission) {
+                console.log('entramos a commission create', payload.commission);
                 await this.salduInlineProductService.createEntity({
                     invoiceId: id,
                     salduProductId: 4,
@@ -121,6 +123,8 @@ export class InvoiceController {
                     salduProductId: 1,
                 })
             } else {
+                console.log('entramos a commission update', payload.commission);
+                
                 await this.salduInlineProductService.updateEntity({
                     invoiceId: id,
                     salduProductId: 4,
