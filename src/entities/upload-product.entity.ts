@@ -76,7 +76,7 @@ export class UploadProduct {
     unit: string
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'weight_kg',
         nullable: false,
         default: 0,
@@ -84,7 +84,7 @@ export class UploadProduct {
     weightKg: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'length_cm',
         nullable: false,
         default: 0,
@@ -92,7 +92,7 @@ export class UploadProduct {
     lengthCm: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'width_cm',
         nullable: false,
         default: 0,
@@ -100,7 +100,7 @@ export class UploadProduct {
     widthCm: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'height_cm',
         nullable: false,
         default: 0,
@@ -115,7 +115,7 @@ export class UploadProduct {
     type: string
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'pvp',
         nullable: true,
         default: null,
@@ -123,7 +123,7 @@ export class UploadProduct {
     pvp: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'base_price',
         nullable: false,
         default: 0,
@@ -131,7 +131,7 @@ export class UploadProduct {
     basePrice: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'iva',
         nullable: true,
         default: 0,
@@ -139,7 +139,7 @@ export class UploadProduct {
     iva: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'base_iva',
         nullable: false,
         default: 0,
@@ -147,7 +147,7 @@ export class UploadProduct {
     baseIva: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'saldu_commission_percentage',
         nullable: false,
         default: 0,
@@ -155,7 +155,7 @@ export class UploadProduct {
     salduCommissionPercentage: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'saldu_commission',
         nullable: false,
         default: 0,
@@ -163,7 +163,7 @@ export class UploadProduct {
     salduCommission: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'commission_iva',
         nullable: false,
         default: 0,
@@ -171,7 +171,7 @@ export class UploadProduct {
     commissionIva: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'total_saldu_commission',
         nullable: false,
         default: 0,
@@ -179,7 +179,7 @@ export class UploadProduct {
     totalSalduCommission: number
 
     @Column({
-        type: 'int',
+        type: 'float',
         name: 'final_price',
         nullable: false,
         default: 0,
