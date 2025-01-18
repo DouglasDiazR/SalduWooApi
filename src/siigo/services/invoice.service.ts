@@ -36,8 +36,9 @@ export class InvoiceService {
 
     async findAllSiigoGenerated() {
         console.log('Entramos al servicio')
-        const status = ['Dratf', 'Accepted', 'Sending']
-        return await this.invoiceRepository
+        const status = ['Draft', 'Accepted', 'Sending']
+        console.log(status)
+        const invoices = await this.invoiceRepository
             .createQueryBuilder('invoice')
             .leftJoinAndSelect('invoice.paymentOption', 'paymentOption')
             .leftJoinAndSelect('invoice.errorLogs', 'errorLogs')
@@ -56,6 +57,8 @@ export class InvoiceService {
                 status,
             })
             .getMany()
+        console.log(invoices)
+        return invoices
     }
 
     async findAllSiigoRejected() {
