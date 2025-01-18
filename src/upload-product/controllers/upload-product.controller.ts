@@ -21,6 +21,7 @@ import {
 import { CsvManagerService } from '../services/csv-manager.service'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Response } from 'express'
+import { UploadProduct } from 'src/entities/upload-product.entity'
 
 @Controller('upload-product')
 export class UploadProductController {
@@ -38,7 +39,7 @@ export class UploadProductController {
         return await this.uploadProductService.findAll(
             providerId,
             uploadStatus,
-            load
+            load,
         )
     }
 
@@ -71,37 +72,41 @@ export class UploadProductController {
     async massiveUpload(
         @Param('providerId') providerId: string,
         @UploadedFile() file: Express.Multer.File,
-        @Res() response: Response,
     ) {
-        response.setHeader('Content-Type', 'text/csv');
-        response.setHeader(
-          'Content-Disposition',
-          'attachment; filename="upload-products.csv"',
-        );
         if (!providerId || providerId == '' || providerId == 'default') {
             throw new BadRequestException({
                 trigger: 'providerId',
-                message: 'This request needs a Selected Provider'
+                message: 'This request needs a Selected Provider',
             })
         }
         if (!file) {
             throw new BadRequestException({
                 trigger: 'file',
-                message: 'This request needs a Product Provider .csv file'
+                message: 'This request needs a Product Provider .csv file',
             })
         }
         const newUpload = await this.csvManagerService.processCsvBuffer(
             file.buffer,
         )
-        const massiveResponse = await this.uploadProductService.massiveUpload(
+        return await this.uploadProductService.massiveUpload(
             providerId,
             newUpload,
         )
-        if (massiveResponse.rejectedProducts.length > 0) {
-            const csvStream = this.csvManagerService.processEntityToCsv(massiveResponse.rejectedProducts);
-            csvStream.pipe(response);
-        }
-        return massiveResponse
+    }
+
+    @Post('massive-upload/rejected')
+    async massiveUploadRejected(
+        @Body() rejectedProds: UploadProduct[],
+        @Res() response: Response,
+    ) {
+        response.setHeader('Content-Type', 'text/csv')
+        response.setHeader(
+            'Content-Disposition',
+            'attachment; filename="upload-products.csv"',
+        )
+        const csvStream =
+            this.csvManagerService.processEntityToCsv(rejectedProds)
+        csvStream.pipe(response)
     }
 
     @Get(':providerId/:uploadStatus/csv')
@@ -110,24 +115,25 @@ export class UploadProductController {
         @Param('uploadStatus') uploadStatus: string,
         @Res() response: Response,
     ) {
-        response.setHeader('Content-Type', 'text/csv');
+        response.setHeader('Content-Type', 'text/csv')
         response.setHeader(
-          'Content-Disposition',
-          'attachment; filename="upload-products.csv"',
-        );
+            'Content-Disposition',
+            'attachment; filename="upload-products.csv"',
+        )
         let products = await this.findAll(providerId, uploadStatus)
         if (!products || products.length == 0) {
             throw new NotFoundException({
                 trigger: 'Empty',
-                message: 'The provider has no ready products to download'
+                message: 'The provider has no ready products to download',
             })
         }
         if (uploadStatus == 'no_seleccionada') {
             for (let product of products) {
-                product.imagesUrl = 'https://saldu.co/wp-content/uploads/cargas/default/Saldu_Enconstruccion.jpg'
+                product.imagesUrl =
+                    'https://saldu.co/wp-content/uploads/cargas/default/Saldu_Enconstruccion.jpg'
             }
         }
-        const csvStream = this.csvManagerService.processEntityToCsv(products);
-        csvStream.pipe(response);
+        const csvStream = this.csvManagerService.processEntityToCsv(products)
+        csvStream.pipe(response)
     }
 }
