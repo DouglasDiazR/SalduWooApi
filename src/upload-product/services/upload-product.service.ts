@@ -24,7 +24,7 @@ export class UploadProductService {
 
         if (uploadStatus === 'seleccionada') {
             queryBuilder.where('uploadProduct.imagesUrl IS NOT NULL')
-        } else if (uploadStatus === 'no seleccionada') {
+        } else if (uploadStatus === 'no_seleccionada') {
             queryBuilder.where('uploadProduct.imagesUrl IS NULL')
         }
 

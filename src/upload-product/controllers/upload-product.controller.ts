@@ -71,7 +71,13 @@ export class UploadProductController {
     async massiveUpload(
         @Param('providerId') providerId: string,
         @UploadedFile() file: Express.Multer.File,
+        @Res() response: Response,
     ) {
+        response.setHeader('Content-Type', 'text/csv');
+        response.setHeader(
+          'Content-Disposition',
+          'attachment; filename="upload-products.csv"',
+        );
         if (!providerId || providerId == '' || providerId == 'default') {
             throw new BadRequestException({
                 trigger: 'providerId',
@@ -87,28 +93,39 @@ export class UploadProductController {
         const newUpload = await this.csvManagerService.processCsvBuffer(
             file.buffer,
         )
-        return await this.uploadProductService.massiveUpload(
+        const massiveResponse = await this.uploadProductService.massiveUpload(
             providerId,
             newUpload,
         )
+        if (massiveResponse.rejectedProducts.length > 0) {
+            const csvStream = this.csvManagerService.processEntityToCsv(massiveResponse.rejectedProducts);
+            csvStream.pipe(response);
+        }
+        return massiveResponse
     }
 
-    @Get(':providerId/csv')
+    @Get(':providerId/:uploadStatus/csv')
     async downloadProducts(
         @Param('providerId') providerId: string,
+        @Param('uploadStatus') uploadStatus: string,
         @Res() response: Response,
     ) {
-        const products = await this.findAll(providerId, 'seleccionada')
         response.setHeader('Content-Type', 'text/csv');
         response.setHeader(
           'Content-Disposition',
           'attachment; filename="upload-products.csv"',
         );
+        let products = await this.findAll(providerId, uploadStatus)
         if (!products || products.length == 0) {
             throw new NotFoundException({
                 trigger: 'Empty',
                 message: 'The provider has no ready products to download'
             })
+        }
+        if (uploadStatus == 'no_seleccionada') {
+            for (let product of products) {
+                product.imagesUrl = 'https://saldu.co/wp-content/uploads/cargas/default/Saldu_Enconstruccion.jpg'
+            }
         }
         const csvStream = this.csvManagerService.processEntityToCsv(products);
         csvStream.pipe(response);
