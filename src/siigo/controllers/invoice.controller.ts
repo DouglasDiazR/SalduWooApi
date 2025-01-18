@@ -85,6 +85,7 @@ export class InvoiceController {
 
     @Get('siigo-generated')
     findAllSiigoGenerated() {
+        console.log('Entramos al controlador')
         return this.invoiceService.findAllSiigoGenerated()
     }
 

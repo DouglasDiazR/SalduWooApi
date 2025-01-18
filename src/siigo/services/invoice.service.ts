@@ -35,6 +35,7 @@ export class InvoiceService {
     }
 
     async findAllSiigoGenerated() {
+        console.log('Entramos al servicio')
         const status = ['Dratf', 'Accepted', 'Sending']
         let queryBuilder = this.invoiceRepository
             .createQueryBuilder('invoice')
@@ -52,7 +53,7 @@ export class InvoiceService {
             .leftJoinAndSelect('charges.taxDiscount', 'taxDiscount')
             .orderBy('invoice.createdAt', 'DESC')
         if (status !== undefined) {
-            queryBuilder = queryBuilder.where('invoice.siigoStatus = :status', {
+            queryBuilder = queryBuilder.where('invoice.siigoStatus IN (:...status)', {
                 status,
             })
         }
