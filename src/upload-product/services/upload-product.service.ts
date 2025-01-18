@@ -55,6 +55,21 @@ export class UploadProductService {
         return product
     }
 
+    async updateOneBySalduSKU(payload: UpdateUploadProductDTO) {
+        const product = await this.uploadProductRepository
+            .createQueryBuilder('uploadProduct')
+            .where('uploadProduct.skuSaldu = :sku', { sku: payload.skuSaldu })
+            .getOne()
+        if (!product) {
+            throw new NotFoundException(
+                `The Product with SKU: ${payload.skuSaldu} was Not Found`,
+            )
+        }
+        this.uploadProductRepository.merge(product, payload)
+        return await this.uploadProductRepository.save(product)
+    }
+
+
     async findAllProviderLoads(providerId: number) {
         const queryBuilder = this.loadRepository
             .createQueryBuilder('load')

@@ -94,6 +94,34 @@ export class UploadProductController {
         )
     }
 
+    @Post('massive-update/:providerId')
+    @UseInterceptors(FileInterceptor('file'))
+    async massiveUpdate(
+        @Param('providerId') providerId: string,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        if (!providerId || providerId == '' || providerId == 'default') {
+            throw new BadRequestException({
+                trigger: 'providerId',
+                message: 'This request needs a Selected Provider',
+            })
+        }
+        if (!file) {
+            throw new BadRequestException({
+                trigger: 'file',
+                message: 'This request needs a Product Provider .csv file',
+            })
+        }
+        const updateLoad = await this.csvManagerService.processCsvUpdateBuffer(file.buffer)
+        for (const prod of updateLoad) {
+            try {
+                await this.uploadProductService.updateOneBySalduSKU(prod);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+
     @Post('massive-upload/rejected')
     async massiveUploadRejected(
         @Body() rejectedProds: UploadProduct[],

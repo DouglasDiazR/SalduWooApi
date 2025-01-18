@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { parse } from 'csv-parse'
 import { Readable } from 'stream'
-import { CreateUploadProductDTO } from '../dtos/upload-product.dto'
+import { CreateUploadProductDTO, UpdateUploadProductDTO } from '../dtos/upload-product.dto'
 import { UploadProduct } from 'src/entities/upload-product.entity'
 import { format } from 'fast-csv'
 
@@ -43,6 +43,15 @@ export class CsvManagerService {
         'Etiquetas': 'brand',
     }
 
+    headerUpdateMap: Record<string, string> = {
+        'SKU': 'skuSaldu',
+        'url_image1': 'urlImage1',
+        'url_image2': 'urlImage2',
+        'url_image3': 'urlImage3',
+        'url_image4': 'urlImage4',
+        'url_image5': 'urlImage5',
+    }
+
     renameHeaders(row: Record<string, any>): object {
         const renamedRow: Record<string, any> = {} // Nuevo objeto con las claves renombradas
         const keys = Object.keys(row) // Obtén todas las claves de la fila
@@ -54,6 +63,24 @@ export class CsvManagerService {
             } else {
                 // Para las demás claves, usa el mapeo o deja el nombre original
                 const newHeader = this.headerMap[header] || header
+                renamedRow[newHeader] = row[header]
+            }
+        })
+
+        return { ...renamedRow } // Retorna el objeto renombrado
+    }
+
+    renameUpdateHeaders(row: Record<string, any>): object {
+        const renamedRow: Record<string, any> = {} // Nuevo objeto con las claves renombradas
+        const keys = Object.keys(row) // Obtén todas las claves de la fila
+
+        keys.forEach((header, index) => {
+            if (index === 0) {
+                // Si es la primera clave, asigna 'sku' como nueva clave
+                renamedRow['skuSaldu'] = row[header]
+            } else {
+                // Para las demás claves, usa el mapeo o deja el nombre original
+                const newHeader = this.headerUpdateMap[header] || header
                 renamedRow[newHeader] = row[header]
             }
         })
@@ -119,6 +146,17 @@ export class CsvManagerService {
         }
     }
 
+    transformUpdateRowToProduct(row) {
+        return {
+            skuSaldu: String(row.skuSaldu),
+            urlImage1: row.urlImage1 ? String(row.urlImage1) : undefined,
+            urlImage2: row.urlImage2 ? String(row.urlImage2) : undefined,
+            urlImage3: row.urlImage3 ? String(row.urlImage3) : undefined,
+            urlImage4: row.urlImage4 ? String(row.urlImage4) : undefined,
+            urlImage5: row.urlImage5 ? String(row.urlImage5) : undefined,
+        }
+    }
+
     transformProductToRow(row: UploadProduct): Record<string, any> {
         return {
             'SKU': row.skuSaldu,
@@ -171,6 +209,35 @@ export class CsvManagerService {
                     const renamedRow = this.renameHeaders(row)
                     const transformedRow =
                         this.transformRowToProduct(renamedRow)
+                    records.push(transformedRow)
+                })
+                .on('error', function (error) {
+                    console.log(error)
+                    reject(error)
+                })
+                .on('end', function () {
+                    resolve(records)
+                })
+        })
+    }
+
+    processCsvUpdateBuffer(buffer: Buffer): Promise<UpdateUploadProductDTO[]> {
+        const stream = Readable.from(buffer)
+        const records = []
+        return new Promise((resolve, reject) => {
+            stream
+                .pipe(
+                    parse({
+                        columns: true,
+                        delimiter: ';',
+                        skipRecordsWithEmptyValues: true,
+                        trim: true,
+                    }),
+                )
+                .on('data', (row) => {
+                    const renamedRow = this.renameUpdateHeaders(row)
+                    const transformedRow =
+                        this.transformUpdateRowToProduct(renamedRow)
                     records.push(transformedRow)
                 })
                 .on('error', function (error) {

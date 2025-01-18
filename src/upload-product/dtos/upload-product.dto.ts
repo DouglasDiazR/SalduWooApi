@@ -15,6 +15,11 @@ export class CreateUploadProductDTO {
     @IsString()
     @IsNotEmpty()
     @ApiProperty()
+    readonly skuSaldu: string
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty()
     readonly name: string
 
     @IsString()
