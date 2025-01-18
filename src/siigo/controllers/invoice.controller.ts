@@ -85,7 +85,6 @@ export class InvoiceController {
 
     @Get('siigo-generated')
     findAllSiigoGenerated() {
-        console.log('Entramos al controlador')
         return this.invoiceService.findAllSiigoGenerated()
     }
 
@@ -105,7 +104,6 @@ export class InvoiceController {
         @Body() payload: UpdateInvoiceDTO,
     ) {
         const invoice = await this.invoiceService.findOne(id)
-        console.log(payload)
         if (payload.commission && payload.commission > 0) {
             const commission =
                 await this.salduInlineProductService.findByProductIdAndInvoiceId(
@@ -113,7 +111,6 @@ export class InvoiceController {
                     id,
                 )
             if (!commission) {
-                console.log('entramos a commission create', payload.commission)
                 await this.salduInlineProductService.createEntity({
                     invoiceId: id,
                     salduProductId: 4,
@@ -124,8 +121,6 @@ export class InvoiceController {
                     salduProductId: 1,
                 })
             } else {
-                console.log('entramos a commission update', payload.commission)
-
                 await this.salduInlineProductService.updateEntity({
                     invoiceId: id,
                     salduProductId: 4,
@@ -272,23 +267,11 @@ export class InvoiceController {
             }
             siigoInvoiceRequest.items.push(inlineProduct)
         }
-        console.log(
-            'Tipado de number',
-            siigoInvoiceRequest.customer.phones[0].number,
-            typeof siigoInvoiceRequest.customer.phones[0].number,
-        )
-
-        console.log(siigoInvoiceRequest)
 
         const siigoResponse: SiigoResponseDTO =
             await this.siigoService.CreateInvoice(siigoInvoiceRequest)
         if (siigoResponse.Errors) {
-            console.log(JSON.stringify(siigoResponse))
-            console.log(
-                `Siigo Request Rejection - Status: ${siigoResponse.Status}`,
-            )
             siigoResponse.Errors.forEach(async (error) => {
-                console.log(`Siigo Error "${error.Code}": ${error.Message}`)
                 const errorLog: CreateInvoiceErrorLogDTO = {
                     code: error.Code,
                     message: error.Message,
@@ -306,10 +289,6 @@ export class InvoiceController {
             })
             return `Invoice ${invoiceId} was Rejected by Siigo`
         } else {
-            console.log(
-                `Siigo Invoice Successfully Created - ID: ${siigoResponse.id}`,
-            )
-            console.log(siigoResponse)
             const siigoData: UpdateInvoiceDTO = {
                 siigoId: siigoResponse.id,
                 siigoStatus: siigoResponse.stamp.status,

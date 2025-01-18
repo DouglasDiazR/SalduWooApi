@@ -103,7 +103,6 @@ export class ProductsController {
     ) {
         const productId = Number(id)
         const userId = request.user.id_user
-        console.log(request.user)
         return await this.productsService.getProductById( productId, userId )
     }
 

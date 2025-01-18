@@ -62,7 +62,6 @@ export class CsvManagerService {
     }
 
     transformRowToProduct(row) {
-        console.log(row)
         return {
             skuSaldu: String(row.skuSaldu),
             sku: String(row.sku),

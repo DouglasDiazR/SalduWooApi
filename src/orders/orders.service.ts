@@ -41,7 +41,6 @@ export class OrdersService {
                     before: formattedEndDate,
                 },
             )
-            console.log(orders)
             if (orders.data.length === 0) {
                 return []
             }
@@ -332,7 +331,6 @@ export class OrdersService {
                     before: formattedEndDate,
                 },
             )
-            console.log();
             
             if (orders.data.length === 0) {
                 throw new NotFoundException('No se encontraron órdenes')
@@ -534,8 +532,6 @@ export class OrdersService {
 
             const order = response.data
 
-            console.log(JSON.stringify(order));
-
             const formattedOrder: IOrders = {
                 id: order.id,
                 number: order.number,
@@ -572,7 +568,6 @@ export class OrdersService {
                       }))
                     : [],
             };
-            console.log(formattedOrder);
             
             return formattedOrder
         } catch (error) {

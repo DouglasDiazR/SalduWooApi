@@ -140,7 +140,6 @@ export class ProductsService {
         try {
             const response = await this.WooComerce.get(`products/${productId}`)
             const product = response.data
-            console.log('Producto:', product)
 
             const vendorMetaData = product.meta_data.find(
                 (meta) => meta.key === 'vendedor',
@@ -163,7 +162,6 @@ export class ProductsService {
 
             return productDetails
         } catch (error) {
-            console.log(error)
             if (error.response?.status === 404) {
                 throw new NotFoundException(
                     `No se encontró el producto con ID: ${productId}.`,

@@ -90,7 +90,6 @@ export class SalduInlineProductService {
             payload.salduProductId,
             payload.invoiceId,
         )
-        console.log('actualizando item', payload)
         if (!inlineProduct) {
             throw new NotFoundException(
                 `The Inline-Product with ID: ${inlineProduct.id} was Not Found`,
@@ -100,7 +99,6 @@ export class SalduInlineProductService {
             inlineProduct.taxedPrice = ((inlineProduct.invoice.orderTotal - ((await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice * 1.19)) * 0.004) + 1800
         }
         await this.salduInlineProductRepository.merge(inlineProduct, payload)
-        console.log(inlineProduct)
         return await this.salduInlineProductRepository.save(inlineProduct)
     }
 
