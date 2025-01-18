@@ -154,15 +154,17 @@ export class InvoiceController {
     @Post('all-pending')
     async getAllPending(@Body() payload: CreatePendingInvoiceDTO) {
         let pendingOrders: Invoice[] = []
-        console.log('holi')
         const orders = await this.orderService.getAllOrders({
             status: Status.Entregado,
             startDate: payload.startDate,
             endDate: payload.endDate,
         })
-        console.log('Órdenes Pendientes WooCommerce: ', orders)
         if (!orders || orders.length == 0) {
-            
+            //Logica para reportar ordenes desligadas de Woocommerce
+            const invoices = await this.invoiceService.findAllSiigoRejected();
+            for (const invoice of invoices) {
+                pendingOrders.push(invoice)
+            }
         } else {
             for (const order of orders) {
                 const invoice = await this.invoiceService.findOneByOrderId(
