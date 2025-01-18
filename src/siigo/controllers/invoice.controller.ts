@@ -104,7 +104,7 @@ export class InvoiceController {
         @Body() payload: UpdateInvoiceDTO,
     ) {
         const invoice = await this.invoiceService.findOne(id)
-        console.log(payload);
+        console.log(payload)
         if (payload.commission && payload.commission > 0) {
             const commission =
                 await this.salduInlineProductService.findByProductIdAndInvoiceId(
@@ -112,7 +112,7 @@ export class InvoiceController {
                     id,
                 )
             if (!commission) {
-                console.log('entramos a commission create', payload.commission);
+                console.log('entramos a commission create', payload.commission)
                 await this.salduInlineProductService.createEntity({
                     invoiceId: id,
                     salduProductId: 4,
@@ -123,8 +123,8 @@ export class InvoiceController {
                     salduProductId: 1,
                 })
             } else {
-                console.log('entramos a commission update', payload.commission);
-                
+                console.log('entramos a commission update', payload.commission)
+
                 await this.salduInlineProductService.updateEntity({
                     invoiceId: id,
                     salduProductId: 4,
@@ -159,45 +159,36 @@ export class InvoiceController {
             startDate: payload.startDate,
             endDate: payload.endDate,
         })
-        if (!orders || orders.length == 0) {
-            //Logica para reportar ordenes desligadas de Woocommerce
-            const invoices = await this.invoiceService.findAllSiigoRejected();
-            for (const invoice of invoices) {
-                pendingOrders.push(invoice)
-            }
-        } else {
-            for (const order of orders) {
-                const invoice = await this.invoiceService.findOneByOrderId(
-                    order.id,
-                )
-                if (!invoice) {
-                    const wooOrder = await this.orderService.getOrderById(
-                        order.id,
-                    )
-                    const newInvoiceDTO: CreateInvoiceDTO = {
-                        orderId: wooOrder.id,
-                        orderTotal: wooOrder.total,
-                        documentType: wooOrder.invoicing.documentType,
-                        document: wooOrder.invoicing.document,
-                        businessName: wooOrder.invoicing.businessName || '',
-                        firstname: wooOrder.invoicing.firstname || '',
-                        lastname: wooOrder.invoicing.lastname || '',
-                        address: wooOrder.invoicing.address || '',
-                        phone: wooOrder.invoicing.phone,
-                        email: wooOrder.invoicing.email,
-                        orderDate: wooOrder.date_modified,
-                        commission:
-                            parseFloat(wooOrder.invoicing.commission) || 0,
-                        shippingPrice:
-                            parseFloat(wooOrder.invoicing.shippingPrice) || 0,
-                        paybackPrice:
-                            parseFloat(wooOrder.invoicing.payBackPrice) || 0,
-                        paymentOptionId: 1,
-                    }
-                    pendingOrders.push(await this.createEntity(newInvoiceDTO))
-                } else {
-                    pendingOrders.push(invoice)
+        const pendingInvoices = await this.invoiceService.findAllSiigoRejected()
+        for (const invoice of pendingInvoices) {
+            pendingOrders.push(invoice)
+        }
+        for (const order of orders) {
+            const invoice = await this.invoiceService.findOneByOrderId(order.id)
+            if (!invoice) {
+                const wooOrder = await this.orderService.getOrderById(order.id)
+                const newInvoiceDTO: CreateInvoiceDTO = {
+                    orderId: wooOrder.id,
+                    orderTotal: wooOrder.total,
+                    documentType: wooOrder.invoicing.documentType,
+                    document: wooOrder.invoicing.document,
+                    businessName: wooOrder.invoicing.businessName || '',
+                    firstname: wooOrder.invoicing.firstname || '',
+                    lastname: wooOrder.invoicing.lastname || '',
+                    address: wooOrder.invoicing.address || '',
+                    phone: wooOrder.invoicing.phone,
+                    email: wooOrder.invoicing.email,
+                    orderDate: wooOrder.date_modified,
+                    commission: parseFloat(wooOrder.invoicing.commission) || 0,
+                    shippingPrice:
+                        parseFloat(wooOrder.invoicing.shippingPrice) || 0,
+                    paybackPrice:
+                        parseFloat(wooOrder.invoicing.payBackPrice) || 0,
+                    paymentOptionId: 1,
                 }
+                pendingOrders.push(await this.createEntity(newInvoiceDTO))
+            } else {
+                pendingOrders.push(invoice)
             }
         }
         return pendingOrders.filter(
