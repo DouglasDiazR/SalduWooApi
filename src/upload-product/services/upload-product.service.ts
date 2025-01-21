@@ -125,6 +125,9 @@ export class UploadProductService {
                 })
             }
         }
+        if (processedProducts.length == 0) {
+            await this.loadRepository.delete(load.id)
+        }
         return {
             load: load,
             total: payload.length,

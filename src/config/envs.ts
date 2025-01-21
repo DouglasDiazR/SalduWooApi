@@ -21,3 +21,7 @@ export const SIIGO_API_URL = process.env.SIIGO_API_URL
 export const SIIGO_USERNAME = process.env.SIIGO_USERNAME_PROD
 export const SIIGO_ACCESSKEY = process.env.SIIGO_ACCESSKEY_PROD
 export const SIIGO_PARTNERID = process.env.SIIGO_PARTNERID
+
+export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
+export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
+export const AWS_REGION = process.env.AWS_REGION

@@ -22,12 +22,14 @@ import { CsvManagerService } from '../services/csv-manager.service'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Response } from 'express'
 import { UploadProduct } from 'src/entities/upload-product.entity'
+import { S3Service } from '../services/s3.service'
 
 @Controller('upload-product')
 export class UploadProductController {
     constructor(
         private uploadProductService: UploadProductService,
         private csvManagerService: CsvManagerService,
+        private s3Service: S3Service,
     ) {}
 
     @Get()
@@ -112,12 +114,14 @@ export class UploadProductController {
                 message: 'This request needs a Product Provider .csv file',
             })
         }
-        const updateLoad = await this.csvManagerService.processCsvUpdateBuffer(file.buffer)
+        const updateLoad = await this.csvManagerService.processCsvUpdateBuffer(
+            file.buffer,
+        )
         for (const prod of updateLoad) {
             try {
-                await this.uploadProductService.updateOneBySalduSKU(prod);
+                await this.uploadProductService.updateOneBySalduSKU(prod)
             } catch (error) {
-                console.log(error);
+                console.log(error)
             }
         }
     }
@@ -163,5 +167,28 @@ export class UploadProductController {
         }
         const csvStream = this.csvManagerService.processEntityToCsv(products)
         csvStream.pipe(response)
+    }
+
+    @Post('s3-upload/:providerId/:productId')
+    @UseInterceptors(FileInterceptor('file')) // Interceptor para procesar el archivo
+    async uploadImage(
+        @UploadedFile() file: Express.Multer.File,
+        @Param('providerId', ParseIntPipe) providerId: number,
+        @Param('productId', ParseIntPipe) productId: number,
+    ): Promise<{ url: string }> {
+        if (!file.mimetype.startsWith('image/')) {
+            throw new BadRequestException('El archivo debe ser una imagen.');
+          }
+        const bucketName = process.env.AWS_S3_BUCKET_NAME // Nombre del bucket
+        const url = await this.s3Service.uploadFile(
+            providerId,
+            providerId,
+            file,
+            bucketName,
+        )
+        await this.uploadProductService.updateEntity(productId, {
+            imagesUrl: url,
+        })
+        return { url }
     }
 }
