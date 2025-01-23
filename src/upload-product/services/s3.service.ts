@@ -21,7 +21,8 @@ export class S3Service {
             Body: file.buffer,
             ContentType: file.mimetype,
         }
-
+        console.log(uploadParams);
+        
         try {
             const { Location } = await s3.upload(uploadParams).promise()
             return Location // URL del archivo en S3
