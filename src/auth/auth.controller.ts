@@ -9,7 +9,7 @@ export class AuthController {
 
     @Post('signIn')
     @ApiOperation({ summary: 'Ruta de login' })
-    @HttpCode(201)
+    @HttpCode(200)
     signIn(@Body() body: SingInUserDto) {
         const { email, password } = body
         return this.authService.signIn(email, password)
