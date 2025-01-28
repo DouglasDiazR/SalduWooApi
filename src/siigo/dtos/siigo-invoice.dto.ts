@@ -86,7 +86,7 @@ import {
   
     @IsString()
     @IsOptional()
-    readonly observations?: string;
+    observations?: string;
   
     @IsArray()
     @IsNotEmpty()
