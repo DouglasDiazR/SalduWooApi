@@ -532,6 +532,8 @@ export class OrdersService {
 
             const order = response.data
 
+            console.log(order)
+
             const formattedOrder: IOrders = {
                 id: order.id,
                 number: order.number,
@@ -551,7 +553,7 @@ export class OrdersService {
                         ? order.billing.email 
                         : '',
                     commission: order.meta_data.find(item => item.key == '_comision_saldu')?.value || 0,
-                    payBackPrice: order.meta_data.find(item => item.key == '_reintegro_pasarela')?.value || "0",
+                    payBackPrice: order.fee_lines.find(item => item.name == 'Cargo extra por pago por PayU Latam:')?.amount || "0",
                     shippingPrice: order.shipping_lines[0]?.total || 0,
                 },
                 date_created: order.date_created,
