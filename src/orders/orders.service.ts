@@ -532,8 +532,6 @@ export class OrdersService {
 
             const order = response.data
 
-            console.log(order)
-
             const formattedOrder: IOrders = {
                 id: order.id,
                 number: order.number,
