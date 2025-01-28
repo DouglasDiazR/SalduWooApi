@@ -302,4 +302,9 @@ export class InvoiceController {
             return await this.invoiceService.updateEntity(invoiceId, siigoData)
         }
     }
+
+    @Delete(':id')
+    async softDeleteInvoice(@Param('id', ParseIntPipe) id: number) {
+        return this.invoiceService.softDeleteEntity(id)
+    }
 }

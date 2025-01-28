@@ -131,4 +131,14 @@ export class InvoiceService {
         this.invoiceRepository.merge(invoice, payload)
         return await this.invoiceRepository.save(invoice)
     }
+
+    async softDeleteEntity(id: number) {
+        const invoice = await this.findOne(id)
+        if (!invoice) {
+            throw new NotFoundException(
+                `The Invoice with ID: ${id} was Not Found`,
+            )
+        }
+        return this.invoiceRepository.softDelete(id)
+    }
 }
