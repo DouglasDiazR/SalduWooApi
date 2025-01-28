@@ -155,10 +155,6 @@ export class InvoiceController {
             startDate: payload.startDate,
             endDate: payload.endDate,
         })
-        const pendingInvoices = await this.invoiceService.findAllSiigoRejected()
-        for (const invoice of pendingInvoices) {
-            pendingOrders.push(invoice)
-        }
         for (const order of orders) {
             const invoice = await this.invoiceService.findOneByOrderId(order.id)
             if (!invoice) {
@@ -204,7 +200,7 @@ export class InvoiceController {
                 person_type:
                     invoice.documentType == 'NIT' ? 'Company' : 'Person',
                 id_type: invoice.documentType == 'NIT' ? '31' : '13',
-                identification: invoice.document,
+                identification: invoice.document.split('-')[0],
                 name:
                     invoice.documentType == 'NIT'
                         ? [invoice.businessName]
