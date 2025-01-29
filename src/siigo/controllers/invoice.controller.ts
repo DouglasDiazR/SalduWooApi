@@ -229,8 +229,8 @@ export class InvoiceController {
                 ],
             },
             seller: 487, // Sandbox 841 - SalduNube 487 (Tatiana)
-            stamp: { send: true },
-            mail: { send: true },
+            stamp: { send: false },
+            mail: { send: false },
             observations: `Factura comisión por uso de plataforma SALDU. Pedidos no. ${invoice.orderId}. \n SALDU pertenece al régimen simple. \n Los conceptos de reintegro de costos de transacción corresponden a los gastos bancarios incurridos por Saldu para la operación de recaudo.\n`,
             items: [],
             payments: [
@@ -257,7 +257,7 @@ export class InvoiceController {
                 discount: 0,
                 taxes: [],
             }
-            if(item.id == 3) {
+            if(item.salduProduct.id == 3) {
                 siigoInvoiceRequest.observations += `Los conceptos de reintegro de costos de transacción corresponden al uso de plataforma de pago ePayCo.`;
             }
             for (const tax of item.salduProduct.charges) {
