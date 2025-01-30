@@ -18,7 +18,7 @@ export class SalduInlineProductService {
         private readonly salduProductService: SalduProductService,
     ) {}
 
-    async createEntity(payload: CreateSalduInlineProductDTO, ) {
+    async createEntity(payload: CreateSalduInlineProductDTO) {
         const inlineProduct = this.salduInlineProductRepository.create(payload)
         inlineProduct.invoice = await this.invoiceService.findOne(
             payload.invoiceId,
@@ -37,8 +37,24 @@ export class SalduInlineProductService {
                 inlineProduct.taxedPrice = payload.taxedPrice
                 break
             case 1:
-                inlineProduct.taxedPrice = ((inlineProduct.invoice.orderTotal - ((await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice * 1.19) - ((await this.findByProductIdAndInvoiceId(3, payload.invoiceId))?.taxedPrice ?? 0)) * 0.004) + 1800
-                break
+                try {
+                    const comProd = await this.findByProductIdAndInvoiceId(
+                        4,
+                        payload.invoiceId,
+                    )
+                    const payProd = await this.findByProductIdAndInvoiceId(
+                        3,
+                        payload.invoiceId,
+                    )
+
+                    const comission = (comProd?.taxedPrice ?? 0) * 1.19
+                    const platform = payProd?.taxedPrice ?? 0
+
+                    inlineProduct.taxedPrice = (inlineProduct.invoice.orderTotal - comission - platform) * 0.004 + 1800
+                    break
+                } catch (error) {
+                    console.log(error)
+                }
         }
         return await this.salduInlineProductRepository.save(inlineProduct)
     }
@@ -78,11 +94,9 @@ export class SalduInlineProductService {
             })
             .getOne()
         if (!inlineProduct) {
-            throw new NotFoundException(
-                `The Inline-Product linked to Product ID: ${salduProductId} and Invoice ID: ${invoiceId} was Not Found`,
-            )
+            return null
         }
-        return inlineProduct;
+        return inlineProduct
     }
 
     async updateEntity(payload: UpdateSalduInlineProductDTO) {
@@ -96,7 +110,17 @@ export class SalduInlineProductService {
             )
         }
         if (payload.salduProductId == 1) {
-            inlineProduct.taxedPrice = ((inlineProduct.invoice.orderTotal - ((await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice * 1.19)) * 0.004) + 1800
+            inlineProduct.taxedPrice =
+                (inlineProduct.invoice.orderTotal -
+                    (
+                        await this.findByProductIdAndInvoiceId(
+                            4,
+                            payload.invoiceId,
+                        )
+                    ).taxedPrice *
+                        1.19) *
+                    0.004 +
+                1800
         }
         await this.salduInlineProductRepository.merge(inlineProduct, payload)
         return await this.salduInlineProductRepository.save(inlineProduct)
