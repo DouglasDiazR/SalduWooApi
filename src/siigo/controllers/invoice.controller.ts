@@ -195,7 +195,7 @@ export class InvoiceController {
         const invoice = await this.findOne(invoiceId)
         const siigoInvoiceRequest: SiigoInvoiceDTO = {
             document: { id: 26375 }, //Sandbox: 28006 - SalduNube: 26375
-            date: invoice.updatedAt.toISOString().substring(0, 10),
+            date: new Date().toISOString().substring(0, 10),
             customer: {
                 person_type:
                     invoice.documentType == 'NIT' ? 'Company' : 'Person',
