@@ -46,8 +46,8 @@ export class ProductsController {
         example: 10,
     })
     @HttpCode(200)
-    @UseGuards(AuthGuard)
-    @Roles(Role.Admin)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Admin)
     async getAllProducts(
         @Req() request: Express.Request,
         @Query('page') page?: string,
@@ -58,7 +58,36 @@ export class ProductsController {
         return await this.productsService.getAllProducts(Number(page), Number(limit))
     }
 
-    @Get('user')
+    // @Get('user')
+    // @ApiOperation({ summary: 'Ruta de Vendedor para obtener sus productos propios' })
+    // @ApiQuery({
+    //     name: 'page',
+    //     required: false,
+    //     description: 'Número de página',
+    //     example: 1,
+    // })
+    // @ApiQuery({
+    //     name: 'limit',
+    //     required: false,
+    //     description: 'Cantidad de productos por página (máximo 10)',
+    //     example: 10,
+    // })
+    // @HttpCode(200)
+    // // @UseGuards(AuthGuard)
+    // // @Roles(Role.Seller)
+    // async getProductsByUser(
+    //     @Req() request: Express.Request,
+    //     @Query('page') page?: string,
+    //     @Query('limit') limit?: string,
+    // ) {
+    //     const user = request.user
+    //     const { id_wooCommerce: vendorId } = user
+    //     if (!page) page = '1' 
+    //     if (!limit) limit = '12'
+    //     return await this.productsService.getProductsByUser( vendorId, Number(page), Number(limit) )
+    // }
+
+    @Get('user/:id')
     @ApiOperation({ summary: 'Ruta de Vendedor para obtener sus productos propios' })
     @ApiQuery({
         name: 'page',
@@ -73,18 +102,17 @@ export class ProductsController {
         example: 10,
     })
     @HttpCode(200)
-    @UseGuards(AuthGuard)
-    @Roles(Role.Seller)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Seller)
     async getProductsByUser(
-        @Req() request: Express.Request,
+        @Param('id') providerId: number,
         @Query('page') page?: string,
         @Query('limit') limit?: string,
     ) {
-        const user = request.user
-        const { id_wooCommerce: vendorId } = user
+
         if (!page) page = '1' 
-        if (!limit) limit = '12'
-        return await this.productsService.getProductsByUser( vendorId, Number(page), Number(limit) )
+        if (!limit) limit = '2000'
+        return await this.productsService.getProductsByUser( providerId, Number(page), Number(limit) )
     }
 
     @Get(':id')
@@ -95,8 +123,8 @@ export class ProductsController {
         description: 'ID del producto',
         example: 5122,
     })
-    @UseGuards(AuthGuard)
-    @Roles(Role.Seller, Role.Admin)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Seller, Role.Admin)
     async getProductById(
         @Req() request: Express.Request,
         @Param('id') id: string
@@ -108,8 +136,8 @@ export class ProductsController {
 
     @Post('create')
     @ApiOperation({ summary: 'Ruta de vendedor para crear un producto' })
-    @UseGuards(AuthGuard)
-    @Roles(Role.Seller)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Seller)
     async createProduct(@Body() createProductDto: CreateProductDto) {
         return await this.productsService.createProduct(createProductDto)
     }
@@ -122,8 +150,8 @@ export class ProductsController {
         description: 'id del producto',
         example: '5122',
     })
-    @UseGuards(AuthGuard)
-    @Roles(Role.Seller)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Seller)
     async updateProduct(
         @Param('id') id: string,
         @Body() updateProductDto: UpdateProductDto,
@@ -142,8 +170,8 @@ export class ProductsController {
         description: 'id del producto',
         example: '5122',
     })
-    @UseGuards(AuthGuard)
-    @Roles(Role.Seller)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Seller)
     async deleteProduct(@Param('id') id: string) {
         return await this.productsService.deleteProduct(Number(id))
     }

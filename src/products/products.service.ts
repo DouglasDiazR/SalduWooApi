@@ -65,7 +65,7 @@ export class ProductsService {
                     'No se encontraron productos asociados a este vendedor.',
                 )
             }
-
+            console.log(products[1]);
             const productsData = await Promise.all(
                 products.map((product) => ({
                     id: product.id,
@@ -82,7 +82,7 @@ export class ProductsService {
             const hasNextPage = Number(page) < totalPages;
             const prevPage = hasPrevPage ? Number(page) - 1 : null;
             const nextPage = hasNextPage ? Number(page) + 1 : null;
-
+            //console.log(productsData[1]);
             return {
                 productsData,
                 totalElements,
