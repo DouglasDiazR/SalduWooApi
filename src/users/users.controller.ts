@@ -77,7 +77,7 @@ export class UsersController {
     @HttpCode(200)
     @UseGuards(AuthGuard)
     @Roles(Role.Admin)
-    async getUserById(@Param('id') id: string) {
+    async getUserById(@Param('id') id: number) {
         return await this.usersService.getUserById(id)
     }
 }

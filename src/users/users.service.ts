@@ -11,7 +11,7 @@ export class UsersService {
     getUserByEmail(email: string) {
         return this.usersRepository.getUserByEmail(email)
     }
-    getUserById(id: string) {
+    getUserById(id: number) {
         return this.usersRepository.getUserById(id)
     }
 }

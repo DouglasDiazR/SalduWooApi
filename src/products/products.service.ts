@@ -66,6 +66,9 @@ export class ProductsService {
                 )
             }
             console.log(products[1]);
+            console.log(products[2]);
+            console.log(products[3]);
+            console.log(products[4]);
             const productsData = await Promise.all(
                 products.map((product) => ({
                     id: product.id,
@@ -102,8 +105,10 @@ export class ProductsService {
         }
     }
 
-    async getProductById( productId: number, userId ) {
+    async getProductById( productId: number, userId: number ) {
         try {
+            console.log('service');
+            
             const response = await this.WooComerce.get(`products/${productId}`)
             const product = response.data
             const user = await this.usersRepository.getUserById(userId)
@@ -131,7 +136,7 @@ export class ProductsService {
                 )
             }
             throw new InternalServerErrorException(
-                'Hubo un error al obtener el producto.',
+                `Hubo un error al obtener el producto. ${error}`,
             )
         }
     }

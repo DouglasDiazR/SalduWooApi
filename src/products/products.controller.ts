@@ -130,7 +130,9 @@ export class ProductsController {
         @Param('id') id: string
     ) {
         const productId = Number(id)
-        const userId = request.user.id_user
+        const userId = 2
+        console.log('controller');
+        
         return await this.productsService.getProductById( productId, userId )
     }
 
