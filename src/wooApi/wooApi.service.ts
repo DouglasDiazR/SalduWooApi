@@ -95,7 +95,6 @@ export class WooCommerceService {
     async getProducts() {
         try {
             const per_page = 50
-            console.log('Holi')
             for (let page = 1; ; page++) {
                 const response = await this.WooCommerce.get('products', {
                     per_page,

@@ -33,6 +33,10 @@ export class ProductsRepository {
         return await this.productsRepository.update(id, updateProductDto)
     }
 
+    async activateProduct(id: number) {
+        return await this.productsRepository.update(id, { status: 'publish' })
+    }
+
     async deleteProduct(id: number) {
         return await this.productsRepository.update(id, { status: 'draft' })
     }

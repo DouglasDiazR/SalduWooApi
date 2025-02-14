@@ -164,6 +164,20 @@ export class ProductsController {
         )
     }
 
+    @Patch('activate/:id')
+    @ApiOperation({ summary: 'Ruta de vendedor para cambiar el estatus de un producto a activo' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'id del producto',
+        example: '5122',
+    })
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Seller)
+    async activateProduct(@Param('id') id: string) {
+        return await this.productsService.activateProduct(Number(id))
+    }
+
     @Patch('delete/:id')
     @ApiOperation({ summary: 'Ruta de vendedor para cambiar el estatus de un producto a inactivo' })
     @ApiParam({

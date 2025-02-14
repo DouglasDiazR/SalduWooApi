@@ -113,12 +113,12 @@ export class ProductsService {
             const product = response.data
             const user = await this.usersRepository.getUserById(userId)
             
-            if (user.role === Role.Seller) {
-                const vendorMetaData = product.meta_data.find( (meta) => meta.key === 'vendedor' )
-                if (vendorMetaData?.value !== String(user.id_wooCommerce)) {
-                    throw new ForbiddenException('No tienes permiso para acceder a este producto.')
-                }
-            }
+            // if (user.role === Role.Seller) {
+            //     const vendorMetaData = product.meta_data.find( (meta) => meta.key === 'vendedor' )
+            //     if (vendorMetaData?.value !== String(user.id_wooCommerce)) {
+            //         throw new ForbiddenException('No tienes permiso para acceder a este producto.')
+            //     }
+            // }
 
             const productDetails = {
                 product_id: product.id,
@@ -184,6 +184,10 @@ export class ProductsService {
 
     async updateProduct(id: number, updateProductDto: UpdateProductDto) {
         return await this.productsRepository.updateProduct(id, updateProductDto)
+    }
+
+    async activateProduct(id: number) {
+        return await this.productsRepository.activateProduct(id)
     }
 
     async deleteProduct(id: number) {
