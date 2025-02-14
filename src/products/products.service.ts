@@ -172,7 +172,8 @@ export class ProductsService {
             const productDetails = {
                 product_id: product.id,
                 name: product.name,
-                quantity: product.stock_quantity || 0,
+                stock_quantity: product.stock_quantity || 0,
+                stock_status: product.stock_status,
                 price: product.price,
                 total: product.total_sales || 0,
                 meta_data: product.meta_data || [],
