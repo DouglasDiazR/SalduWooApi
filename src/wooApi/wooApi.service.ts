@@ -176,12 +176,25 @@ export class WooCommerceService {
         
     }
 
-    async updateProduct(id: number, payload: UpdateWooProductDTO) {
-        try {
-            const response = await this.WooCommerce.put(`products/${id}`, payload);
-            console.log('WooCommerce Update try: ', response)
-        } catch (error) {
-            console.log('WooCommerce Update fail: ', error)
-        }
-    }
+    // async updateProduct(id: number, payload: UpdateWooProductDTO) {
+    //     try {
+    //         const productResponse = await this.WooCommerce.get(`products/${id}`)
+    //         const product = productResponse.data
+    //         const isTaxable = 'si'
+    //         if (payload.price && isTaxable == 'si') {
+    //             const productPricing = {
+    //                 price: payload.price,
+    //                 regularPrice: payload.price,
+    //                 originalPrice: (parseFloat(payload.price) / 1.19) / 1.12,
+
+    //             }
+    //         } else if (payload.price && isTaxable == 'no') {
+
+    //         }
+    //         const response = await this.WooCommerce.put(`products/${id}`, payload);
+    //         console.log('WooCommerce Update try: ', response)
+    //     } catch (error) {
+    //         console.log('WooCommerce Update fail: ', error)
+    //     }
+    // }
 }
