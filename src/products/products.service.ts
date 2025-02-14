@@ -118,7 +118,7 @@ export class ProductsService {
             const response = await this.WooCommerce.get(`products/${productId}`)
             const product = response.data
             const user = await this.usersRepository.getUserById(userId)
-
+            console.log(product)
             // if (user.role === Role.Seller) {
             //     const vendorMetaData = product.meta_data.find( (meta) => meta.key === 'vendedor' )
             //     if (vendorMetaData?.value !== String(user.id_wooCommerce)) {
