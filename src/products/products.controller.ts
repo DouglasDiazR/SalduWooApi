@@ -115,8 +115,14 @@ export class ProductsController {
         return await this.productsService.getProductsByUser( providerId, Number(page), Number(limit) )
     }
 
-    @Get(':id')
+    @Get(':providerId/:id')
     @ApiOperation({ summary: 'Ruta de Vendedor para obtener un producto propio por ID' })
+    @ApiParam({
+        name: 'providerId',
+        required: true,
+        description: 'ID del proveedor',
+        example: 2,
+    })
     @ApiParam({
         name: 'id',
         required: true,
@@ -126,11 +132,12 @@ export class ProductsController {
     // @UseGuards(AuthGuard)
     // @Roles(Role.Seller, Role.Admin)
     async getProductById(
-        @Req() request: Express.Request,
-        @Param('id') id: string
+        //@Req() request: Express.Request,
+        @Param('id') id: string,
+        @Param('providerId') providerId: string
     ) {
         const productId = Number(id)
-        const userId = 2
+        const userId = Number(providerId)
         console.log('controller');
         
         return await this.productsService.getProductById( productId, userId )

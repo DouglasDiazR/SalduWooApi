@@ -6,6 +6,7 @@ import { Repository } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 import { Products } from 'src/entities/products.entity'
 import { Users } from 'src/entities/users.entity'
+import { CreateWooProductDTO, UpdateWooProductDTO } from './dtos/woo-product.dto'
 
 @Injectable()
 export class WooCommerceService {
@@ -170,4 +171,17 @@ export class WooCommerceService {
     //         throw new Error('Error al obtener los productos')
     //     }
     // }
+
+    async createProduct(id: number, payload:CreateWooProductDTO) {
+        
+    }
+
+    async updateProduct(id: number, payload: UpdateWooProductDTO) {
+        try {
+            const response = await this.WooCommerce.put(`products/${id}`, payload);
+            console.log('WooCommerce Update try: ', response)
+        } catch (error) {
+            console.log('WooCommerce Update fail: ', error)
+        }
+    }
 }

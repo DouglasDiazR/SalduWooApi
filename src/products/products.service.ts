@@ -15,12 +15,13 @@ export class ProductsService {
     constructor(
         private readonly productsRepository: ProductsRepository,
         private readonly usersRepository: UsersRepository,
-        private readonly WooComerce: WooCommerceRestApi,
+        private readonly WooCommerce: WooCommerceRestApi,
     ) {}
 
     async getAllProducts(page, limit) {
         try {
-            const [products, totalElements] = await this.productsRepository.getAllProducts(page, limit)
+            const [products, totalElements] =
+                await this.productsRepository.getAllProducts(page, limit)
             const productsData = await Promise.all(
                 products.map(async (product) => {
                     return {
@@ -34,11 +35,11 @@ export class ProductsService {
                     }
                 }),
             )
-            const totalPages = Math.ceil(totalElements / Number(limit));
-            const hasPrevPage = Number(page) > 1;
-            const hasNextPage = Number(page) < totalPages;
-            const prevPage = hasPrevPage ? Number(page) - 1 : null;
-            const nextPage = hasNextPage ? Number(page) + 1 : null;
+            const totalPages = Math.ceil(totalElements / Number(limit))
+            const hasPrevPage = Number(page) > 1
+            const hasNextPage = Number(page) < totalPages
+            const prevPage = hasPrevPage ? Number(page) - 1 : null
+            const nextPage = hasNextPage ? Number(page) + 1 : null
 
             return {
                 productsData,
@@ -50,25 +51,30 @@ export class ProductsService {
                 hasNextPage,
                 prevPage,
                 nextPage,
-            };
+            }
         } catch (error) {
             throw new Error('Error al obtener los productos')
         }
     }
 
-    async getProductsByUser( vendorId : number, page : number , limit : number ) {
+    async getProductsByUser(vendorId: number, page: number, limit: number) {
         try {
-            const [products, totalElements] = await this.productsRepository.getProductsByUser( vendorId, page, limit )
+            const [products, totalElements] =
+                await this.productsRepository.getProductsByUser(
+                    vendorId,
+                    page,
+                    limit,
+                )
 
             if (totalElements === 0) {
                 throw new NotFoundException(
                     'No se encontraron productos asociados a este vendedor.',
                 )
             }
-            console.log(products[1]);
-            console.log(products[2]);
-            console.log(products[3]);
-            console.log(products[4]);
+            console.log(products[1])
+            console.log(products[2])
+            console.log(products[3])
+            console.log(products[4])
             const productsData = await Promise.all(
                 products.map((product) => ({
                     id: product.id,
@@ -78,13 +84,13 @@ export class ProductsService {
                     price: product.price,
                     images: product.images,
                     stock_status: product.stock_status,
-                }))
+                })),
             )
-            const totalPages = Math.ceil(totalElements / Number(limit));
-            const hasPrevPage = Number(page) > 1;
-            const hasNextPage = Number(page) < totalPages;
-            const prevPage = hasPrevPage ? Number(page) - 1 : null;
-            const nextPage = hasNextPage ? Number(page) + 1 : null;
+            const totalPages = Math.ceil(totalElements / Number(limit))
+            const hasPrevPage = Number(page) > 1
+            const hasNextPage = Number(page) < totalPages
+            const prevPage = hasPrevPage ? Number(page) - 1 : null
+            const nextPage = hasNextPage ? Number(page) + 1 : null
             //console.log(productsData[1]);
             return {
                 productsData,
@@ -96,7 +102,7 @@ export class ProductsService {
                 hasNextPage,
                 prevPage,
                 nextPage,
-            };
+            }
         } catch (error) {
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException(
@@ -105,14 +111,14 @@ export class ProductsService {
         }
     }
 
-    async getProductById( productId: number, userId: number ) {
+    async getProductById(productId: number, userId: number) {
         try {
-            console.log('service');
-            
-            const response = await this.WooComerce.get(`products/${productId}`)
+            console.log('service')
+
+            const response = await this.WooCommerce.get(`products/${productId}`)
             const product = response.data
             const user = await this.usersRepository.getUserById(userId)
-            
+
             // if (user.role === Role.Seller) {
             //     const vendorMetaData = product.meta_data.find( (meta) => meta.key === 'vendedor' )
             //     if (vendorMetaData?.value !== String(user.id_wooCommerce)) {
@@ -141,9 +147,9 @@ export class ProductsService {
         }
     }
 
-    async getProductForSeller( productId : number, vendorId : number ) {
+    async getProductForSeller(productId: number, vendorId: number) {
         try {
-            const response = await this.WooComerce.get(`products/${productId}`)
+            const response = await this.WooCommerce.get(`products/${productId}`)
             const product = response.data
 
             const vendorMetaData = product.meta_data.find(
@@ -187,10 +193,24 @@ export class ProductsService {
     }
 
     async activateProduct(id: number) {
+        try {
+            const payload = { status: 'publish' }
+            const response = await this.WooCommerce.put(`products/${id}`, payload);
+            console.log('WooCommerce Update try: ', response)
+        } catch (error) {
+            console.log('WooCommerce Update fail: ', error)
+        }
         return await this.productsRepository.activateProduct(id)
     }
 
     async deleteProduct(id: number) {
+        try {
+            const payload = { status: 'draft' }
+            const response = await this.WooCommerce.put(`products/${id}`, payload);
+            console.log('WooCommerce Update try: ', response)
+        } catch (error) {
+            console.log('WooCommerce Update fail: ', error)
+        }
         return await this.productsRepository.deleteProduct(id)
     }
 }
