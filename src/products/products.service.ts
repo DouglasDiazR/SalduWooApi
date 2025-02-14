@@ -178,7 +178,7 @@ export class ProductsService {
                 total: product.total_sales || 0,
                 meta_data: product.meta_data || [],
             }
-
+            console.log(productDetails)
             return productDetails
         } catch (error) {
             if (error.response?.status === 404) {
