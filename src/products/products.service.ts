@@ -133,6 +133,8 @@ export class ProductsService {
                 quantity: product.stock_quantity,
                 price: product.price,
                 status: product.status,
+                stock_quantity: product.stock_quantity || 0,
+                stock_status: product.stock_status,
                 images: [{
                     id: product.images[0].id,
                     name: product.images[0].name,
@@ -140,7 +142,7 @@ export class ProductsService {
                 }],
                 meta_data: product.meta_data,
             }
-
+            console.log(productDetails)
             return productDetails
         } catch (error) {
             if (error.response?.status === 404) {
@@ -178,7 +180,7 @@ export class ProductsService {
                 total: product.total_sales || 0,
                 meta_data: product.meta_data || [],
             }
-            console.log(productDetails)
+
             return productDetails
         } catch (error) {
             if (error.response?.status === 404) {

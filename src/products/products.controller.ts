@@ -138,8 +138,6 @@ export class ProductsController {
     ) {
         const productId = Number(id)
         const userId = Number(providerId)
-        console.log('controller');
-        
         return await this.productsService.getProductById( productId, userId )
     }
 
