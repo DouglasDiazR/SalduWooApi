@@ -181,6 +181,7 @@ export class WooCommerceService {
 
     async updateProduct(id: number, payload: UpdateWooProductDTO) {
         try {
+            console.log(payload)
             const productResponse = await this.WooCommerce.get(`products/${id}`)
             const product = productResponse.data
             const isTaxable =
@@ -190,6 +191,7 @@ export class WooCommerceService {
                 product.meta_data.find(
                     (item) => item.key == '_percentage_commission',
                 )?.value || '0.12'
+            console.log(product, isTaxable, commission)
             if (payload.price && isTaxable !== 'no') {
                 console.log('producto gravado');
                 
