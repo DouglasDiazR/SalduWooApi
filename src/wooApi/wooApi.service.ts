@@ -191,6 +191,8 @@ export class WooCommerceService {
                     (item) => item.key == '_percentage_commission',
                 )?.value || '0.12'
             if (payload.price && isTaxable !== 'no') {
+                console.log('producto gravado');
+                
                 const originalPrice = parseFloat(payload.price) / (1 + 1.19 + commission)
                 const ivaBase = 0
                 const baseSaldu = originalPrice * parseFloat(commission)
@@ -209,6 +211,7 @@ export class WooCommerceService {
                     { id: 235075, key: '_comision_saldu', value: commissionSaldu.toFixed(2) },
                 ]
             } else if (payload.price && isTaxable == 'no') {
+                console.log('producto exento');
                 const originalPrice = parseFloat(payload.price) / 1.19 / 1.12
                 const ivaBase = originalPrice * 0.19
                 const baseSaldu = originalPrice * parseFloat(commission)
