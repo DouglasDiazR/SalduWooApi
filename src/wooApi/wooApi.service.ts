@@ -181,7 +181,6 @@ export class WooCommerceService {
 
     async updateProduct(id: number, payload: UpdateWooProductDTO) {
         try {
-            console.log(payload)
             const productResponse = await this.WooCommerce.get(`products/${id}`)
             const product = productResponse.data
             const isTaxable =
@@ -191,10 +190,7 @@ export class WooCommerceService {
                 product.meta_data.find(
                     (item) => item.key == '_percentage_commission',
                 )?.value || '0.12'
-            console.log(product, isTaxable, commission)
-            if (payload.price && isTaxable !== 'no') {
-                console.log('producto gravado');
-                
+            if (payload.price && isTaxable == 'no') {
                 const originalPrice = parseFloat(payload.price) / (1 + 1.19 + commission)
                 const ivaBase = 0
                 const baseSaldu = originalPrice * parseFloat(commission)
@@ -212,13 +208,13 @@ export class WooCommerceService {
                     { id: 235074, key: '_iva_base_saldu', value: ivaBaseSaldu.toFixed(2) },
                     { id: 235075, key: '_comision_saldu', value: commissionSaldu.toFixed(2) },
                 ]
-            } else if (payload.price && isTaxable == 'no') {
-                console.log('producto exento');
+            } else if (payload.price && isTaxable !== 'no') {
                 const originalPrice = parseFloat(payload.price) / 1.19 / 1.12
                 const ivaBase = originalPrice * 0.19
                 const baseSaldu = originalPrice * parseFloat(commission)
                 const ivaBaseSaldu = baseSaldu * 0.19
                 const commissionSaldu = baseSaldu + ivaBaseSaldu
+                console.log(originalPrice, ivaBase, baseSaldu, ivaBaseSaldu, commissionSaldu)
                 payload.regular_price = payload.price
                 payload.meta_data = [
                     {
