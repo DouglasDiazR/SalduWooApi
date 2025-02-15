@@ -30,7 +30,6 @@ export class ProductsRepository {
     }
 
     async updateProduct(id: number, updateProductDto: any) {
-        console.log('BD Admin: ', id);
         return await this.productsRepository.update(id, updateProductDto)
     }
 

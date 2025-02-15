@@ -198,7 +198,6 @@ export class ProductsService {
     }
 
     async updateProduct(id: number, updateProductDto: UpdateProductDto) {
-        console.log('Service: ', updateProductDto);
         await this.wooCommerceService.updateProduct(id, {
             name: updateProductDto.name,
             description: updateProductDto.description,

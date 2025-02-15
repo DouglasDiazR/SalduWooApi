@@ -163,8 +163,6 @@ export class ProductsController {
         @Param('id') id: string,
         @Body() updateProductDto: UpdateProductDto,
     ) {
-        console.log('Controller: ', updateProductDto);
-        
         return await this.productsService.updateProduct(
             Number(id),
             updateProductDto,
