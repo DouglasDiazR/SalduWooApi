@@ -202,7 +202,6 @@ export class ProductsService {
         await this.wooCommerceService.updateProduct(id, {
             name: updateProductDto.name,
             description: updateProductDto.description,
-            status: updateProductDto.status,
             stock_quantity: updateProductDto.stock_quantity.toString(),
             price: updateProductDto.price.toString()
         })
