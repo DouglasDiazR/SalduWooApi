@@ -6,7 +6,10 @@ import { Repository } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 import { Products } from 'src/entities/products.entity'
 import { Users } from 'src/entities/users.entity'
-import { CreateWooProductDTO, UpdateWooProductDTO } from './dtos/woo-product.dto'
+import {
+    CreateWooProductDTO,
+    UpdateWooProductDTO,
+} from './dtos/woo-product.dto'
 
 @Injectable()
 export class WooCommerceService {
@@ -62,7 +65,7 @@ export class WooCommerceService {
                         randomPassword,
                     )
                     const hashedPassword = await bcrypt.hash(randomPassword, 10)
-                    
+
                     return {
                         id_wooCommerce: user.id,
                         email: user.email.toLocaleLowerCase(),
@@ -103,34 +106,36 @@ export class WooCommerceService {
                 })
                 if (response.data.length === 0) break
                 for (const product of response.data) {
-                    const id_wooCommerce = await product.meta_data.find((meta) => meta.key === 'vendedor')?.value
-                    if (!id_wooCommerce) console.log(`vendedor no encontrado para el producto: ${product.id}`)
+                    const id_wooCommerce = await product.meta_data.find(
+                        (meta) => meta.key === 'vendedor',
+                    )?.value
+                    if (!id_wooCommerce)
+                        console.log(
+                            `vendedor no encontrado para el producto: ${product.id}`,
+                        )
                     const user = id_wooCommerce
-                        ? await this.usersRepository.findOne({where: { id_wooCommerce: Number(id_wooCommerce) }})
+                        ? await this.usersRepository.findOne({
+                              where: { id_wooCommerce: Number(id_wooCommerce) },
+                          })
                         : null
                     const newProduct = await this.productsRepository.create({
                         ...product,
                         date_created: product.date_created ?? '',
                         date_created_gmt: product.date_created_gmt ?? '',
                         date_modified: product.date_modified ?? '',
-                        date_modified_gmt:
-                            product.date_modified_gmt ?? '',
-                        price: product.price
-                            ? parseFloat(product.price)
-                            : 0,
+                        date_modified_gmt: product.date_modified_gmt ?? '',
+                        price: product.price ? parseFloat(product.price) : 0,
                         regular_price: product.regular_price
                             ? parseFloat(product.regular_price)
                             : 0,
                         sale_price: product.sale_price
                             ? parseFloat(product.sale_price)
                             : 0,
-                        date_on_sale_from:
-                            product.date_on_sale_from ?? '',
+                        date_on_sale_from: product.date_on_sale_from ?? '',
                         date_on_sale_from_gmt:
                             product.date_on_sale_from_gmt ?? '',
                         date_on_sale_to: product.date_on_sale_to ?? '',
-                        date_on_sale_to_gmt:
-                            product.date_on_sale_to_gmt ?? '',
+                        date_on_sale_to_gmt: product.date_on_sale_to_gmt ?? '',
                         stock_quantity: product.stock_quantity ?? 0,
                         low_stock_amount: product.low_stock_amount ?? '',
                         user: user,
@@ -172,29 +177,63 @@ export class WooCommerceService {
     //     }
     // }
 
-    async createProduct(id: number, payload:CreateWooProductDTO) {
-        
+    async createProduct(id: number, payload: CreateWooProductDTO) {}
+
+    async updateProduct(id: number, payload: UpdateWooProductDTO) {
+        try {
+            const productResponse = await this.WooCommerce.get(`products/${id}`)
+            const product = productResponse.data
+            const isTaxable =
+                product.meta_data.find((item) => item.key == '_exento_iva')
+                    ?.value || ''
+            const commission =
+                product.meta_data.find(
+                    (item) => item.key == '_percentage_commission',
+                )?.value || '0.12'
+            if (payload.price && isTaxable !== 'no') {
+                const originalPrice = parseFloat(payload.price) / (1 + 1.19 + commission)
+                const ivaBase = 0
+                const baseSaldu = originalPrice * parseFloat(commission)
+                const ivaBaseSaldu = baseSaldu * 0.19
+                const commissionSaldu = baseSaldu + ivaBaseSaldu
+                payload.regular_price = payload.price
+                payload.meta_data = [
+                    {
+                        id: 235070,
+                        key: '_product_original_price',
+                        value: originalPrice.toFixed(2),
+                    },
+                    { id: 235071, key: '_iva_base', value: ivaBase.toFixed(2) },
+                    { id: 235073, key: '_base_saldu', value: baseSaldu.toFixed(2) },
+                    { id: 235074, key: '_iva_base_saldu', value: ivaBaseSaldu.toFixed(2) },
+                    { id: 235075, key: '_comision_saldu', value: commissionSaldu.toFixed(2) },
+                ]
+            } else if (payload.price && isTaxable == 'no') {
+                const originalPrice = parseFloat(payload.price) / 1.19 / 1.12
+                const ivaBase = originalPrice * 0.19
+                const baseSaldu = originalPrice * parseFloat(commission)
+                const ivaBaseSaldu = baseSaldu * 0.19
+                const commissionSaldu = baseSaldu + ivaBaseSaldu
+                payload.regular_price = payload.price
+                payload.meta_data = [
+                    {
+                        id: 235070,
+                        key: '_product_original_price',
+                        value: originalPrice.toFixed(2),
+                    },
+                    { id: 235071, key: '_iva_base', value: ivaBase.toFixed(2) },
+                    { id: 235073, key: '_base_saldu', value: baseSaldu.toFixed(2) },
+                    { id: 235074, key: '_iva_base_saldu', value: ivaBaseSaldu.toFixed(2) },
+                    { id: 235075, key: '_comision_saldu', value: commissionSaldu.toFixed(2) },
+                ]
+            }
+            const response = await this.WooCommerce.put(
+                `products/${id}`,
+                payload,
+            )
+            console.log('WooCommerce Update try: ', response)
+        } catch (error) {
+            console.log('WooCommerce Update fail: ', error)
+        }
     }
-
-    // async updateProduct(id: number, payload: UpdateWooProductDTO) {
-    //     try {
-    //         const productResponse = await this.WooCommerce.get(`products/${id}`)
-    //         const product = productResponse.data
-    //         const isTaxable = 'si'
-    //         if (payload.price && isTaxable == 'si') {
-    //             const productPricing = {
-    //                 price: payload.price,
-    //                 regularPrice: payload.price,
-    //                 originalPrice: (parseFloat(payload.price) / 1.19) / 1.12,
-
-    //             }
-    //         } else if (payload.price && isTaxable == 'no') {
-
-    //         }
-    //         const response = await this.WooCommerce.put(`products/${id}`, payload);
-    //         console.log('WooCommerce Update try: ', response)
-    //     } catch (error) {
-    //         console.log('WooCommerce Update fail: ', error)
-    //     }
-    // }
 }

@@ -9,12 +9,15 @@ import { ProductsRepository } from './products.repository'
 import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import { Role } from 'src/enum/role.enum'
 import { UsersRepository } from 'src/users/users.repository'
+import { WooCommerceService } from 'src/wooApi/wooApi.service'
+import { UpdateWooProductDTO } from 'src/wooApi/dtos/woo-product.dto'
 
 @Injectable()
 export class ProductsService {
     constructor(
         private readonly productsRepository: ProductsRepository,
         private readonly usersRepository: UsersRepository,
+        private readonly wooCommerceService: WooCommerceService,
         private readonly WooCommerce: WooCommerceRestApi,
     ) {}
 
@@ -113,12 +116,9 @@ export class ProductsService {
 
     async getProductById(productId: number, userId: number) {
         try {
-            console.log('service')
-
             const response = await this.WooCommerce.get(`products/${productId}`)
             const product = response.data
             const user = await this.usersRepository.getUserById(userId)
-            console.log(product)
             // if (user.role === Role.Seller) {
             //     const vendorMetaData = product.meta_data.find( (meta) => meta.key === 'vendedor' )
             //     if (vendorMetaData?.value !== String(user.id_wooCommerce)) {
@@ -142,7 +142,6 @@ export class ProductsService {
                 }],
                 meta_data: product.meta_data,
             }
-            console.log(productDetails)
             return productDetails
         } catch (error) {
             if (error.response?.status === 404) {
@@ -199,6 +198,13 @@ export class ProductsService {
     }
 
     async updateProduct(id: number, updateProductDto: UpdateProductDto) {
+        await this.wooCommerceService.updateProduct(id, {
+            name: updateProductDto.name,
+            description: updateProductDto.description,
+            status: updateProductDto.status,
+            stock_quantity: updateProductDto.stock_quantity.toString(),
+            price: updateProductDto.price.toString()
+        })
         return await this.productsRepository.updateProduct(id, updateProductDto)
     }
 

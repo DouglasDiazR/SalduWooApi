@@ -32,6 +32,15 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     regular_price?: number
 
     @ApiProperty({
+        description: 'Nuevo precio del producto a editar',
+        example: 100000,
+        type: Number,
+    })
+    @IsOptional()
+    @IsNumber()
+    price?: number
+
+    @ApiProperty({
         description: 'Nueva descripción del producto a editar',
         example: 'Descripción del producto',
         type: String,

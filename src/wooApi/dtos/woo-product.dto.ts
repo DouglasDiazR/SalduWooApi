@@ -64,7 +64,7 @@ export class CreateWooProductDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  readonly regular_price: string;
+  regular_price: string;
 
   @IsString()
   @IsNotEmpty()
@@ -113,7 +113,7 @@ export class CreateWooProductDTO {
   @IsArray()
   @IsNotEmpty()
   @ApiProperty()
-  readonly meta_data: any[];
+  meta_data: any[];
 }
 
 export class UpdateWooProductDTO extends PartialType(CreateWooProductDTO) {}

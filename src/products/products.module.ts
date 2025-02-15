@@ -7,10 +7,11 @@ import { Products } from 'src/entities/products.entity';
 import { WooCommerceConfig } from 'src/config/wooCommerce';
 import { UsersRepository } from 'src/users/users.repository';
 import { Users } from 'src/entities/users.entity';
+import { WooCommerceService } from 'src/wooApi/wooApi.service';
 
 @Module({
   controllers: [ProductsController],
-  providers: [ProductsService, ProductsRepository, UsersRepository, WooCommerceConfig],
+  providers: [ProductsService, ProductsRepository, UsersRepository, WooCommerceConfig, WooCommerceService],
   imports: [TypeOrmModule.forFeature([Products, Users])],
 })
 export class ProductsModule {}
