@@ -74,8 +74,6 @@ export class UsersRepository {
 
     async getUserById(id: number): Promise<Partial<Users>> {
         try {
-            console.log('user service');
-            
             const user = await this.usersRepository
                 .createQueryBuilder()
                 .select([
