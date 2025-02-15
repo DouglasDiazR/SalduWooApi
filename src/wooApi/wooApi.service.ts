@@ -181,6 +181,7 @@ export class WooCommerceService {
 
     async updateProduct(id: number, payload: UpdateWooProductDTO) {
         try {
+            console.log('WooCommerce Method: ', payload);
             const productResponse = await this.WooCommerce.get(`products/${id}`)
             const product = productResponse.data
             const isTaxable =
