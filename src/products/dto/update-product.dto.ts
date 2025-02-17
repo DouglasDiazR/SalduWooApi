@@ -95,6 +95,10 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
 
     @ApiProperty()
     @IsString()
+    address?: string
+
+    @ApiProperty()
+    @IsString()
     city?: string
 
     @ApiProperty()

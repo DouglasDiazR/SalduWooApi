@@ -132,8 +132,8 @@ export class ProductsService {
             //         throw new ForbiddenException('No tienes permiso para acceder a este producto.')
             //     }
             // }
-            console.log(product);
-            
+            console.log(product)
+
             const productDetails = {
                 id: product.id,
                 sku:
@@ -146,7 +146,9 @@ export class ProductsService {
                 status: product.status,
                 stock_quantity: product.stock_quantity || 0,
                 stock_status: product.stock_status || 0,
-                address: '',
+                address:
+                    product.meta_data.find((item) => item.key == '_direccion_origen')
+                        ?.value || '',
                 city:
                     product.meta_data.find((item) => item.key == 'ciudad')
                         ?.value || '',
@@ -225,6 +227,7 @@ export class ProductsService {
         await this.wooCommerceService.updateProduct(id, {
             name: updateProductDto.name,
             description: updateProductDto.description,
+            address: updateProductDto.address,
             city: updateProductDto.city,
             state: updateProductDto.state,
             stock_quantity: updateProductDto.stock_quantity.toString(),
