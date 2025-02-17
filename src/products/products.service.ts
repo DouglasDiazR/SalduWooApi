@@ -125,27 +125,29 @@ export class ProductsService {
             //         throw new ForbiddenException('No tienes permiso para acceder a este producto.')
             //     }
             // }
-            const adminProd = await this.productsRepository.getOneProduct(productId)
-            console.log(response.data.status);
-            console.log(adminProd.status);
-            
+
             const productDetails = {
                 id: product.id,
                 sku: product.sku.split('_')[1],
                 name: product.name,
                 description: product.description,
-                quantity: product.stock_quantity,
                 price: product.price,
                 status: product.status,
                 stock_quantity: product.stock_quantity || 0,
-                stock_status: product.stock_status,
-                images: [{
-                    id: product.images[0].id,
-                    name: product.images[0].name,
-                    src: product.images[0].src,
-                }],
+                stock_status: product.stock_status || 0,
+                images:
+                    product.images.length > 0
+                        ? [
+                              {
+                                  id: product.images[0].id,
+                                  name: product.images[0].name,
+                                  src: product.images[0].src,
+                              },
+                          ]
+                        : [],
                 meta_data: product.meta_data,
             }
+
             return productDetails
         } catch (error) {
             if (error.response?.status === 404) {
@@ -206,7 +208,7 @@ export class ProductsService {
             name: updateProductDto.name,
             description: updateProductDto.description,
             stock_quantity: updateProductDto.stock_quantity.toString(),
-            price: updateProductDto.price.toString()
+            price: updateProductDto.price.toString(),
         })
         return await this.productsRepository.updateProduct(id, updateProductDto)
     }
@@ -214,7 +216,10 @@ export class ProductsService {
     async activateProduct(id: number) {
         try {
             const payload = { status: 'publish' }
-            const response = await this.WooCommerce.put(`products/${id}`, payload);
+            const response = await this.WooCommerce.put(
+                `products/${id}`,
+                payload,
+            )
             console.log('WooCommerce Update try: ', response)
         } catch (error) {
             console.log('WooCommerce Update fail: ', error)
@@ -225,7 +230,10 @@ export class ProductsService {
     async deleteProduct(id: number) {
         try {
             const payload = { status: 'draft' }
-            const response = await this.WooCommerce.put(`products/${id}`, payload);
+            const response = await this.WooCommerce.put(
+                `products/${id}`,
+                payload,
+            )
             console.log('WooCommerce Update try: ', response)
         } catch (error) {
             console.log('WooCommerce Update fail: ', error)

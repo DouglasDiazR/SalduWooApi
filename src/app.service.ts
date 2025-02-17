@@ -6,6 +6,6 @@ export class AppService {
     constructor(private readonly wooCommerceService: WooCommerceService) {}
     async onApplicationBootstrap() {
         // await this.wooCommerceService.getUsers()
-        await this.wooCommerceService.getProducts()
+        // await this.wooCommerceService.getProducts()
     }
 }
