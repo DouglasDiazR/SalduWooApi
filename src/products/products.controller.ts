@@ -111,7 +111,7 @@ export class ProductsController {
     ) {
 
         if (!page) page = '1' 
-        if (!limit) limit = '2000'
+        if (!limit) limit = '4000'
         return await this.productsService.getProductsByUser( providerId, Number(page), Number(limit) )
     }
 

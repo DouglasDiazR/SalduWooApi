@@ -92,6 +92,14 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     })
     @IsString()
     status?: string
+
+    @ApiProperty()
+    @IsString()
+    city?: string
+
+    @ApiProperty()
+    @IsString()
+    state?: string
     
     @ApiProperty({
         description: 'Nuevas categorías del producto a editar',

@@ -64,6 +64,16 @@ export class CreateWooProductDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
+  readonly state: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  readonly city: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
   regular_price: string;
 
   @IsString()

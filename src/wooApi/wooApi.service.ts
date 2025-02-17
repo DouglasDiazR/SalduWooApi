@@ -191,7 +191,8 @@ export class WooCommerceService {
                     (item) => item.key == '_percentage_commission',
                 )?.value || '0.12'
             if (payload.price && isTaxable == 'no') {
-                const originalPrice = parseFloat(payload.price) / (1 + 1.19 + commission)
+                const originalPrice =
+                    parseFloat(payload.price) / (1 + 1.19 + commission)
                 const ivaBase = 0
                 const baseSaldu = originalPrice * parseFloat(commission)
                 const ivaBaseSaldu = baseSaldu * 0.19
@@ -199,14 +200,24 @@ export class WooCommerceService {
                 payload.regular_price = payload.price
                 payload.meta_data = [
                     {
-                        id: 235070,
                         key: '_product_original_price',
                         value: originalPrice.toFixed(2),
                     },
-                    { id: 235071, key: '_iva_base', value: ivaBase.toFixed(2) },
-                    { id: 235073, key: '_base_saldu', value: baseSaldu.toFixed(2) },
-                    { id: 235074, key: '_iva_base_saldu', value: ivaBaseSaldu.toFixed(2) },
-                    { id: 235075, key: '_comision_saldu', value: commissionSaldu.toFixed(2) },
+                    { key: '_iva_base', value: ivaBase.toFixed(2) },
+                    {
+                        key: '_base_saldu',
+                        value: baseSaldu.toFixed(2),
+                    },
+                    {
+                        key: '_iva_base_saldu',
+                        value: ivaBaseSaldu.toFixed(2),
+                    },
+                    {
+                        key: '_comision_saldu',
+                        value: commissionSaldu.toFixed(2),
+                    },
+                    { key: 'ciudad', value: payload.city },
+                    { key: 'departamento', value: payload.state },
                 ]
             } else if (payload.price && isTaxable !== 'no') {
                 const originalPrice = parseFloat(payload.price) / 1.19 / 1.12
@@ -214,18 +225,21 @@ export class WooCommerceService {
                 const baseSaldu = originalPrice * parseFloat(commission)
                 const ivaBaseSaldu = baseSaldu * 0.19
                 const commissionSaldu = baseSaldu + ivaBaseSaldu
-                console.log(originalPrice, ivaBase, baseSaldu, ivaBaseSaldu, commissionSaldu)
                 payload.regular_price = payload.price
                 payload.meta_data = [
                     {
-                        id: 235070,
                         key: '_product_original_price',
                         value: originalPrice.toFixed(2),
                     },
-                    { id: 235071, key: '_iva_base', value: ivaBase.toFixed(2) },
-                    { id: 235073, key: '_base_saldu', value: baseSaldu.toFixed(2) },
-                    { id: 235074, key: '_iva_base_saldu', value: ivaBaseSaldu.toFixed(2) },
-                    { id: 235075, key: '_comision_saldu', value: commissionSaldu.toFixed(2) },
+                    { key: '_iva_base', value: ivaBase.toFixed(2) },
+                    { key: '_base_saldu', value: baseSaldu.toFixed(2) },
+                    { key: '_iva_base_saldu', value: ivaBaseSaldu.toFixed(2) },
+                    {
+                        key: '_comision_saldu',
+                        value: commissionSaldu.toFixed(2),
+                    },
+                    { key: 'ciudad', value: payload.city },
+                    { key: 'departamento', value: payload.state },
                 ]
             }
             const response = await this.WooCommerce.put(

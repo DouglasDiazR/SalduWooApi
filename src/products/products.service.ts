@@ -74,19 +74,26 @@ export class ProductsService {
                     'No se encontraron productos asociados a este vendedor.',
                 )
             }
-            console.log(products[1])
-            console.log(products[2])
-            console.log(products[3])
-            console.log(products[4])
             const productsData = await Promise.all(
                 products.map((product) => ({
                     id: product.id,
+                    sku:
+                        product.meta_data.find(
+                            (item) => item.key == '_sku_vendedor',
+                        )?.value || '',
                     name: product.name,
                     description: product.description,
                     status: product.status,
                     price: product.price,
                     images: product.images,
                     stock_status: product.stock_status,
+                    city:
+                        product.meta_data.find((item) => item.key == 'ciudad')
+                            ?.value || '',
+                    state:
+                        product.meta_data.find(
+                            (item) => item.key == 'departamento',
+                        )?.value || '',
                 })),
             )
             const totalPages = Math.ceil(totalElements / Number(limit))
@@ -94,7 +101,7 @@ export class ProductsService {
             const hasNextPage = Number(page) < totalPages
             const prevPage = hasPrevPage ? Number(page) - 1 : null
             const nextPage = hasNextPage ? Number(page) + 1 : null
-            //console.log(productsData[1]);
+            //console.log(productsData[2]);
             return {
                 productsData,
                 totalElements,
@@ -125,16 +132,27 @@ export class ProductsService {
             //         throw new ForbiddenException('No tienes permiso para acceder a este producto.')
             //     }
             // }
-
+            console.log(product);
+            
             const productDetails = {
                 id: product.id,
-                sku: product.sku.split('_')[1],
+                sku:
+                    product.meta_data.find(
+                        (item) => item.key == '_sku_vendedor',
+                    )?.value || '',
                 name: product.name,
                 description: product.description,
                 price: product.price,
                 status: product.status,
                 stock_quantity: product.stock_quantity || 0,
                 stock_status: product.stock_status || 0,
+                address: '',
+                city:
+                    product.meta_data.find((item) => item.key == 'ciudad')
+                        ?.value || '',
+                state:
+                    product.meta_data.find((item) => item.key == 'departamento')
+                        ?.value || '',
                 images:
                     product.images.length > 0
                         ? [
@@ -207,6 +225,8 @@ export class ProductsService {
         await this.wooCommerceService.updateProduct(id, {
             name: updateProductDto.name,
             description: updateProductDto.description,
+            city: updateProductDto.city,
+            state: updateProductDto.state,
             stock_quantity: updateProductDto.stock_quantity.toString(),
             price: updateProductDto.price.toString(),
         })
