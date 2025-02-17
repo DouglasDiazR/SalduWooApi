@@ -44,6 +44,14 @@ export class UsersRepository {
         }
     }
 
+    async getUsersProdFilter() {
+        return await this.usersRepository
+            .createQueryBuilder('user')
+            .innerJoin('user.products', 'product')
+            .distinct(true)
+            .getMany()
+    }
+
     async getUserByEmail(email: string): Promise<Partial<Users>> {
         try {
             const user = await this.usersRepository

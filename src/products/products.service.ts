@@ -118,16 +118,20 @@ export class ProductsService {
         try {
             const response = await this.WooCommerce.get(`products/${productId}`)
             const product = response.data
-            const user = await this.usersRepository.getUserById(userId)
+            //const user = await this.usersRepository.getUserById(userId)
             // if (user.role === Role.Seller) {
             //     const vendorMetaData = product.meta_data.find( (meta) => meta.key === 'vendedor' )
             //     if (vendorMetaData?.value !== String(user.id_wooCommerce)) {
             //         throw new ForbiddenException('No tienes permiso para acceder a este producto.')
             //     }
             // }
-
+            const adminProd = await this.productsRepository.getOneProduct(productId)
+            console.log(response.data.status);
+            console.log(adminProd.status);
+            
             const productDetails = {
                 id: product.id,
+                sku: product.sku.split('_')[1],
                 name: product.name,
                 description: product.description,
                 quantity: product.stock_quantity,

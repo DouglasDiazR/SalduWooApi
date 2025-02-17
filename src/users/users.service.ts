@@ -8,6 +8,10 @@ export class UsersService {
         return this.usersRepository.getUsers(role)
     }
 
+    getUsersProdFilter() {
+        return this.usersRepository.getUsersProdFilter()
+    }
+
     getUserByEmail(email: string) {
         return this.usersRepository.getUserByEmail(email)
     }

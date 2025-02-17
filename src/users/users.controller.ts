@@ -45,6 +45,18 @@ export class UsersController {
         return this.usersService.getUsers(role)
     }
 
+    @Get('prod-filter')
+    @HttpCode(200)
+    @ApiQuery({
+        name: 'role',
+        required: false,
+        type: String,
+        description: 'Filtrar usuarios por rol',
+    })
+    getUsersProdFilter() {
+        return this.usersService.getUsersProdFilter()
+    }
+
     @Post('email')
     @ApiOperation({
         summary: 'Ruta de Administrador para obtener un usuario por email',

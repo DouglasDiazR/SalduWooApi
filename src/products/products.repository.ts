@@ -17,6 +17,10 @@ export class ProductsRepository {
         })
     }
 
+    async getOneProduct(id: number) {
+        return await this.productsRepository.findOneBy({ id })
+    }
+
     async getProductsByUser( vendorId : number , page : number , limit : number ) {
         return await this.productsRepository.findAndCount({
             where: { user: { id_wooCommerce: vendorId } },
