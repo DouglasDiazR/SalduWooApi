@@ -60,13 +60,16 @@ export class ProductsService {
         }
     }
 
-    async getProductsByUser(vendorId: number, page: number, limit: number) {
+    async getProductsWithFilter(vendorId: number, page: number, limit: number, sortBy: string, sortOrder: string) {
         try {
+            console.log('service')
             const [products, totalElements] =
-                await this.productsRepository.getProductsByUser(
+                await this.productsRepository.getProductsWithFilter(
                     vendorId,
                     page,
                     limit,
+                    sortBy,
+                    sortOrder
                 )
 
             if (totalElements === 0) {

@@ -9,6 +9,7 @@ import {
     HttpCode,
     Req,
     Query,
+    BadRequestException,
 } from '@nestjs/common'
 import { ProductsService } from './products.service'
 import { UpdateProductDto } from './dto/update-product.dto'
@@ -32,7 +33,9 @@ export class ProductsController {
     constructor(private readonly productsService: ProductsService) {}
 
     @Get()
-    @ApiOperation({ summary: 'Ruta de Administrador para obtener todos los productos' })
+    @ApiOperation({
+        summary: 'Ruta de Administrador para obtener todos los productos',
+    })
     @ApiQuery({
         name: 'page',
         required: false,
@@ -55,7 +58,10 @@ export class ProductsController {
     ) {
         if (!page) page = '1'
         if (!limit) limit = '12'
-        return await this.productsService.getAllProducts(Number(page), Number(limit))
+        return await this.productsService.getAllProducts(
+            Number(page),
+            Number(limit),
+        )
     }
 
     // @Get('user')
@@ -82,13 +88,15 @@ export class ProductsController {
     // ) {
     //     const user = request.user
     //     const { id_wooCommerce: vendorId } = user
-    //     if (!page) page = '1' 
+    //     if (!page) page = '1'
     //     if (!limit) limit = '12'
     //     return await this.productsService.getProductsByUser( vendorId, Number(page), Number(limit) )
     // }
 
-    @Get('user/:id')
-    @ApiOperation({ summary: 'Ruta de Vendedor para obtener sus productos propios' })
+    @Get('user')
+    @ApiOperation({
+        summary: 'Ruta de Vendedor para obtener sus productos propios',
+    })
     @ApiQuery({
         name: 'page',
         required: false,
@@ -104,19 +112,36 @@ export class ProductsController {
     @HttpCode(200)
     // @UseGuards(AuthGuard)
     // @Roles(Role.Seller)
-    async getProductsByUser(
-        @Param('id') providerId: number,
+    async getProductsWithFilter(
+        @Query('providerId') providerId?: number,
         @Query('page') page?: string,
         @Query('limit') limit?: string,
+        @Query('sortBy') sortBy?: string,
+        @Query('sortOrder') sortOrder?: string,
     ) {
-
-        if (!page) page = '1' 
-        if (!limit) limit = '4000'
-        return await this.productsService.getProductsByUser( providerId, Number(page), Number(limit) )
+        if (!page) page = '1'
+        if (!limit) limit = '5000'
+        if (!sortBy) sortBy = 'id'
+        if (!sortOrder) sortOrder = 'asc'
+        if (!providerId) {
+            throw new BadRequestException(
+                'Esta solicitud requiere un proveedor',
+            )
+        }
+        console.log('controller')
+        return await this.productsService.getProductsWithFilter(
+            Number(providerId),
+            Number(page),
+            Number(limit),
+            sortBy,
+            sortOrder,
+        )
     }
 
     @Get(':providerId/:id')
-    @ApiOperation({ summary: 'Ruta de Vendedor para obtener un producto propio por ID' })
+    @ApiOperation({
+        summary: 'Ruta de Vendedor para obtener un producto propio por ID',
+    })
     @ApiParam({
         name: 'providerId',
         required: true,
@@ -134,11 +159,11 @@ export class ProductsController {
     async getProductById(
         //@Req() request: Express.Request,
         @Param('id') id: string,
-        @Param('providerId') providerId: string
+        @Param('providerId') providerId: string,
     ) {
         const productId = Number(id)
         const userId = Number(providerId)
-        return await this.productsService.getProductById( productId, userId )
+        return await this.productsService.getProductById(productId, userId)
     }
 
     @Post('create')
@@ -170,7 +195,10 @@ export class ProductsController {
     }
 
     @Patch('activate/:id')
-    @ApiOperation({ summary: 'Ruta de vendedor para cambiar el estatus de un producto a activo' })
+    @ApiOperation({
+        summary:
+            'Ruta de vendedor para cambiar el estatus de un producto a activo',
+    })
     @ApiParam({
         name: 'id',
         required: true,
@@ -184,7 +212,10 @@ export class ProductsController {
     }
 
     @Patch('delete/:id')
-    @ApiOperation({ summary: 'Ruta de vendedor para cambiar el estatus de un producto a inactivo' })
+    @ApiOperation({
+        summary:
+            'Ruta de vendedor para cambiar el estatus de un producto a inactivo',
+    })
     @ApiParam({
         name: 'id',
         required: true,
