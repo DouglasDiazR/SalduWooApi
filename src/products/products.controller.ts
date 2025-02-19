@@ -119,6 +119,7 @@ export class ProductsController {
         @Query('sortBy') sortBy?: string,
         @Query('sortOrder') sortOrder?: string,
     ) {
+        console.log(providerId, page, limit, sortBy, sortBy)
         if (!page) page = '1'
         if (!limit) limit = '5000'
         if (!sortBy) sortBy = 'id'
