@@ -28,7 +28,6 @@ export class ProductsRepository {
         sortBy: string,
         sortOrder: string,
     ) {
-        console.log('repository: ', vendorId, page, limit, sortBy, sortOrder)
         try {
             const products = await this.productsRepository.findAndCount({
                 where: { user: { id_wooCommerce: vendorId } },
@@ -36,7 +35,6 @@ export class ProductsRepository {
                 take: limit,
                 skip: (page - 1) * limit,
             })
-            console.log(products)
             return products
         } catch (error) {
             console.log(error)

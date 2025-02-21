@@ -119,7 +119,6 @@ export class ProductsController {
         @Query('sortBy') sortBy?: string,
         @Query('sortOrder') sortOrder?: string,
     ) {
-        console.log(providerId, page, limit, sortBy, sortBy)
         if (!page) page = '1'
         if (!limit) limit = '5000'
         if (!sortBy) sortBy = 'id'
@@ -129,7 +128,6 @@ export class ProductsController {
                 'Esta solicitud requiere un proveedor',
             )
         }
-        console.log('controller')
         return await this.productsService.getProductsWithFilter(
             Number(providerId),
             Number(page),

@@ -60,16 +60,21 @@ export class ProductsService {
         }
     }
 
-    async getProductsWithFilter(vendorId: number, page: number, limit: number, sortBy: string, sortOrder: string) {
+    async getProductsWithFilter(
+        vendorId: number,
+        page: number,
+        limit: number,
+        sortBy: string,
+        sortOrder: string,
+    ) {
         try {
-            console.log('service')
             const [products, totalElements] =
                 await this.productsRepository.getProductsWithFilter(
                     vendorId,
                     page,
                     limit,
                     sortBy,
-                    sortOrder
+                    sortOrder,
                 )
 
             if (totalElements === 0) {
@@ -77,6 +82,7 @@ export class ProductsService {
                     'No se encontraron productos asociados a este vendedor.',
                 )
             }
+            console.log(products[1])
             const productsData = await Promise.all(
                 products.map((product) => ({
                     id: product.id,
@@ -90,6 +96,7 @@ export class ProductsService {
                     price: product.price,
                     images: product.images,
                     stock_status: product.stock_status,
+                    stock_quantity: product.stock_quantity, 
                     city:
                         product.meta_data.find((item) => item.key == 'ciudad')
                             ?.value || '',
@@ -104,7 +111,17 @@ export class ProductsService {
             const hasNextPage = Number(page) < totalPages
             const prevPage = hasPrevPage ? Number(page) - 1 : null
             const nextPage = hasNextPage ? Number(page) + 1 : null
-            //console.log(productsData[2]);
+            console.log(
+                productsData.length,
+                totalElements,
+                page,
+                limit,
+                totalPages,
+                hasPrevPage,
+                hasNextPage,
+                prevPage,
+                nextPage,
+            )
             return {
                 productsData,
                 totalElements,
@@ -150,8 +167,9 @@ export class ProductsService {
                 stock_quantity: product.stock_quantity || 0,
                 stock_status: product.stock_status || 0,
                 address:
-                    product.meta_data.find((item) => item.key == '_direccion_origen')
-                        ?.value || '',
+                    product.meta_data.find(
+                        (item) => item.key == '_direccion_origen',
+                    )?.value || '',
                 city:
                     product.meta_data.find((item) => item.key == 'ciudad')
                         ?.value || '',
