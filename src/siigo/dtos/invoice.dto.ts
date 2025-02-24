@@ -115,6 +115,11 @@ export class CreateInvoiceDTO {
     @ApiProperty()
     readonly publicUrl?: string
 
+    @IsString()
+    @IsOptional()
+    @ApiProperty()
+    readonly disperssionUrl?: string
+
     @IsBoolean()
     @IsOptional()
     @ApiProperty()

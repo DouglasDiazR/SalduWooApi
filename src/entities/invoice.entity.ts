@@ -96,6 +96,14 @@ export class Invoice {
     })
     publicUrl: string
 
+    @Column({
+        type: 'varchar',
+        name: 'disperssion_url',
+        length: 512,
+        nullable: true,
+    })
+    disperssionUrl: string
+
     @OneToMany(() => InvoiceErrorLog, (errorLog) => errorLog.invoice)
     errorLogs: InvoiceErrorLog
 

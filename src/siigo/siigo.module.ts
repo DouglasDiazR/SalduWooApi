@@ -25,6 +25,7 @@ import { SalduInlineProduct } from 'src/entities/saldu-inline-product.entity'
 import { SalduInlineProductService } from './services/saldu-inline-product.service'
 import { OrdersService } from 'src/orders/orders.service'
 import { WooCommerceConfig } from 'src/config/wooCommerce'
+import { S3Service } from './services/s3.service';
 
 @Module({
     providers: [
@@ -38,7 +39,8 @@ import { WooCommerceConfig } from 'src/config/wooCommerce'
         InvoiceErrorLogService,
         InvoiceService,
         SalduInlineProductService,
-        WooCommerceConfig
+        WooCommerceConfig,
+        S3Service
     ],
     controllers: [
         TaxDiscountController,

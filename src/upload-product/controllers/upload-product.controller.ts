@@ -182,7 +182,7 @@ export class UploadProductController {
         const bucketName = process.env.AWS_S3_BUCKET_NAME // Nombre del bucket
         const url = await this.s3Service.uploadFile(
             providerId,
-            providerId,
+            productId,
             file,
             bucketName,
         )

@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -8,6 +9,8 @@ import {
     Post,
     Put,
     Query,
+    UploadedFile,
+    UseInterceptors,
 } from '@nestjs/common'
 import { CreateInvoiceDTO, UpdateInvoiceDTO } from '../dtos/invoice.dto'
 import { InvoiceService } from '../services/invoice.service'
@@ -23,6 +26,8 @@ import { CreatePendingInvoiceDTO } from '../dtos/pending-invoice.dto'
 import { Status } from 'src/enum/status.enum'
 import { Invoice } from 'src/entities/invoice.entity'
 import { log } from 'console'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { S3Service } from '../services/s3.service'
 
 @Controller('invoice')
 export class InvoiceController {
@@ -32,6 +37,7 @@ export class InvoiceController {
         private salduInlineProductService: SalduInlineProductService,
         private siigoService: SiigoService,
         private orderService: OrdersService,
+        private s3Service: S3Service
     ) {}
 
     @Post()
@@ -257,8 +263,8 @@ export class InvoiceController {
                 discount: 0,
                 taxes: [],
             }
-            if(item.salduProduct.id == 3) {
-                siigoInvoiceRequest.observations += `Los conceptos de reintegro de costos de transacción corresponden al uso de plataforma de pago ePayCo.`;
+            if (item.salduProduct.id == 3) {
+                siigoInvoiceRequest.observations += `Los conceptos de reintegro de costos de transacción corresponden al uso de plataforma de pago ePayCo.`
             }
             for (const tax of item.salduProduct.charges) {
                 const taxApplied = { id: tax.taxDiscount.siigoId }
@@ -301,6 +307,30 @@ export class InvoiceController {
             //await this.orderService.updateOrder(invoice.orderId, 'completado')
             return await this.invoiceService.updateEntity(invoiceId, siigoData)
         }
+    }
+
+    @Post('s3-disp/:providerId/:orderId/:invoiceId')
+    @UseInterceptors(FileInterceptor('file'))
+    async disperssionFile(
+        @UploadedFile() file: Express.Multer.File,
+        @Param('orderId', ParseIntPipe) orderId: number,
+        @Param('providerId', ParseIntPipe) providerId: number,
+        @Param('invoiceId', ParseIntPipe) invoiceId: number,
+    ) {
+        if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('application/pdf')) {
+            throw new BadRequestException('El archivo debe ser una imagen o un PDF.')
+        }
+        const bucketName = process.env.AWS_S3_BUCKET_NAME
+        const url = await this.s3Service.uploadDisperssionFile(
+            providerId,
+            orderId,
+            file,
+            bucketName,
+        )
+        await this.invoiceService.updateEntity(invoiceId, {
+            disperssionUrl: url,
+        })
+        return { url }
     }
 
     @Delete(':id')
