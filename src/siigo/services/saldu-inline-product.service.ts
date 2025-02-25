@@ -127,6 +127,9 @@ export class SalduInlineProductService {
                         1.19) *
                     0.004 +
                 1800
+            console.log(
+                (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice,
+            )
             console.log(inlineProduct.taxedPrice)
         }
         await this.salduInlineProductRepository.merge(inlineProduct, payload)
