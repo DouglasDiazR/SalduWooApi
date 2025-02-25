@@ -115,24 +115,26 @@ export class SalduInlineProductService {
             )
         }
         if (payload.salduProductId == 1) {
-            console.log('update 4x1000')
-            inlineProduct.taxedPrice =
-                1800 +
-                (inlineProduct.invoice.orderTotal -
-                    (
-                        await this.findByProductIdAndInvoiceId(
-                            4,
-                            payload.invoiceId,
-                        )
-                    ).taxedPrice *
-                        1.19) *
-                    0.004
-            console.log(
-                inlineProduct.invoice.orderTotal,
-                (await this.findByProductIdAndInvoiceId(4, payload.invoiceId))
-                    .taxedPrice * 1.19,
-            )
-            console.log(inlineProduct.taxedPrice)
+            try {
+                const comProd = await this.findByProductIdAndInvoiceId(
+                    4,
+                    payload.invoiceId,
+                )
+                const payProd = await this.findByProductIdAndInvoiceId(
+                    3,
+                    payload.invoiceId,
+                )
+
+                const comission = (comProd?.taxedPrice ?? 0) * 1.19
+                const platform = payProd?.taxedPrice ?? 0
+
+                inlineProduct.taxedPrice =
+                    (inlineProduct.invoice.orderTotal - comission - platform) *
+                        0.004 +
+                    1800
+            } catch (error) {
+                console.log(error)
+            }
         }
         await this.salduInlineProductRepository.merge(inlineProduct, payload)
         return await this.salduInlineProductRepository.save(inlineProduct)
