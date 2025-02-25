@@ -117,6 +117,7 @@ export class SalduInlineProductService {
         if (payload.salduProductId == 1) {
             console.log('update 4x1000')
             inlineProduct.taxedPrice =
+                1800 +
                 (inlineProduct.invoice.orderTotal -
                     (
                         await this.findByProductIdAndInvoiceId(
@@ -125,10 +126,11 @@ export class SalduInlineProductService {
                         )
                     ).taxedPrice *
                         1.19) *
-                    0.004 +
-                1800
+                    0.004
             console.log(
-                (await this.findByProductIdAndInvoiceId(4, payload.invoiceId)).taxedPrice,
+                inlineProduct.invoice.orderTotal,
+                (await this.findByProductIdAndInvoiceId(4, payload.invoiceId))
+                    .taxedPrice * 1.19,
             )
             console.log(inlineProduct.taxedPrice)
         }
