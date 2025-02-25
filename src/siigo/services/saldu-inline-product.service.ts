@@ -116,6 +116,7 @@ export class SalduInlineProductService {
         }
         if (payload.salduProductId == 1) {
             try {
+                console.log('update 4x1000')
                 const comProd = await this.findByProductIdAndInvoiceId(
                     4,
                     payload.invoiceId,
@@ -127,7 +128,7 @@ export class SalduInlineProductService {
 
                 const comission = (comProd?.taxedPrice ?? 0) * 1.19
                 const platform = payProd?.taxedPrice ?? 0
-
+                console.log(comission, platform)
                 inlineProduct.taxedPrice =
                     (inlineProduct.invoice.orderTotal - comission - platform) *
                         0.004 +
