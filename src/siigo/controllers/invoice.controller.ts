@@ -127,6 +127,7 @@ export class InvoiceController {
                     salduProductId: 1,
                 })
             } else {
+                console.log('update path')
                 await this.salduInlineProductService.updateEntity({
                     invoiceId: id,
                     salduProductId: 4,

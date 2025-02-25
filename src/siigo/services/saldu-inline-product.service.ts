@@ -50,7 +50,12 @@ export class SalduInlineProductService {
                     const comission = (comProd?.taxedPrice ?? 0) * 1.19
                     const platform = payProd?.taxedPrice ?? 0
 
-                    inlineProduct.taxedPrice = (inlineProduct.invoice.orderTotal - comission - platform) * 0.004 + 1800
+                    inlineProduct.taxedPrice =
+                        (inlineProduct.invoice.orderTotal -
+                            comission -
+                            platform) *
+                            0.004 +
+                        1800
                     break
                 } catch (error) {
                     console.log(error)
@@ -110,6 +115,7 @@ export class SalduInlineProductService {
             )
         }
         if (payload.salduProductId == 1) {
+            console.log('update 4x1000')
             inlineProduct.taxedPrice =
                 (inlineProduct.invoice.orderTotal -
                     (
@@ -121,6 +127,7 @@ export class SalduInlineProductService {
                         1.19) *
                     0.004 +
                 1800
+            console.log(inlineProduct.taxedPrice)
         }
         await this.salduInlineProductRepository.merge(inlineProduct, payload)
         return await this.salduInlineProductRepository.save(inlineProduct)
