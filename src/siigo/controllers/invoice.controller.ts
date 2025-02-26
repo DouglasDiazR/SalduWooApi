@@ -314,21 +314,23 @@ export class InvoiceController {
     @UseInterceptors(FileInterceptor('file'))
     async disperssionFile(
         @UploadedFile() file: Express.Multer.File,
-        @Param('orderId', ParseIntPipe) orderId: number,
+        @Param('orderId', ParseIntPipe) orderId: string,
         @Param('provider', ParseIntPipe) provider: string,
-        @Param('invoiceId', ParseIntPipe) invoiceId: number,
+        @Param('invoiceId', ParseIntPipe) invoiceId: string,
     ) {
         if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('application/pdf')) {
             throw new BadRequestException('El archivo debe ser una imagen o un PDF.')
         }
+        console.log('controller post file')
         const bucketName = process.env.AWS_S3_BUCKET_NAME
         const url = await this.s3Service.uploadDisperssionFile(
             provider,
-            orderId,
+            Number(orderId),
             file,
             bucketName,
         )
-        await this.invoiceService.updateEntity(invoiceId, {
+        console.log('controller post upload')
+        await this.invoiceService.updateEntity(Number(invoiceId), {
             disperssionUrl: url,
         })
         return { url }

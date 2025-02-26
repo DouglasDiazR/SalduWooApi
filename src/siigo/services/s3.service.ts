@@ -12,7 +12,7 @@ export class S3Service {
         if (!file) {
             throw new BadRequestException('No se recibió ningún archivo.')
         }
-
+        console.log('s3service post file')
         const uploadParams = {
             Bucket: bucketName,
             Key: `invoicing/disperssion-receipts/${provider}/${orderId}_${Date.now()}`, // Nombre único para el archivo
@@ -22,6 +22,7 @@ export class S3Service {
 
         try {
             const { Location } = await s3.upload(uploadParams).promise()
+            console.log('s3service post s3 upload')
             return Location // URL del archivo en S3
         } catch (error) {
             throw new BadRequestException(
