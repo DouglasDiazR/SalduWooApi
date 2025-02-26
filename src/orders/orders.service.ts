@@ -331,7 +331,10 @@ export class OrdersService {
             if (orders.data.length === 0) {
                 throw new NotFoundException('No se encontraron órdenes')
             }
-
+            console.log(JSON.stringify(orders.data[1].billing))
+            console.log(JSON.stringify(orders.data[2].billing))
+            console.log(JSON.stringify(orders.data[3].billing))
+            console.log(JSON.stringify(orders.data[4].billing))
             const formattedOrders = orders.data
                 .map((order) => {
                     const filteredLineItems = order.line_items.filter((item) =>
@@ -546,6 +549,19 @@ export class OrdersService {
                 number: order.number,
                 status: order.status,
                 total: order.total,
+                billing: {
+                    first_name: order.billing.first_name,
+                    last_name: order.billing.last_name,
+                    company: order.billing.company,
+                    address_1: order.billing.address_1,
+                    address_2: order.billing.address_2,
+                    city: order.billing.city,
+                    state: order.billing.state,
+                    postcode: order.billing.postcode,
+                    country: order.billing.country,
+                    email: order.billing.email,
+                    phone: order.billing.phone,
+                },
                 invoicing: {
                     documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
                     document: order.meta_data.find(item => item.key == '_numero_nit')?.value || '0',
@@ -605,6 +621,19 @@ export class OrdersService {
                 number: order.number,
                 status: order.status,
                 total: order.total,
+                billing: {
+                    first_name: order.billing.first_name,
+                    last_name: order.billing.last_name,
+                    company: order.billing.company,
+                    address_1: order.billing.address_1,
+                    address_2: order.billing.address_2,
+                    city: order.billing.city,
+                    state: order.billing.state,
+                    postcode: order.billing.postcode,
+                    country: order.billing.country,
+                    email: order.billing.email,
+                    phone: order.billing.phone,
+                },
                 invoicing: {
                     documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
                     document: order.meta_data.find(item => item.key == '_numero_nit')?.value || '0',
