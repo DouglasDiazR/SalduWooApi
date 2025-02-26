@@ -347,7 +347,7 @@ export class OrdersController {
         return await this.ordersService.getOrderById(id)
     }
 
-    @Get(':id')
+    @Get('evidence:id')
     async getEvidence(@Param('id') id: number) {
         return await this.ordersService.getOrderEvidence(id)
     }
