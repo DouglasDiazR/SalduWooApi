@@ -315,7 +315,7 @@ export class InvoiceController {
     async disperssionFile(
         @UploadedFile() file: Express.Multer.File,
         @Param('orderId', ParseIntPipe) orderId: string,
-        @Param('provider', ParseIntPipe) provider: string,
+        @Param('provider') provider: string,
         @Param('invoiceId', ParseIntPipe) invoiceId: string,
     ) {
         if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('application/pdf')) {
