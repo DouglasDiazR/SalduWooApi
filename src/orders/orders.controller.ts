@@ -331,6 +331,11 @@ export class OrdersController {
         })
     }
 
+    @Get('evidence/:id')
+    async getEvidence(@Param('id') id: number) {
+        return await this.ordersService.getOrderEvidence(id)
+    }
+
     @Get(':id')
     @ApiOperation({
         summary: 'Ruta de Administrador para obtener una orden por su ID',
@@ -347,10 +352,7 @@ export class OrdersController {
         return await this.ordersService.getOrderById(id)
     }
 
-    @Get('evidence:id')
-    async getEvidence(@Param('id') id: number) {
-        return await this.ordersService.getOrderEvidence(id)
-    }
+
 
     @Post('s3-evidence/:providerId/:orderId/:type')
     @UseInterceptors(FileInterceptor('file'))
