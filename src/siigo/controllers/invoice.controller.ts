@@ -310,12 +310,12 @@ export class InvoiceController {
         }
     }
 
-    @Post('s3-disp/:providerId/:orderId/:invoiceId')
+    @Post('s3-disp/:provider/:orderId/:invoiceId')
     @UseInterceptors(FileInterceptor('file'))
     async disperssionFile(
         @UploadedFile() file: Express.Multer.File,
         @Param('orderId', ParseIntPipe) orderId: number,
-        @Param('providerId', ParseIntPipe) providerId: number,
+        @Param('provider', ParseIntPipe) provider: number,
         @Param('invoiceId', ParseIntPipe) invoiceId: number,
     ) {
         if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('application/pdf')) {
@@ -323,7 +323,7 @@ export class InvoiceController {
         }
         const bucketName = process.env.AWS_S3_BUCKET_NAME
         const url = await this.s3Service.uploadDisperssionFile(
-            providerId,
+            provider,
             orderId,
             file,
             bucketName,

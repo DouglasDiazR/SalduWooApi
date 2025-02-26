@@ -4,7 +4,7 @@ import { s3 } from '../../config/aws.config'
 @Injectable()
 export class S3Service {
     async uploadDisperssionFile(
-        providerId: number,
+        provider: number,
         orderId: number,
         file: Express.Multer.File,
         bucketName: string,
@@ -15,7 +15,7 @@ export class S3Service {
 
         const uploadParams = {
             Bucket: bucketName,
-            Key: `invoicing/disperssion-receipts/${providerId}/${orderId}_${Date.now()}`, // Nombre único para el archivo
+            Key: `invoicing/disperssion-receipts/${provider}/${orderId}_${Date.now()}`, // Nombre único para el archivo
             Body: file.buffer,
             ContentType: file.mimetype,
         }
