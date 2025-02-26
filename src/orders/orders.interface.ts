@@ -3,7 +3,20 @@ interface IOrders {
     number: string
     status: string
     total: number
-    invoicing: {
+    billing?: {
+        first_name: string
+        last_name: string
+        company: string
+        address_1: string
+        address_2: string
+        city: string
+        state: string,
+        postcode: string
+        country: string
+        email: string
+        phone: number
+    }
+    invoicing?: {
         documentType: string
         document: string
         businessName: string
@@ -28,7 +41,7 @@ interface ILineItem {
     quantity: number
     price: number
     total: number
-    meta_data: IMetaData[]
+    meta_data?: IMetaData[]
 }
 
 interface IMetaData {

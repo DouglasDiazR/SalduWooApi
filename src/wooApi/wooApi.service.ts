@@ -10,6 +10,7 @@ import {
     CreateWooProductDTO,
     UpdateWooProductDTO,
 } from './dtos/woo-product.dto'
+import { Order } from 'src/entities/order.entity'
 
 @Injectable()
 export class WooCommerceService {
@@ -149,6 +150,32 @@ export class WooCommerceService {
             throw new Error('Error al obtener los productos')
         }
     }
+
+    // async getOrders() {
+    //     try {
+    //         const per_page = 100
+    //         for (let page = 1; ; page++) {
+    //             const response = await this.WooCommerce.get('orders', {
+    //                 per_page,
+    //                 page,
+    //             })
+    //             if (response.data.length === 0) break
+    //             for (const order of response.data) {
+    //                 let newOrder = await this.orderRepository.create({
+    //                     wooCommerceId: order.id,
+    //                     number: order.number ?? '',
+    //                     status: order.status,
+    //                     total: order.total ?? 0,                        
+    //                 })
+    //                 newOrder = await this.productsRepository.save(newOrder)
+    //             }
+    //         }
+    //         return { message: 'Productos obtenidos' }
+    //     } catch (error) {
+    //         console.log('Error especifico:', error)
+    //         throw new Error('Error al obtener los productos')
+    //     }
+    // }
 
     // async getProduct(id) {
     //     try {

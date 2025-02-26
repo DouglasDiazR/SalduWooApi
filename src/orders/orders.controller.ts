@@ -76,13 +76,14 @@ export class OrdersController {
     ) {
         const pageNum = page ? Number(page) : 1
         const limintNum = limit ? Number(limit) : 10
-        return await this.ordersService.getAllOrders({
+        const orders = await this.ordersService.getAllOrders({
             status,
             startDate,
             endDate,
             page: pageNum,
             limit: limintNum,
         })
+        return orders
     }
 
     @Get('admin/product')
@@ -202,7 +203,7 @@ export class OrdersController {
             limit: limitNum,
         })
     }
-    @Get('seller')
+    @Get('seller/:id')
     @ApiOperation({
         summary:
             'Ruta de Vendedor para obtener todas las ordenes de los productos propios',
@@ -238,25 +239,24 @@ export class OrdersController {
         example: 10,
     })
     @HttpCode(200)
-    @UseGuards(AuthGuard)
-    @Roles(Role.Seller)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Seller)
     async getOrdersForSeller(
-        @Req() request: Express.Request,
+        // @Req() request: Express.Request,
+        @Param('id') id: string,
         @Query('status') status?: Status,
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
         @Query('page') page?: string,
         @Query('limit') limit?: string,
     ) {
-        const user = request.user
-        const { id_wooCommerce: vendorId } = user
         const pageNum = page ? Number(page) : 1
         const limintNum = limit ? Number(limit) : 10
         return await this.ordersService.getAllOrdersForSeller({
             status,
             startDate,
             endDate,
-            vendorId,
+            vendorId: Number(id),
             page: pageNum,
             limit: limintNum,
         })

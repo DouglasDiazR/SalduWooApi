@@ -26,6 +26,7 @@ import { SalduInlineProductService } from './services/saldu-inline-product.servi
 import { OrdersService } from 'src/orders/orders.service'
 import { WooCommerceConfig } from 'src/config/wooCommerce'
 import { S3Service } from './services/s3.service';
+import { Order } from 'src/entities/order.entity'
 
 @Module({
     providers: [
@@ -59,6 +60,7 @@ import { S3Service } from './services/s3.service';
             SalduProduct,
             SalduInlineProduct,
             TaxDiscount,
+            Order
         ]),
     ],
 })

@@ -7,17 +7,23 @@ import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api'
 import IOrders from './orders.interface'
 import { formatDate } from 'src/utils/formatDate'
 import { Status } from 'src/enum/status.enum'
+import { Order } from 'src/entities/order.entity'
+import { Repository } from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm'
 
 @Injectable()
 export class OrdersService {
-    constructor(private readonly WooCommerce: WooCommerceRestApi) {}
+    constructor(
+        @InjectRepository(Order)
+        private readonly ordersRepository: Repository<Order>,
+        private readonly WooCommerce: WooCommerceRestApi) {}
 
     async getAllOrders({
         status,
         startDate,
         endDate,
         page = 1,
-        limit = 50,
+        limit = 100,
     }: {
         status?: Status
         startDate?: string
@@ -44,39 +50,27 @@ export class OrdersService {
             if (orders.data.length === 0) {
                 return []
             }
-
             const formattedOrders = orders.data.map((order) => ({
                 id: order.id,
                 number: order.number,
                 status: order.status,
                 total: order.total,
-                invoicing: {
-                    // documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
-                    // document: order.meta_data.find(item => item.key == '_numero_nit').value || 'NA',
-                    // businessName: order.meta_data.find(item => item.key == '_razon_social').value || 'NA',
-                    // firstname: 'string',
-                    // lastname: 'string',
-                    // address: order.meta_data.find(item => item.key == '_direccion_facturacion').value || 'NA',
-                    // phone: order.meta_data.find(item => item.key == '_telefono_emp') ? order.meta_data.find(item => item.key == '_telefono_emp').value : order.meta_data.find(item => item.key == '_telefono').value || 'NA',
-                    // email: order.meta_data.find(item => item.key == '_email_rut').value || 'NA',
-                    // commission: 123,
-                    // payBackPrice: 123,
-                    // shippingPrice: 123,
-                    documentType: 'CC',
-                    document: 'NA',
-                    businessName: 'NA',
-                    firstname: 'string',
-                    lastname: 'string',
-                    address: 'NA',
-                    phone: 'NA',
-                    email: 'NA',
-                    commission: 123,
-                    payBackPrice: 123,
-                    shippingPrice: 123,
-                },
                 date_created: order.date_created,
                 date_modified: order.date_modified,
                 date_paid: order.date_paid,
+                billing: {
+                    first_name: order.billing.first_name,
+                    last_name: order.billing.last_name,
+                    company: order.billing.company,
+                    address_1: order.billing.address_1,
+                    address_2: order.billing.address_2,
+                    city: order.billing.city,
+                    state: order.billing.state,
+                    postcode: order.billing.postcode,
+                    country: order.billing.country,
+                    email: order.billing.email,
+                    phone: order.billing.phone
+                },
                 line_items: order.line_items
                     .map((product) => ({
                         product_id: product.product_id,
@@ -100,6 +94,7 @@ export class OrdersService {
 
             return formattedOrders
         } catch (error) {
+            console.log(error)
             if (error instanceof NotFoundException) throw error
             throw new InternalServerErrorException('Hubo un error al obtener.')
         }
@@ -634,5 +629,9 @@ export class OrdersService {
                 'Hubo un error al obtener la orden. Por favor, intente nuevamente.',
             ) 
         }
+    }
+
+    async createOrderEvidence() {
+        
     }
 }
