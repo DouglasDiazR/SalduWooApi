@@ -4,7 +4,7 @@ import { s3 } from '../../config/aws.config'
 @Injectable()
 export class S3Service {
     async uploadDisperssionFile(
-        provider: number,
+        provider: string,
         orderId: number,
         file: Express.Multer.File,
         bucketName: string,
