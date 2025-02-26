@@ -378,11 +378,18 @@ export class OrdersController {
             file,
             bucketName,
         )
+        const evidence = await this.ordersService.getOrderEvidence(orderId)
         switch (type) {
             case 'delivery':
+                if (!evidence) {
+                    await this.ordersService.createOrderEvidence(orderId)
+                }
                 await this.ordersService.updateOrderEvidence(orderId, { deliveryUrl: url })
                 break
             case 'invoicing':
+                if (!evidence) {
+                    await this.ordersService.createOrderEvidence(orderId)
+                }
                 await this.ordersService.updateOrderEvidence(orderId, { sellerInvoiceUrl: url })
                 break
         }

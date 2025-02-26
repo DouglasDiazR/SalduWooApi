@@ -678,6 +678,10 @@ export class OrdersService {
         return this.ordersRepository.findOneBy({ wooCommerceId: id })
     }
 
+    async createOrderEvidence(orderId: number) {
+        return this.ordersRepository.save({ wooCommerceId: orderId })
+    }
+
     async updateOrderEvidence(id: number, payload: UpdateOrderEvidenceDTO) {
         const evidence = await this.getOrderEvidence(id)
         if (!evidence) {
