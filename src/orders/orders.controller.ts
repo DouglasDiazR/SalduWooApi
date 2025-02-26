@@ -1,13 +1,18 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Get,
     HttpCode,
     Param,
+    ParseIntPipe,
+    Post,
     Put,
     Query,
     Req,
+    UploadedFile,
     UseGuards,
+    UseInterceptors,
 } from '@nestjs/common'
 import { OrdersService } from './orders.service'
 import { AuthGuard } from 'src/guards/auth.guard'
@@ -22,12 +27,17 @@ import {
 } from '@nestjs/swagger'
 import { Status } from 'src/enum/status.enum'
 import { UpdateInvoiceDTO } from 'src/siigo/dtos/invoice.dto'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { S3Service } from './s3.service'
 
 @ApiTags('Ordenes')
 @ApiBearerAuth()
 @Controller('orders')
 export class OrdersController {
-    constructor(private readonly ordersService: OrdersService) {}
+    constructor(
+        private readonly ordersService: OrdersService,
+        private s3Service: S3Service,
+    ) {}
 
     @Get('admin')
     @ApiOperation({
@@ -335,6 +345,46 @@ export class OrdersController {
     @Roles(Role.Admin)
     async getOrderById(@Param('id') id: number) {
         return await this.ordersService.getOrderById(id)
+    }
+
+    @Get(':id')
+    async getEvidence(@Param('id') id: number) {
+        return await this.ordersService.getOrderEvidence(id)
+    }
+
+    @Post('s3-evidence/:providerId/:orderId/:type')
+    @UseInterceptors(FileInterceptor('file'))
+    async evidenceFile(
+        @UploadedFile() file: Express.Multer.File,
+        @Param('orderId', ParseIntPipe) orderId: number,
+        @Param('providerId', ParseIntPipe) providerId: number,
+        @Param('type') type: string,
+    ) {
+        if (
+            !file.mimetype.startsWith('image/') &&
+            !file.mimetype.startsWith('application/pdf')
+        ) {
+            throw new BadRequestException(
+                'El archivo debe ser una imagen o un PDF.',
+            )
+        }
+        const bucketName = process.env.AWS_S3_BUCKET_NAME
+        const url = await this.s3Service.uploadEvidenceFile(
+            providerId,
+            orderId,
+            type,
+            file,
+            bucketName,
+        )
+        switch (type) {
+            case 'delivery':
+                await this.ordersService.updateOrderEvidence(orderId, { deliveryUrl: url })
+                break
+            case 'invoicing':
+                await this.ordersService.updateOrderEvidence(orderId, { sellerInvoiceUrl: url })
+                break
+        }
+        return { url }
     }
 
     @Put(':id')

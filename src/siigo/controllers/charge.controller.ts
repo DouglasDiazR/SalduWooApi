@@ -30,7 +30,7 @@ export class ChargeController {
         @Param('id', ParseIntPipe) id: number,
         @Body() payload: UpdateChargeDTO,
     ) {
-        return this.chargeService.updateEntity(payload)
+        return this.chargeService.updateEntity(id, payload)
     }
 
     @Delete(':id')

@@ -10,6 +10,7 @@ import { Status } from 'src/enum/status.enum'
 import { Order } from 'src/entities/order.entity'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
+import { UpdateOrderEvidenceDTO } from './dtos/order-evidence.dto'
 
 @Injectable()
 export class OrdersService {
@@ -347,6 +348,19 @@ export class OrdersService {
                             number: order.number,
                             status: order.status,
                             total: order.total,
+                            billing: {
+                                first_name: order.billing.first_name,
+                                last_name: order.billing.last_name,
+                                company: order.billing.company,
+                                address_1: order.billing.address_1,
+                                address_2: order.billing.address_2,
+                                city: order.billing.city,
+                                state: order.billing.state,
+                                postcode: order.billing.postcode,
+                                country: order.billing.country,
+                                email: order.billing.email,
+                                phone: order.billing.phone,
+                            },
                             invoicing: {
                                 documentType: order.meta_data.find(item => item.key == '_telefono_emp') ? 'NIT' : 'CC',
                                 document: order.meta_data.find(item => item.key == '_numero_nit').value,
@@ -631,7 +645,18 @@ export class OrdersService {
         }
     }
 
-    async createOrderEvidence() {
-        
+    async getOrderEvidence(id: number) {
+        return this.ordersRepository.findOneBy({ wooCommerceId: id })
+    }
+
+    async updateOrderEvidence(id: number, payload: UpdateOrderEvidenceDTO) {
+        const evidence = await this.getOrderEvidence(id)
+        if (!evidence) {
+            throw new NotFoundException(
+                `The Order Evidence with ID: ${id} was Not Found`,
+            )
+        }
+        this.ordersRepository.merge(evidence, payload)
+        return await this.ordersRepository.save(evidence)
     }
 }

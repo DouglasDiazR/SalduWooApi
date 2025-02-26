@@ -62,14 +62,14 @@ export class ChargeService {
         return charge
     }
 
-    async updateEntity(payload: UpdateChargeDTO) {
+    async updateEntity(id: number, payload: UpdateChargeDTO) {
         const charge = await this.findByProductIdAndTaxDiscountId(
             payload.salduProductId,
             payload.taxDiscountId,
         )
         if (!charge) {
             throw new NotFoundException(
-                `The Charge with ID: ${charge.id} was Not Found`,
+                `The Charge with ID: ${id} was Not Found`,
             )
         }
         this.chargeRepository.merge(charge, payload)
