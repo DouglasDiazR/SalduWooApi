@@ -13,7 +13,8 @@ export class S3Service {
         if (!file) {
             throw new BadRequestException('No se recibió ningún archivo.')
         }
-
+        console.log('s3 method');
+        
         const uploadParams = {
             Bucket: bucketName,
             Key: `orders/seller-${providerId}/O-${orderId}/${type}_evidence_${orderId}_${Date.now()}`, // Nombre único para el archivo

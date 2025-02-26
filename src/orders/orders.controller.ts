@@ -368,6 +368,8 @@ export class OrdersController {
                 'El archivo debe ser una imagen o un PDF.',
             )
         }
+        console.log('controller');
+        
         const bucketName = process.env.AWS_S3_BUCKET_NAME
         const url = await this.s3Service.uploadEvidenceFile(
             providerId,
