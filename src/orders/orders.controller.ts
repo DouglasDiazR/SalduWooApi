@@ -341,8 +341,8 @@ export class OrdersController {
         description: 'ID de la orden',
     })
     @HttpCode(200)
-    @UseGuards(AuthGuard)
-    @Roles(Role.Admin)
+    // @UseGuards(AuthGuard)
+    // @Roles(Role.Admin)
     async getOrderById(@Param('id') id: number) {
         return await this.ordersService.getOrderById(id)
     }
