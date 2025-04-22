@@ -110,9 +110,10 @@ export class UploadProductService {
             providerId: parseInt(providerId, 10),
             reference: `${providerId}_${new Date().toUTCString()}`,
         })
-
+        console.log('Attempt to create products')
         for (const product of payload) {
             try {
+                console.log('?????', product)
                 let newProduct = this.uploadProductRepository.create(product)
                 newProduct.providerId = parseInt(providerId, 10)
                 newProduct.load = load

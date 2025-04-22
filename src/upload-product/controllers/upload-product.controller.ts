@@ -87,9 +87,11 @@ export class UploadProductController {
                 message: 'This request needs a Product Provider .csv file',
             })
         }
+        console.log('Enter the Controller, File Accepted')
         const newUpload = await this.csvManagerService.processCsvBuffer(
             file.buffer,
         )
+        console.log('CSV Processed, Ready to trigger DB saving')
         return await this.uploadProductService.massiveUpload(
             providerId,
             newUpload,
